@@ -3,6 +3,7 @@ import { addDoc, collection, getDocs, limit, orderBy, query, serverTimestamp } f
 import { db } from "./lib/firebase";
 
 const USERS = ["Jelian", "Nathan", "Jeliane", "Shaira", "Raven"];
+const WORD_CLASS_OPTIONS = ["Noun", "Verb", "Adjective", "Adverb", "Pronoun", "Preposition", "Conjunction", "Interjection", "Other"];
 const DEFAULT_INSTRUCTION = "Translate the following English text to Pangasinan:";
 const SAVE_TIMEOUT_MS = 15000;
 
@@ -12,6 +13,7 @@ function createEntry(idSeed = Date.now()) {
     instruction: DEFAULT_INSTRUCTION,
     input: "",
     output: "",
+    classification: "Noun",
   };
 }
 
@@ -73,11 +75,12 @@ export default function DatasetAnnotationPage() {
 
       const payload = {
         selectedUser,
-        entries: entries.map(({ id, instruction, input, output }) => ({
+        entries: entries.map(({ id, instruction, input, output, classification }) => ({
           id,
           instruction,
           input: input.trim(),
           output: output.trim(),
+          classification: classification || "Other",
         })),
         createdAt: serverTimestamp(),
       };
@@ -314,6 +317,23 @@ export default function DatasetAnnotationPage() {
                 </div>
 
                 <div className="grid gap-2.5 md:grid-cols-2">
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium text-violet-800">Classification</span>
+                    <select
+                      value={entry.classification || "Noun"}
+                      onChange={(event) => updateEntry(entry.id, "classification", event.target.value)}
+                      className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-violet-500"
+                    >
+                      {WORD_CLASS_OPTIONS.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                <div className="mt-2 grid gap-2.5 md:grid-cols-2">
                   <label className="flex flex-col gap-1.5">
                     <span className="text-xs font-medium text-blue-800">Input (English)</span>
                     <textarea

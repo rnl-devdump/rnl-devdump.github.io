@@ -17,6 +17,7 @@ import { validationDb } from "./lib/validationFirebase";
 const PAGE_SIZE = 50;
 const VALIDATOR_NAME_STORAGE_KEY = "dataset_validator_name_v1";
 const VALIDATION_PARENT_DOC_ID = import.meta.env.VITE_VALIDATION_PARENT_DOC_ID ?? "val";
+const WORD_CLASS_OPTIONS = ["Noun", "Verb", "Adjective", "Adverb", "Pronoun", "Preposition", "Conjunction", "Interjection", "Other"];
 
 function coerceString(value) {
   if (typeof value === "string") return value;
@@ -37,6 +38,7 @@ function normalizeTranslationDocs(docs) {
         const input = coerceString(entry?.input);
         const output = coerceString(entry?.output);
         const processed = Boolean(entry?.processed ?? data.processed ?? data.validated ?? false);
+        const classification = coerceString(entry?.classification ?? data.classification);
 
         out.push({
           key: `${snap.id}:${entry?.id ?? index}`,
@@ -46,6 +48,7 @@ function normalizeTranslationDocs(docs) {
           instruction,
           input,
           output,
+          classification,
           processed,
         });
       });
@@ -62,6 +65,7 @@ function normalizeTranslationDocs(docs) {
       instruction: coerceString(data.instruction),
       input: coerceString(data.input),
       output: coerceString(data.output),
+      classification: coerceString(data.classification),
       processed: Boolean(data.processed ?? data.validated ?? false),
     });
   }
@@ -170,6 +174,7 @@ export default function ValidatorDashboardPage() {
             editedInstruction: entry.instruction,
             editedInput: entry.input,
             editedOutput: entry.output,
+            editedClassification: entry.classification || "Other",
             decision: "pending", // pending | accepted | rejected
             decidedAt: null,
           }));
@@ -274,6 +279,7 @@ export default function ValidatorDashboardPage() {
           instruction: item.editedInstruction.trim(),
           input: item.editedInput.trim(),
           output: item.editedOutput.trim(),
+          classification: item.editedClassification || "Other",
           validatorName: validatorName.trim(),
           source: {
             collection: "translations",
@@ -429,6 +435,21 @@ export default function ValidatorDashboardPage() {
                   </div>
 
                   <div className="grid gap-2.5 md:grid-cols-2">
+                    <label className="flex flex-col gap-1.5 md:col-span-2">
+                      <span className="text-xs font-medium text-violet-800">Classification</span>
+                      <select
+                        value={current.editedClassification || "Other"}
+                        onChange={(event) => updateCurrent("editedClassification", event.target.value)}
+                        className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-violet-500"
+                      >
+                        {WORD_CLASS_OPTIONS.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
                     <label className="flex flex-col gap-1.5">
                       <span className="text-xs font-medium text-blue-800">Input (English)</span>
                       <textarea
@@ -521,6 +542,9 @@ export default function ValidatorDashboardPage() {
                       </div>
                       <p className="mt-2 line-clamp-3 text-xs text-slate-600">
                         {item.editedInput || "(empty input)"}
+                      </p>
+                      <p className="mt-1 text-[11px] text-slate-500">
+                        Class: {item.editedClassification || "Other"}
                       </p>
                     </div>
                   ))

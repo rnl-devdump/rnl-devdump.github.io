@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:validation": "vite --config vite.validation.config.js",
     "dev:letter": "vite --config vite.letter.config.js",
     "build": "vite build",
     "build:dataset": "vite build",
