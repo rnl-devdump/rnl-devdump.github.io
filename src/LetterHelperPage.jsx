@@ -133,13 +133,16 @@ export default function LetterHelperPage() {
         </div>
 
         <label className="mt-3 flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-blue-800">Header</span>
+          <span className="text-xs font-medium text-blue-800">Header (To:)</span>
           <input
             value={header}
             onChange={(event) => setHeader(event.target.value)}
-            placeholder="Fae,"
+            placeholder="To: My Dearest, or Fae,"
             className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-blue-500"
           />
+          <span className="text-xs text-slate-500">
+            Used for the intro dot name. Multiple words are supported; long names shrink to fit.
+          </span>
         </label>
 
         <label className="mt-3 flex flex-col gap-1.5">

@@ -27,10 +27,45 @@ export function createDotState() {
   };
 }
 
+/** Intro dot text from header / To: (supports multiple words). */
 export function getDotLabel(header) {
-  const word = (header || "FAE").split(/[\s,]+/)[0] || "FAE";
-  const letters = word.replace(/[^a-zA-Z]/g, "").toUpperCase();
-  return letters || "FAE";
+  let text = (header || "FAE").trim();
+  text = text.replace(/^to\s*:\s*/i, "").replace(/^dear\s+/i, "").trim();
+
+  const words = text
+    .split(/[\s,]+/)
+    .map((w) => w.replace(/[^a-zA-Z]/g, ""))
+    .filter((w) => w.length > 0);
+
+  if (words.length === 0) return "FAE";
+  return words.join(" ").toUpperCase();
+}
+
+function fitIntroFontSize(ctx, text, W, H) {
+  const maxWidth = W * 0.9;
+  const maxHeight = H * 0.42;
+  const minSize = Math.max(22, Math.min(W, H) * 0.045);
+  let fontSize = Math.min(W * 0.28, H * 0.5, 240);
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  while (fontSize > minSize) {
+    ctx.font = `700 ${fontSize}px 'Cormorant Garamond', serif`;
+    const { width } = ctx.measureText(text);
+    const height = fontSize * 1.05;
+    if (width <= maxWidth && height <= maxHeight) break;
+    fontSize *= 0.9;
+  }
+
+  return fontSize;
+}
+
+function introDotStep(label) {
+  const len = label.length;
+  if (len > 22) return 7;
+  if (len > 14) return 6;
+  return DOT_STEP;
 }
 
 export function sampleLetterDots(state, label) {
@@ -41,13 +76,16 @@ export function sampleLetterDots(state, label) {
   state.offC.width = W;
   state.offC.height = H;
 
-  const fontSize = Math.min(W * 0.28, H * 0.5, 240);
-  state.offCtx.clearRect(0, 0, W, H);
-  state.offCtx.font = `700 ${fontSize}px 'Cormorant Garamond', serif`;
-  state.offCtx.textAlign = "center";
-  state.offCtx.textBaseline = "middle";
-  state.offCtx.fillStyle = "#fff";
-  state.offCtx.fillText(label, W / 2, H / 2);
+  const ctx = state.offCtx;
+  ctx.clearRect(0, 0, W, H);
+  const fontSize = fitIntroFontSize(ctx, label, W, H);
+  const step = introDotStep(label);
+
+  ctx.font = `700 ${fontSize}px 'Cormorant Garamond', serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#fff";
+  ctx.fillText(label, W / 2, H / 2);
 
   const px = state.offCtx.getImageData(0, 0, W, H).data;
   state.offCtx.clearRect(0, 0, W, H);
@@ -55,11 +93,11 @@ export function sampleLetterDots(state, label) {
   const now = performance.now();
   const candidates = [];
 
-  for (let y = 0; y < H; y += DOT_STEP) {
-    for (let x = 0; x < W; x += DOT_STEP) {
+  for (let y = 0; y < H; y += step) {
+    for (let x = 0; x < W; x += step) {
       if (px[(y * W + x) * 4 + 3] < 60) continue;
-      const jx = x + (Math.random() - 0.5) * DOT_STEP * 0.7;
-      const jy = y + (Math.random() - 0.5) * DOT_STEP * 0.7;
+      const jx = x + (Math.random() - 0.5) * step * 0.7;
+      const jy = y + (Math.random() - 0.5) * step * 0.7;
       const palette = pickPalette();
       candidates.push({
         ox: jx,
