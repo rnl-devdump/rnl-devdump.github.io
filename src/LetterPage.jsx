@@ -16,7 +16,7 @@ function getLetterSlug() {
   const letterIndex = parts.indexOf("letter");
   if (letterIndex === -1) return "my-love";
   const segment = parts[letterIndex + 1] || "my-love";
-  if (segment === "entries") return "my-love";
+  if (segment === "entries" || segment === "helper") return "my-love";
   return segment;
 }
 

@@ -70,3 +70,7 @@ export function letterOpenPath(id) {
 export function isLetterEntriesRoute(pathname = "") {
   return /\/letter\/entries\/?$/.test(pathname);
 }
+
+export function isLetterHelperRoute(pathname = "") {
+  return /\/letter\/helper\/?$/.test(pathname) || /^\/helper\/?$/.test(pathname);
+}

@@ -18,6 +18,10 @@
             window.location.replace("/letter/entries/");
             return;
           }
+          if (docId === "helper") {
+            window.location.replace("/letter/helper/");
+            return;
+          }
           if (docId) {
             var target = "/letter/?id=" + encodeURIComponent(docId);
             if (search) target += "&" + search.replace(/^\?/, "");

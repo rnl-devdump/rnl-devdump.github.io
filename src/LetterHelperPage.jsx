@@ -105,7 +105,7 @@ export default function LetterHelperPage() {
             Generate shareable links for `kiruu.space/letter/&lt;letter_name&gt;`.
           </p>
           <p className="mt-2 text-sm">
-            <a href="/letter/entries" className="font-medium text-violet-700 underline hover:text-violet-900">
+            <a href="/letter/entries/" className="font-medium text-violet-700 underline hover:text-violet-900">
               View all published entries
             </a>
           </p>
