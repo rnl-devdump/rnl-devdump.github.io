@@ -11,7 +11,7 @@
     "build:dataset": "vite build",
     "build:validation": "vite build --config vite.validation.config.js",
     "build:forum": "vite build --config vite.forum.config.js",
-    "build:letter": "vite build --config vite.letter.config.js",
+    "build:letter": "vite build --config vite.letter.config.js && node scripts/finalize-letter-build.mjs",
     "build:all": "npm run build:dataset && npm run build:validation && npm run build:forum && npm run build:letter",
     "preview": "vite preview"
   },

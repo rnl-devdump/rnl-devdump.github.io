@@ -1,6 +1,6 @@
 import DatasetAnnotationPage from "./DatasetAnnotationPage";
 import ForumPage from "./ForumPage";
-import LetterPage from "./LetterPage";
+import LetterApp from "./LetterApp";
 import LetterHelperPage from "./LetterHelperPage";
 import ValidatorDashboardPage from "./ValidatorDashboardPage";
 
@@ -25,7 +25,7 @@ export default function App() {
   }
 
   if (hasRouteSegment(path, "letter") || hashRoute.startsWith("/letter")) {
-    return <LetterPage />;
+    return <LetterApp />;
   }
 
   if (hasRouteSegment(path, "helper") || hashRoute.startsWith("/helper")) {

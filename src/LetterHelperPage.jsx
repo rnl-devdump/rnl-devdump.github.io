@@ -12,14 +12,13 @@ function slugify(value) {
 
 export default function LetterHelperPage() {
   const [letterName, setLetterName] = useState("my-love-letter");
-  const [title, setTitle] = useState("For Your Eyes Only");
-  const [subtitle, setSubtitle] = useState("Warning: once played, every line is open.");
-  const [pin, setPin] = useState("2508");
-  const [to, setTo] = useState("Dear My Love,");
+  const [pin, setPin] = useState("1234");
+  const [header, setHeader] = useState("Fae,");
   const [content, setContent] = useState(
     "This letter is pin-locked for you. Every word here is intentional, private, and written from the heart.",
   );
-  const [from, setFrom] = useState("Your Name");
+  const [regards, setRegards] = useState("Sincerely,");
+  const [nameOfRegards, setNameOfRegards] = useState("Your Name");
   const [status, setStatus] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishedDocId, setPublishedDocId] = useState("");
@@ -28,14 +27,13 @@ export default function LetterHelperPage() {
 
   const query = useMemo(() => {
     const params = new URLSearchParams();
-    params.set("title", title);
-    params.set("subtitle", subtitle);
     params.set("pin", pin);
-    params.set("to", to);
+    params.set("header", header);
     params.set("content", content);
-    params.set("from", from);
+    params.set("regards", regards);
+    params.set("signature", nameOfRegards);
     return params.toString();
-  }, [title, subtitle, pin, to, content, from]);
+  }, [pin, header, content, regards, nameOfRegards]);
 
   const generatedPath = useMemo(() => `/letter/${cleanLetterName}?${query}`, [cleanLetterName, query]);
   const publishedPath = useMemo(
@@ -71,10 +69,6 @@ export default function LetterHelperPage() {
     }
   };
 
-  const openLink = () => {
-    window.open(generatedPath, "_blank", "noopener,noreferrer");
-  };
-
   const openPublishedLink = () => {
     if (!publishedPath) return;
     window.open(publishedPath, "_blank", "noopener,noreferrer");
@@ -86,12 +80,11 @@ export default function LetterHelperPage() {
       setStatus("");
       const docRef = await addDoc(collection(db, "letterC"), {
         letterName: cleanLetterName,
-        title,
-        subtitle,
         pin,
-        to,
+        header,
         content,
-        from,
+        regards,
+        signature: nameOfRegards,
         createdAt: serverTimestamp(),
       });
       setPublishedDocId(docRef.id);
@@ -111,6 +104,11 @@ export default function LetterHelperPage() {
           <p className="mt-1 text-sm text-slate-600">
             Generate shareable links for `kiruu.space/letter/&lt;letter_name&gt;`.
           </p>
+          <p className="mt-2 text-sm">
+            <a href="/letter/entries" className="font-medium text-violet-700 underline hover:text-violet-900">
+              View all published entries
+            </a>
+          </p>
         </header>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -128,59 +126,53 @@ export default function LetterHelperPage() {
             <input
               value={pin}
               onChange={(event) => setPin(event.target.value.replace(/\D/g, "").slice(0, 4))}
-              placeholder="2508"
+              placeholder="1234"
               className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-blue-500"
-            />
-          </label>
-        </div>
-
-        <div className="mt-3 grid gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-blue-800">Title</span>
-            <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-blue-500"
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-blue-800">Subtitle</span>
-            <input
-              value={subtitle}
-              onChange={(event) => setSubtitle(event.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-blue-500"
-            />
-          </label>
-        </div>
-
-        <div className="mt-3 grid gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-emerald-800">To</span>
-            <input
-              value={to}
-              onChange={(event) => setTo(event.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-emerald-500"
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium text-emerald-800">From</span>
-            <input
-              value={from}
-              onChange={(event) => setFrom(event.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-emerald-500"
             />
           </label>
         </div>
 
         <label className="mt-3 flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-amber-800">Letter content</span>
+          <span className="text-xs font-medium text-blue-800">Header</span>
+          <input
+            value={header}
+            onChange={(event) => setHeader(event.target.value)}
+            placeholder="Fae,"
+            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-blue-500"
+          />
+        </label>
+
+        <label className="mt-3 flex flex-col gap-1.5">
+          <span className="text-xs font-medium text-amber-800">Content</span>
           <textarea
             value={content}
             onChange={(event) => setContent(event.target.value)}
             rows={8}
             className="min-h-[180px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-amber-500"
           />
+          <span className="text-xs text-slate-500">Separate paragraphs with a blank line.</span>
         </label>
+
+        <div className="mt-3 grid gap-4 md:grid-cols-2">
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-emerald-800">Regards</span>
+            <input
+              value={regards}
+              onChange={(event) => setRegards(event.target.value)}
+              placeholder="Sincerely,"
+              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-emerald-500"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-emerald-800">Name of Regards</span>
+            <input
+              value={nameOfRegards}
+              onChange={(event) => setNameOfRegards(event.target.value)}
+              placeholder="Your Name"
+              className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-emerald-500"
+            />
+          </label>
+        </div>
 
         <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Preview URL (query mode)</p>

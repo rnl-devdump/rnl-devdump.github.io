@@ -5,6 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   base: "/letter/",
+  publicDir: resolve(__dirname, "letter-public"),
   plugins: [react(), tailwindcss()],
   build: {
     outDir: "letter",
