@@ -28,7 +28,12 @@ export default function App() {
     return <LetterApp />;
   }
 
-  if (hasRouteSegment(path, "helper") || hashRoute.startsWith("/helper")) {
+  if (
+    hasRouteSegment(path, "letterhelper") ||
+    hashRoute.startsWith("/letterhelper") ||
+    hasRouteSegment(path, "helper") ||
+    hashRoute.startsWith("/helper")
+  ) {
     return <LetterHelperPage />;
   }
 

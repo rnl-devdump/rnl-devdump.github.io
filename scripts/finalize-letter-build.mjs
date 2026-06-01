@@ -11,7 +11,6 @@ const targets = [
   resolve(letterDir, "index.html"),
   resolve(letterDir, "404.html"),
   resolve(letterDir, "entries", "index.html"),
-  resolve(letterDir, "helper", "index.html"),
 ];
 
 for (const target of targets) {

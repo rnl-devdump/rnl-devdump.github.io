@@ -49,7 +49,7 @@ export default function LetterEntriesPage() {
     window.location.href = letterOpenPath(id);
   };
 
-  const helperHref = "/letter/helper/";
+  const helperHref = "/letterhelper/";
 
   return (
     <main className="letter-entries-page">

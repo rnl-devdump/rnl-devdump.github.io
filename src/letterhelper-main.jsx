@@ -1,10 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import LetterApp from "./LetterApp";
-import "./galaxy-letter.css";
+import LetterHelperPage from "./LetterHelperPage";
+import "./index.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <LetterApp />
+    <LetterHelperPage />
   </StrictMode>,
 );

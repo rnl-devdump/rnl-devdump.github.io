@@ -102,7 +102,7 @@ export default function LetterHelperPage() {
         <header className="mb-6">
           <h1 className="text-xl font-semibold text-slate-900">Letter Helper Tool</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Generate shareable links for `kiruu.space/letter/&lt;letter_name&gt;`.
+            Generate shareable links for letters at <code>/letter/</code> on this site.
           </p>
           <p className="mt-2 text-sm">
             <a href="/letter/entries/" className="font-medium text-violet-700 underline hover:text-violet-900">

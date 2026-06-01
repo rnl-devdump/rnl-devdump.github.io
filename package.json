@@ -7,12 +7,14 @@
     "dev": "vite",
     "dev:validation": "vite --config vite.validation.config.js",
     "dev:letter": "vite --config vite.letter.config.js",
+    "dev:letterhelper": "vite --config vite.letterhelper.config.js",
     "build": "vite build",
     "build:dataset": "vite build",
     "build:validation": "vite build --config vite.validation.config.js",
     "build:forum": "vite build --config vite.forum.config.js",
     "build:letter": "vite build --config vite.letter.config.js && node scripts/finalize-letter-build.mjs",
-    "build:all": "npm run build:dataset && npm run build:validation && npm run build:forum && npm run build:letter",
+    "build:letterhelper": "vite build --config vite.letterhelper.config.js && node scripts/finalize-letterhelper-build.mjs",
+    "build:all": "npm run build:dataset && npm run build:validation && npm run build:forum && npm run build:letter && npm run build:letterhelper",
     "preview": "vite preview"
   },
   "dependencies": {

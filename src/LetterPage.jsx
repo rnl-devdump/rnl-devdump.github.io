@@ -8,9 +8,12 @@ import {
   mapFirestoreData,
 } from "./lib/letterConfig";
 
+const LETTER_HELPER_URL = "/letterhelper/";
+
 function getLetterSlug() {
   if (typeof window === "undefined") return "my-love";
   const idParam = new URLSearchParams(window.location.search).get("id");
+  if (idParam === "helper") return null;
   if (idParam) return idParam;
   const parts = window.location.pathname.split("/").filter(Boolean);
   const letterIndex = parts.indexOf("letter");
@@ -28,6 +31,15 @@ export default function LetterPage() {
   const urlConfig = useMemo(() => getConfigFromUrl(), []);
 
   useEffect(() => {
+    const idParam = new URLSearchParams(window.location.search).get("id");
+    if (idParam === "helper") {
+      window.location.replace(LETTER_HELPER_URL);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (slug === null) return undefined;
+
     let cancelled = false;
 
     async function loadLetter() {
@@ -54,6 +66,10 @@ export default function LetterPage() {
       cancelled = true;
     };
   }, [slug, urlConfig]);
+
+  if (slug === null) {
+    return <div className="galaxy-letter-loading">redirecting</div>;
+  }
 
   if (isLoadingLetter) {
     return <div className="galaxy-letter-loading">loading letter</div>;
