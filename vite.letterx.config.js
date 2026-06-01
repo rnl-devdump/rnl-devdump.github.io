@@ -5,14 +5,14 @@ import tailwindcss from "@tailwindcss/vite";
 import { serveAssetsPicsPlugin } from "./scripts/vite-serve-assets-pics.mjs";
 
 export default defineConfig({
-  base: "/letterhelper/",
-  publicDir: resolve(__dirname, "letterhelper-public"),
+  base: "/letterx/",
+  publicDir: resolve(__dirname, "letter-public"),
   plugins: [react(), tailwindcss(), serveAssetsPicsPlugin()],
   build: {
-    outDir: "letterhelper",
+    outDir: "letterx",
     emptyOutDir: true,
     rollupOptions: {
-      input: resolve(__dirname, "index.letterhelper.html"),
+      input: resolve(__dirname, "index.letterx.html"),
     },
   },
 });

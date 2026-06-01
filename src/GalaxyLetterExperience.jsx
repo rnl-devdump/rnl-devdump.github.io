@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   beginLetterFadeOut,
   createDotState,
@@ -6,6 +6,7 @@ import {
   getDotLabel,
   sampleLetterDots,
 } from "./galaxyLetter/dotEngine";
+import { resolvePicUrl } from "./lib/letterConfig";
 
 function splitParagraphs(text) {
   return (text || "")
@@ -14,8 +15,34 @@ function splitParagraphs(text) {
     .filter(Boolean);
 }
 
+function TulipPin({ gradId }) {
+  return (
+    <span className="tulip-pin" aria-hidden="true">
+      <svg className="tulip-pin-svg" viewBox="0 0 32 44" width="28" height="38" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#ede4ff" />
+            <stop offset="40%" stopColor="#c49bff" />
+            <stop offset="100%" stopColor="#7e4fd4" />
+          </linearGradient>
+        </defs>
+        <ellipse cx="9" cy="16" rx="5.5" ry="8.5" fill="#d4b5ff" opacity="0.9" />
+        <ellipse cx="23" cy="16" rx="5.5" ry="8.5" fill="#d4b5ff" opacity="0.9" />
+        <ellipse cx="16" cy="14" rx="9" ry="10" fill={`url(#${gradId})`} />
+        <path d="M16 23v15" stroke="#5a3d8a" strokeWidth="1.8" strokeLinecap="round" />
+        <circle cx="16" cy="6.5" r="4.2" fill="#dcc8ff" stroke="#9b6de0" strokeWidth="1" />
+        <circle cx="16" cy="6.5" r="1.4" fill="#faf7ff" opacity="0.95" />
+      </svg>
+    </span>
+  );
+}
+
 export default function GalaxyLetterExperience({ config }) {
-  const { header, content, regards, signature, expectedPin } = config;
+  const { header, content, regards, signature, expectedPin, pic1, pic2 } = config;
+  const pic1Url = useMemo(() => resolvePicUrl(pic1), [pic1]);
+  const pic2Url = useMemo(() => resolvePicUrl(pic2), [pic2]);
+  const tulipGradA = useId().replace(/:/g, "");
+  const tulipGradB = useId().replace(/:/g, "");
 
   const dotStateRef = useRef(null);
   if (!dotStateRef.current) dotStateRef.current = createDotState();
@@ -441,6 +468,22 @@ export default function GalaxyLetterExperience({ config }) {
                 <p key={`${index}-${paragraph.slice(0, 24)}`}>{paragraph}</p>
               ))}
             </div>
+            {pic1Url || pic2Url ? (
+              <div className="note-pics">
+                {pic1Url ? (
+                  <figure className="note-pic-frame note-pic-frame--left">
+                    <TulipPin gradId={tulipGradA} />
+                    <img className="note-pic" src={pic1Url} alt="" />
+                  </figure>
+                ) : null}
+                {pic2Url ? (
+                  <figure className="note-pic-frame note-pic-frame--right">
+                    <TulipPin gradId={tulipGradB} />
+                    <img className="note-pic" src={pic2Url} alt="" />
+                  </figure>
+                ) : null}
+              </div>
+            ) : null}
             <div className="note-regards">
               {regards}
               <div className="note-signature">{signature}</div>

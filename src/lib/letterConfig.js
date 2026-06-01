@@ -7,7 +7,27 @@ export const defaultLetterConfig = {
   regards: DEFAULT_REGARDS,
   signature: "Your Name",
   expectedPin: "1234",
+  pic1: "",
+  pic2: "",
 };
+
+/** Filename only — files live in repo `assets/pics/`. */
+export function sanitizePicFilename(value) {
+  if (!value) return "";
+  return value.replace(/^.*[\\/]/, "").replace(/[^a-zA-Z0-9._-]/g, "");
+}
+
+export function resolvePicUrl(filename) {
+  const safe = sanitizePicFilename(filename);
+  if (!safe) return "";
+  if (typeof window === "undefined") return `/assets/pics/${encodeURIComponent(safe)}`;
+  return `${window.location.origin}/assets/pics/${encodeURIComponent(safe)}`;
+}
+
+export function getLetterAppBase(pathname = "") {
+  if (/\/letterx(\/|$)/.test(pathname)) return "/letterx";
+  return "/letter";
+}
 
 /** Galaxy letter runtime config (new + legacy Firestore / URL fields). */
 export function mapFirestoreData(data) {
@@ -18,6 +38,8 @@ export function mapFirestoreData(data) {
     regards: d.regards || DEFAULT_REGARDS,
     signature: d.signature || d.from || defaultLetterConfig.signature,
     expectedPin: String(d.pin || defaultLetterConfig.expectedPin),
+    pic1: sanitizePicFilename(d.pic1 || ""),
+    pic2: sanitizePicFilename(d.pic2 || ""),
   };
 }
 
@@ -38,6 +60,8 @@ export function getConfigFromUrl() {
       params.get("from") ||
       defaultLetterConfig.signature,
     expectedPin: params.get("pin") || defaultLetterConfig.expectedPin,
+    pic1: sanitizePicFilename(params.get("pic1") || ""),
+    pic2: sanitizePicFilename(params.get("pic2") || ""),
   };
 }
 
@@ -58,13 +82,14 @@ export function entryFromFirestore(id, data) {
   };
 }
 
-export function letterOpenPath(id) {
-  if (typeof window === "undefined") {
-    return `/letter/?id=${encodeURIComponent(id)}`;
-  }
-  const letterBase =
-    window.location.pathname.replace(/\/entries\/?$/, "").replace(/\/?$/, "") || "/letter";
-  return `${letterBase}/?id=${encodeURIComponent(id)}`;
+export function letterOpenPath(id, base = "/letter") {
+  const root = base.replace(/\/$/, "") || "/letter";
+  return `${root}/?id=${encodeURIComponent(id)}`;
+}
+
+export function publishedOpenPath(id, { pic1 = "", pic2 = "" } = {}) {
+  const base = pic1 || pic2 ? "/letterx" : "/letter";
+  return letterOpenPath(id, base);
 }
 
 export function isLetterEntriesRoute(pathname = "") {

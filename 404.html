@@ -33,6 +33,24 @@
           return;
         }
 
+        if (path.indexOf("/letterx/") === 0) {
+          var partsX = path.split("/").filter(Boolean);
+          var segX = partsX.length >= 2 ? partsX[1] : "";
+          if (segX === "entries") {
+            window.location.replace("/letter/entries/");
+            return;
+          }
+          if (segX) {
+            var targetX = "/letterx/?id=" + encodeURIComponent(segX);
+            if (search) targetX += "&" + search.replace(/^\?/, "");
+            if (hash) targetX += hash;
+            window.location.replace(targetX);
+            return;
+          }
+          window.location.replace("/letterx/");
+          return;
+        }
+
         // Default fallback route.
         window.location.replace("/dataset/");
       })();
