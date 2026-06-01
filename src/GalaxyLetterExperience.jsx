@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  beginLetterFadeOut,
   createDotState,
   drawLetterDots,
   getDotLabel,
@@ -89,26 +90,30 @@ export default function GalaxyLetterExperience({ config }) {
 
   const goToPin = useCallback(() => {
     setScrollHidden(true);
-    setPinPageActive(true);
+    beginLetterFadeOut(dotStateRef.current);
 
     const pageStars = pageStarsRef.current;
     const overlay = document.getElementById("fade-overlay");
-    if (overlay) {
-      overlay.style.opacity = "1";
-      overlay.style.pointerEvents = "none";
-    }
-    if (pageStars) {
-      pageStars.style.transition = "opacity 1s ease";
-      pageStars.style.opacity = "0";
-    }
 
     setTimeout(() => {
-      setLetterSceneActive(false);
-      if (pageStars) pageStars.style.display = "none";
-      if (overlay) overlay.style.opacity = "0";
-      setPinUiVisible(true);
-      pinInputRef.current?.focus();
-    }, 1000);
+      setPinPageActive(true);
+      if (overlay) {
+        overlay.style.opacity = "1";
+        overlay.style.pointerEvents = "none";
+      }
+      if (pageStars) {
+        pageStars.style.transition = "opacity 1s ease";
+        pageStars.style.opacity = "0";
+      }
+
+      setTimeout(() => {
+        setLetterSceneActive(false);
+        if (pageStars) pageStars.style.display = "none";
+        if (overlay) overlay.style.opacity = "0";
+        setPinUiVisible(true);
+        pinInputRef.current?.focus();
+      }, 1000);
+    }, 1100);
   }, []);
 
   useEffect(() => {
@@ -439,6 +444,13 @@ export default function GalaxyLetterExperience({ config }) {
             <div className="note-regards">
               {regards}
               <div className="note-signature">{signature}</div>
+            </div>
+            <div className="letter-end-shimmer" aria-hidden="true">
+              <div className="shimmer-plus">
+                <span className="shimmer-plus-arm shimmer-plus-arm-h" />
+                <span className="shimmer-plus-arm shimmer-plus-arm-v" />
+                <span className="shimmer-plus-core" />
+              </div>
             </div>
           </div>
         </div>
