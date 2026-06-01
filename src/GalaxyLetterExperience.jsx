@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  MIGRATE_DUR,
   createDotState,
-  drawDots,
+  drawLetterDots,
   getDotLabel,
-  resetDotPhase,
   sampleLetterDots,
-  startMigration,
 } from "./galaxyLetter/dotEngine";
 
 function splitParagraphs(text) {
@@ -24,7 +21,6 @@ export default function GalaxyLetterExperience({ config }) {
 
   const starsCanvasRef = useRef(null);
   const letterCanvasRef = useRef(null);
-  const pinDotCanvasRef = useRef(null);
   const galaxyCanvasRef = useRef(null);
   const glitterCanvasRef = useRef(null);
   const pinInputRef = useRef(null);
@@ -40,6 +36,7 @@ export default function GalaxyLetterExperience({ config }) {
   const [galaxyActive, setGalaxyActive] = useState(false);
   const [noteVisible, setNoteVisible] = useState(false);
   const [pinPageActive, setPinPageActive] = useState(false);
+  const [letterSceneActive, setLetterSceneActive] = useState(true);
 
   const paragraphs = useMemo(() => splitParagraphs(content), [content]);
   const dotLabel = useMemo(() => getDotLabel(header), [header]);
@@ -94,30 +91,27 @@ export default function GalaxyLetterExperience({ config }) {
     setScrollHidden(true);
     setPinPageActive(true);
 
-    const pdc = pinDotCanvasRef.current;
-    if (pdc) {
-      pdc.width = window.innerWidth;
-      pdc.height = window.innerHeight;
-    }
-
     const pageStars = pageStarsRef.current;
+    const overlay = document.getElementById("fade-overlay");
+    if (overlay) {
+      overlay.style.opacity = "1";
+      overlay.style.pointerEvents = "none";
+    }
     if (pageStars) {
-      pageStars.style.transition = "opacity 0.9s ease";
+      pageStars.style.transition = "opacity 1s ease";
       pageStars.style.opacity = "0";
     }
 
     setTimeout(() => {
+      setLetterSceneActive(false);
       if (pageStars) pageStars.style.display = "none";
-      startMigration(dotStateRef.current);
-      setTimeout(() => {
-        setPinUiVisible(true);
-        pinInputRef.current?.focus();
-      }, MIGRATE_DUR * 0.55);
-    }, 920);
+      if (overlay) overlay.style.opacity = "0";
+      setPinUiVisible(true);
+      pinInputRef.current?.focus();
+    }, 1000);
   }, []);
 
   useEffect(() => {
-    resetDotPhase(dotStateRef.current);
     const init = () => sampleLetterDots(dotStateRef.current, dotLabel);
     if (document.fonts?.ready) {
       document.fonts.ready.then(init);
@@ -140,6 +134,8 @@ export default function GalaxyLetterExperience({ config }) {
   }, [pinVal, updatePinBoxes]);
 
   useEffect(() => {
+    if (!letterSceneActive) return undefined;
+
     const bgC = starsCanvasRef.current;
     const dotC = letterCanvasRef.current;
     if (!bgC || !dotC) return undefined;
@@ -178,7 +174,7 @@ export default function GalaxyLetterExperience({ config }) {
     const onResize = () => {
       resize();
       initStars();
-      if (state.dotPhase === "letter") sampleLetterDots(state, dotLabel);
+      sampleLetterDots(state, dotLabel);
     };
     window.addEventListener("resize", onResize);
 
@@ -196,7 +192,7 @@ export default function GalaxyLetterExperience({ config }) {
         bgCtx.fill();
       }
       dotCtx.clearRect(0, 0, W, H);
-      drawDots(dotCtx, ts, state);
+      drawLetterDots(dotCtx, ts, state);
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
@@ -205,35 +201,7 @@ export default function GalaxyLetterExperience({ config }) {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
     };
-  }, [dotLabel]);
-
-  useEffect(() => {
-    const c = pinDotCanvasRef.current;
-    if (!c) return undefined;
-    const ctx = c.getContext("2d");
-    const state = dotStateRef.current;
-
-    const onResize = () => {
-      c.width = window.innerWidth;
-      c.height = window.innerHeight;
-    };
-    window.addEventListener("resize", onResize);
-
-    let raf = 0;
-    const draw = (ts) => {
-      if (pagePinRef.current?.classList.contains("active")) {
-        ctx.clearRect(0, 0, c.width, c.height);
-        drawDots(ctx, ts, state);
-      }
-      raf = requestAnimationFrame(draw);
-    };
-    raf = requestAnimationFrame(draw);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", onResize);
-    };
-  }, []);
+  }, [dotLabel, letterSceneActive]);
 
   useEffect(() => {
     const gc = galaxyCanvasRef.current;
@@ -425,7 +393,6 @@ export default function GalaxyLetterExperience({ config }) {
       </div>
 
       <div id="page-pin" className={`page${pinPageActive ? " active" : ""}`} ref={pagePinRef}>
-        <canvas id="pin-dot-canvas" ref={pinDotCanvasRef} />
         <input
           id="pin-input"
           ref={pinInputRef}
