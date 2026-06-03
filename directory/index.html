@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kiruu Site Directory</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #f1f5f9;
+        color: #0f172a;
+        font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        margin: 0;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .page {
+        margin: 0 auto;
+        max-width: 1180px;
+        min-height: 100vh;
+        padding: 28px 18px;
+      }
+
+      .header {
+        align-items: flex-end;
+        display: flex;
+        gap: 18px;
+        justify-content: space-between;
+        margin-bottom: 26px;
+      }
+
+      .brand {
+        align-items: center;
+        display: flex;
+        gap: 16px;
+      }
+
+      .brand img {
+        height: 56px;
+        object-fit: contain;
+        width: 56px;
+      }
+
+      .eyebrow,
+      .section-label {
+        color: #0f766e;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0;
+        margin: 0;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        font-size: clamp(28px, 4vw, 38px);
+        line-height: 1.05;
+        margin: 4px 0 0;
+      }
+
+      .subtitle {
+        color: #475569;
+        font-size: 14px;
+        margin: 8px 0 0;
+      }
+
+      .root-link,
+      .site-open,
+      .secondary-link,
+      button {
+        border-radius: 8px;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .root-link {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        color: #334155;
+        display: inline-flex;
+        padding: 10px 12px;
+      }
+
+      .root-link:hover {
+        border-color: #14b8a6;
+        color: #0f766e;
+      }
+
+      .section-heading {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        margin: 0 0 12px;
+      }
+
+      .pill {
+        background: #ccfbf1;
+        border-radius: 8px;
+        color: #115e59;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 6px 10px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .site-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.07);
+        display: flex;
+        flex-direction: column;
+        min-height: 248px;
+        padding: 16px;
+      }
+
+      .site-card__top {
+        align-items: flex-start;
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+      }
+
+      .site-category {
+        color: #0f766e;
+        font-size: 12px;
+        font-weight: 800;
+        margin: 0 0 5px;
+        text-transform: uppercase;
+      }
+
+      .site-title {
+        font-size: 17px;
+        line-height: 1.25;
+        margin: 0;
+      }
+
+      .site-open {
+        background: #020617;
+        color: #ffffff;
+        flex: 0 0 auto;
+        font-size: 14px;
+        padding: 9px 12px;
+      }
+
+      .site-open:hover {
+        background: #334155;
+      }
+
+      .site-summary {
+        color: #475569;
+        flex: 1;
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 14px 0;
+      }
+
+      .site-meta {
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .site-meta strong {
+        color: #334155;
+      }
+
+      .secondary-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .secondary-link {
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        font-size: 12px;
+        padding: 7px 10px;
+      }
+
+      .secondary-link:hover {
+        border-color: #14b8a6;
+        color: #0f766e;
+      }
+
+      .others {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 8px;
+        margin-top: 26px;
+        padding: 16px;
+      }
+
+      .others-layout {
+        align-items: center;
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 1fr 360px;
+      }
+
+      .others .section-label {
+        color: #b45309;
+      }
+
+      .others h2 {
+        font-size: 20px;
+        margin: 5px 0 0;
+      }
+
+      .others p {
+        color: #334155;
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 8px 0 0;
+      }
+
+      .unlock-form {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        padding: 12px;
+      }
+
+      label {
+        color: #334155;
+        display: flex;
+        flex-direction: column;
+        font-size: 12px;
+        font-weight: 800;
+        gap: 7px;
+      }
+
+      input {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        color: #0f172a;
+        font: inherit;
+        padding: 10px 11px;
+      }
+
+      input:focus {
+        border-color: #d97706;
+        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
+        outline: none;
+      }
+
+      button {
+        border: 0;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .unlock-button,
+      .show-button {
+        background: #b45309;
+        color: #ffffff;
+        margin-top: 12px;
+        padding: 10px 14px;
+        width: 100%;
+      }
+
+      .unlock-button:hover,
+      .show-button:hover {
+        background: #92400e;
+      }
+
+      .error {
+        color: #b91c1c !important;
+        font-size: 12px !important;
+        font-weight: 800;
+        margin-top: 8px !important;
+      }
+
+      .modal[hidden] {
+        display: none;
+      }
+
+      .modal {
+        align-items: center;
+        background: rgba(15, 23, 42, 0.62);
+        display: flex;
+        inset: 0;
+        justify-content: center;
+        padding: 18px;
+        position: fixed;
+        z-index: 20;
+      }
+
+      .modal-window {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.35);
+        max-height: 88vh;
+        max-width: 1040px;
+        overflow: auto;
+        padding: 18px;
+        width: 100%;
+      }
+
+      .modal-header {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .modal-header h2 {
+        font-size: 22px;
+        margin: 5px 0 0;
+      }
+
+      .close-button {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        padding: 9px 12px;
+      }
+
+      .close-button:hover {
+        background: #f8fafc;
+      }
+
+      @media (max-width: 860px) {
+        .header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .grid,
+        .others-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .page {
+          padding: 22px 12px;
+        }
+
+        .brand {
+          align-items: flex-start;
+        }
+
+        .brand img {
+          height: 48px;
+          width: 48px;
+        }
+
+        .site-card__top,
+        .section-heading,
+        .modal-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .site-open,
+        .root-link,
+        .close-button {
+          text-align: center;
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="header">
+        <div class="brand">
+          <img src="/logo.png" alt="" />
+          <div>
+            <p class="eyebrow">Kiruu Space</p>
+            <h1>Site Directory</h1>
+            <p class="subtitle">7 destinations in this codebase.</p>
+          </div>
+        </div>
+        <a class="root-link" href="/">Open Root</a>
+      </header>
+
+      <section aria-labelledby="available-title">
+        <div class="section-heading">
+          <h2 id="available-title" class="section-label">Available</h2>
+          <span class="pill">No passcode</span>
+        </div>
+
+        <div class="grid" id="core-sites"></div>
+      </section>
+
+      <section class="others" aria-labelledby="others-title">
+        <div class="others-layout">
+          <div>
+            <p class="section-label">OTHERS</p>
+            <h2 id="others-title">Protected apps</h2>
+            <p>Forum, letter tools, Letter X, and standalone extras are grouped here.</p>
+          </div>
+
+          <form class="unlock-form" id="unlock-form">
+            <label>
+              Passcode
+              <input id="passcode" type="password" autocomplete="current-password" />
+            </label>
+            <p class="error" id="error" hidden>Incorrect passcode.</p>
+            <button class="unlock-button" type="submit">Unlock OTHERS</button>
+          </form>
+
+          <button class="show-button" id="show-others" type="button" hidden>Show OTHERS</button>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal" id="others-modal" hidden>
+      <section
+        class="modal-window"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="others-window-title"
+      >
+        <div class="modal-header">
+          <div>
+            <p class="section-label">OTHERS</p>
+            <h2 id="others-window-title">Protected Site List</h2>
+          </div>
+          <button class="close-button" id="close-modal" type="button">Close</button>
+        </div>
+        <div class="grid" id="other-sites"></div>
+      </section>
+    </div>
+
+    <template id="site-card-template">
+      <article class="site-card">
+        <div class="site-card__top">
+          <div>
+            <p class="site-category"></p>
+            <h3 class="site-title"></h3>
+          </div>
+          <a class="site-open">Open</a>
+        </div>
+        <p class="site-summary"></p>
+        <div class="site-meta"></div>
+        <div class="secondary-links"></div>
+      </article>
+    </template>
+
+    <script>
+      const PASSCODE = "k1ruu_consolepass";
+      const ACCESS_KEY = "kiruu_directory_access_v1";
+
+      const coreSites = [
+        {
+          title: "Dataset Annotation Tool",
+          path: "/dataset/",
+          category: "DATASET",
+          summary: "Create Pangasinan translation entries and save them to Firestore.",
+          source: "src/DatasetAnnotationPage.jsx",
+        },
+        {
+          title: "Dataset Validation Dashboard",
+          path: "/validation/",
+          aliases: ["/validator"],
+          category: "VALIDATION",
+          summary: "Review translation entries, approve or deny them, and finalize validated data.",
+          source: "src/ValidatorDashboardPage.jsx",
+        },
+      ];
+
+      const otherSites = [
+        {
+          title: "Community Forum",
+          path: "/forum/",
+          summary: "Publish team posts and keep shared notes visible.",
+          source: "src/ForumPage.jsx",
+        },
+        {
+          title: "Kiruu Letter",
+          path: "/letter/",
+          links: [{ label: "Entries", path: "/letter/entries/" }],
+          summary: "Open pin-locked letters from Firestore or URL settings.",
+          source: "src/LetterPage.jsx",
+        },
+        {
+          title: "Letter Helper Tool",
+          path: "/letterhelper/",
+          aliases: ["/helper"],
+          summary: "Generate and publish letter links, including picture-enabled versions.",
+          source: "src/LetterHelperPage.jsx",
+        },
+        {
+          title: "Kiruu Letter X",
+          path: "/letterx/",
+          summary: "Open the picture-enabled letter experience.",
+          source: "src/LetterPage.jsx",
+        },
+        {
+          title: "Misc Easter Egg",
+          path: "/misc/easteregg.html",
+          summary: "A small standalone static page.",
+          source: "misc/easteregg.html",
+        },
+      ];
+
+      const template = document.getElementById("site-card-template");
+      const coreContainer = document.getElementById("core-sites");
+      const otherContainer = document.getElementById("other-sites");
+      const unlockForm = document.getElementById("unlock-form");
+      const showOthers = document.getElementById("show-others");
+      const passcodeInput = document.getElementById("passcode");
+      const error = document.getElementById("error");
+      const modal = document.getElementById("others-modal");
+      const closeModal = document.getElementById("close-modal");
+
+      function renderSite(site) {
+        const node = template.content.firstElementChild.cloneNode(true);
+        const category = node.querySelector(".site-category");
+        const meta = node.querySelector(".site-meta");
+        const secondaryLinks = node.querySelector(".secondary-links");
+
+        category.textContent = site.category || "OTHERS";
+        node.querySelector(".site-title").textContent = site.title;
+        node.querySelector(".site-open").href = site.path;
+        node.querySelector(".site-summary").textContent = site.summary;
+
+        meta.innerHTML = [
+          `<p><strong>Path:</strong> ${site.path}</p>`,
+          site.aliases?.length ? `<p><strong>Alias:</strong> ${site.aliases.join(", ")}</p>` : "",
+          `<p><strong>Source:</strong> ${site.source}</p>`,
+        ].join("");
+
+        if (site.links?.length) {
+          site.links.forEach((link) => {
+            const anchor = document.createElement("a");
+            anchor.className = "secondary-link";
+            anchor.href = link.path;
+            anchor.textContent = link.label;
+            secondaryLinks.append(anchor);
+          });
+        } else {
+          secondaryLinks.remove();
+        }
+
+        return node;
+      }
+
+      function openOthers() {
+        modal.hidden = false;
+      }
+
+      function closeOthers() {
+        modal.hidden = true;
+      }
+
+      function setUnlockedState() {
+        unlockForm.hidden = true;
+        showOthers.hidden = false;
+      }
+
+      coreSites.forEach((site) => coreContainer.append(renderSite(site)));
+      otherSites.forEach((site) => otherContainer.append(renderSite(site)));
+
+      if (window.sessionStorage.getItem(ACCESS_KEY) === "unlocked") {
+        setUnlockedState();
+      }
+
+      unlockForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (passcodeInput.value === PASSCODE) {
+          window.sessionStorage.setItem(ACCESS_KEY, "unlocked");
+          passcodeInput.value = "";
+          error.hidden = true;
+          setUnlockedState();
+          openOthers();
+          return;
+        }
+        error.hidden = false;
+      });
+
+      showOthers.addEventListener("click", openOthers);
+      closeModal.addEventListener("click", closeOthers);
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal) closeOthers();
+      });
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeOthers();
+      });
+    </script>
+  </body>
+</html>

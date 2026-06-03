@@ -1,4 +1,5 @@
 import DatasetAnnotationPage from "./DatasetAnnotationPage";
+import DirectoryPage from "./DirectoryPage";
 import ForumPage from "./ForumPage";
 import LetterApp from "./LetterApp";
 import LetterHelperPage from "./LetterHelperPage";
@@ -12,6 +13,10 @@ export default function App() {
   const path = typeof window !== "undefined" ? window.location.pathname : "/";
   const hash = typeof window !== "undefined" ? window.location.hash : "";
   const hashRoute = hash.startsWith("#/") ? hash.slice(1) : "";
+
+  if (hasRouteSegment(path, "directory") || hashRoute.startsWith("/directory")) {
+    return <DirectoryPage />;
+  }
 
   if (hasRouteSegment(path, "validation") || hasRouteSegment(path, "validator")) {
     return <ValidatorDashboardPage />;

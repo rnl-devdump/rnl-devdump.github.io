@@ -10,6 +10,11 @@
         var search = window.location.search || "";
         var hash = window.location.hash || "";
 
+        if (path.indexOf("/directory") === 0) {
+          window.location.replace("/directory/");
+          return;
+        }
+
         // GitHub Pages fallback for deep links under /letter/<documentId>.
         if (path.indexOf("/letter/") === 0) {
           var parts = path.split("/").filter(Boolean);
