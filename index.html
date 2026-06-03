@@ -1,12 +1,55 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dataset Annotation Tool</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheKiruu</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="logo" class="logo">
+    </header>
+    <main>
+        <h3 class="subtitle">We're almost there!</h3>
+        <h1 class="title">Coming</h1>
+        <h1 class="title">Soon</h1>
+        <h3 class="bottom">For now, you can visit my
+            <a href="https://github.com/iamk1ruu" target="_blank" class="button-rn" role="button">
+                <img class="mark" src="github-mark.png" alt=""> GitHub Profile
+            </a>
+        </h3>
+    </main>
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+    <dotlottie-player src="https://lottie.host/08baa036-4ce6-4674-a6a1-3fdab92aa5c4/v73OLDfSlm.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
+    <div id="navModal" class="nav-modal">
+        <div class="nav-content">
+            <input type="text" placeholder="Type here..." class="nav-input">
+            <button onclick="submitForm()">
+                <span class="text">Submit</span>
+            </button>
+        </div>
+    </div>
+    <div id="welcomeOverlay" class="welcome-overlay">
+        <h1 class="welcome-text">Welcome to TheKiruu!</h1>
+    </div>
+    <script>
+        function toggleNavModal() {
+            const modal = document.getElementById("navModal");
+            modal.classList.toggle("show");
+        }
+        document.querySelector('.logo').addEventListener('click', toggleNavModal);
+        function submitForm() {
+            alert("Form submitted!");
+            toggleNavModal();
+        }
+    </script>
+    <script>
+        window.addEventListener("load", function() {
+            setTimeout(() => {
+                document.getElementById("welcomeOverlay").classList.add("fade-out");
+            }, 2000);
+        });
+    </script>
+</body>
 </html>
