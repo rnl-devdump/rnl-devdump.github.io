@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "./lib/firebase";
-import { publishedOpenPath, sanitizePicFilename } from "./lib/letterConfig";
+import { compressImageToDataUrl, isEmbeddedPicRef } from "./lib/letterPicEmbed";
+import { normalizePicRef, publishedOpenPath } from "./lib/letterConfig";
 
 function slugify(value) {
   return value
@@ -18,10 +19,10 @@ function buildQuery({ pin, header, content, regards, nameOfRegards, pic1, pic2 }
   params.set("content", content);
   params.set("regards", regards);
   params.set("signature", nameOfRegards);
-  const safe1 = sanitizePicFilename(pic1);
-  const safe2 = sanitizePicFilename(pic2);
-  if (safe1) params.set("pic1", safe1);
-  if (safe2) params.set("pic2", safe2);
+  const safe1 = normalizePicRef(pic1);
+  const safe2 = normalizePicRef(pic2);
+  if (safe1 && !isEmbeddedPicRef(safe1)) params.set("pic1", safe1);
+  if (safe2 && !isEmbeddedPicRef(safe2)) params.set("pic2", safe2);
   return params.toString();
 }
 
@@ -39,10 +40,11 @@ export default function LetterHelperPage() {
   const [status, setStatus] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishedDocId, setPublishedDocId] = useState("");
+  const [uploadingPic, setUploadingPic] = useState(null);
 
   const cleanLetterName = useMemo(() => slugify(letterName) || "my-love-letter", [letterName]);
-  const safePic1 = useMemo(() => sanitizePicFilename(pic1), [pic1]);
-  const safePic2 = useMemo(() => sanitizePicFilename(pic2), [pic2]);
+  const safePic1 = useMemo(() => normalizePicRef(pic1), [pic1]);
+  const safePic2 = useMemo(() => normalizePicRef(pic2), [pic2]);
 
   const queryFields = useMemo(
     () => ({ pin, header, content, regards, nameOfRegards, pic1: safePic1, pic2: safePic2 }),
@@ -84,6 +86,22 @@ export default function LetterHelperPage() {
     }
   };
 
+  const uploadPic = async (slot, file) => {
+    if (!file) return;
+    try {
+      setUploadingPic(slot);
+      setStatus("");
+      const dataUrl = await compressImageToDataUrl(file);
+      if (slot === 1) setPic1(dataUrl);
+      else setPic2(dataUrl);
+      setStatus(`Picture ${slot} embedded (saved with Publish — no Storage needed).`);
+    } catch (error) {
+      setStatus(error?.message || `Picture ${slot} could not be embedded.`);
+    } finally {
+      setUploadingPic(null);
+    }
+  };
+
   const publishLetter = async () => {
     try {
       setIsPublishing(true);
@@ -115,7 +133,8 @@ export default function LetterHelperPage() {
           <h1 className="text-xl font-semibold text-slate-900">Letter Helper Tool</h1>
           <p className="mt-1 text-sm text-slate-600">
             One form for <code>/letter/</code> (text only) and <code>/letterx/</code> (text + two
-            photos). Upload images to <code>assets/pics/</code> in the repo first.
+            photos). Pick images to embed in Firestore (free), or use filenames from{" "}
+            <code>assets/pics/</code> in the repo.
           </p>
         </header>
 
@@ -190,28 +209,77 @@ export default function LetterHelperPage() {
             Letter X — pictures
           </p>
           <p className="mt-1 text-xs text-violet-900/80">
-            Filename only (e.g. <code>photo-left.jpg</code>). Files must live in{" "}
-            <code>assets/pics/</code> on the site. Left photo + right photo, diagonal layout with
-            tulip pins.
+            <strong>Pick image</strong> — compresses and stores inside Firestore when you Publish (no
+            paid Storage). Works on the live <code>/letterx/?id=…</code> link.{" "}
+            <strong>Or type a filename</strong> (e.g. <code>left.jpg</code> in{" "}
+            <code>assets/pics/</code>) for preview URLs too.
           </p>
           <div className="mt-3 grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-violet-900">Picture 1 (left)</span>
               <input
-                value={pic1}
+                value={isEmbeddedPicRef(pic1) ? "(embedded image — use Publish for live link)" : pic1}
+                readOnly={isEmbeddedPicRef(pic1)}
                 onChange={(event) => setPic1(event.target.value)}
                 placeholder="left.jpg"
-                className="w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-violet-500"
+                className="w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-violet-500 read-only:text-violet-700 read-only:italic"
               />
+              <input
+                type="file"
+                accept="image/*"
+                disabled={uploadingPic === 1}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  uploadPic(1, file);
+                  event.target.value = "";
+                }}
+                className="text-xs text-violet-900 file:mr-2 file:rounded-md file:border-0 file:bg-violet-700 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-violet-900"
+              />
+              {uploadingPic === 1 ? (
+                <span className="text-xs text-violet-700">Compressing picture 1…</span>
+              ) : null}
+              {isEmbeddedPicRef(pic1) ? (
+                <button
+                  type="button"
+                  onClick={() => setPic1("")}
+                  className="w-fit text-xs font-semibold text-violet-800 underline"
+                >
+                  Clear embedded picture 1
+                </button>
+              ) : null}
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-violet-900">Picture 2 (right)</span>
               <input
-                value={pic2}
+                value={isEmbeddedPicRef(pic2) ? "(embedded image — use Publish for live link)" : pic2}
+                readOnly={isEmbeddedPicRef(pic2)}
                 onChange={(event) => setPic2(event.target.value)}
                 placeholder="right.jpg"
-                className="w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-violet-500"
+                className="w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-violet-500 read-only:text-violet-700 read-only:italic"
               />
+              <input
+                type="file"
+                accept="image/*"
+                disabled={uploadingPic === 2}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  uploadPic(2, file);
+                  event.target.value = "";
+                }}
+                className="text-xs text-violet-900 file:mr-2 file:rounded-md file:border-0 file:bg-violet-700 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-violet-900"
+              />
+              {uploadingPic === 2 ? (
+                <span className="text-xs text-violet-700">Compressing picture 2…</span>
+              ) : null}
+              {isEmbeddedPicRef(pic2) ? (
+                <button
+                  type="button"
+                  onClick={() => setPic2("")}
+                  className="w-fit text-xs font-semibold text-violet-800 underline"
+                >
+                  Clear embedded picture 2
+                </button>
+              ) : null}
             </label>
           </div>
         </div>

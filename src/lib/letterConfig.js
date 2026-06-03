@@ -17,11 +17,22 @@ export function sanitizePicFilename(value) {
   return value.replace(/^.*[\\/]/, "").replace(/[^a-zA-Z0-9._-]/g, "");
 }
 
-export function resolvePicUrl(filename) {
-  const safe = sanitizePicFilename(filename);
-  if (!safe) return "";
-  if (typeof window === "undefined") return `/assets/pics/${encodeURIComponent(safe)}`;
-  return `${window.location.origin}/assets/pics/${encodeURIComponent(safe)}`;
+/** Repo filename, https URL, or embedded data URL (Firestore publish). */
+export function normalizePicRef(value) {
+  if (!value) return "";
+  const trimmed = value.trim();
+  if (/^data:image\//i.test(trimmed)) return trimmed;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return sanitizePicFilename(trimmed);
+}
+
+export function resolvePicUrl(ref) {
+  const normalized = normalizePicRef(ref);
+  if (!normalized) return "";
+  if (/^data:image\//i.test(normalized)) return normalized;
+  if (/^https?:\/\//i.test(normalized)) return normalized;
+  if (typeof window === "undefined") return `/assets/pics/${encodeURIComponent(normalized)}`;
+  return `${window.location.origin}/assets/pics/${encodeURIComponent(normalized)}`;
 }
 
 export function getLetterAppBase(pathname = "") {
@@ -38,8 +49,8 @@ export function mapFirestoreData(data) {
     regards: d.regards || DEFAULT_REGARDS,
     signature: d.signature || d.from || defaultLetterConfig.signature,
     expectedPin: String(d.pin || defaultLetterConfig.expectedPin),
-    pic1: sanitizePicFilename(d.pic1 || ""),
-    pic2: sanitizePicFilename(d.pic2 || ""),
+    pic1: normalizePicRef(d.pic1 || ""),
+    pic2: normalizePicRef(d.pic2 || ""),
   };
 }
 
@@ -60,8 +71,8 @@ export function getConfigFromUrl() {
       params.get("from") ||
       defaultLetterConfig.signature,
     expectedPin: params.get("pin") || defaultLetterConfig.expectedPin,
-    pic1: sanitizePicFilename(params.get("pic1") || ""),
-    pic2: sanitizePicFilename(params.get("pic2") || ""),
+    pic1: normalizePicRef(params.get("pic1") || ""),
+    pic2: normalizePicRef(params.get("pic2") || ""),
   };
 }
 

@@ -2,6 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./lib/firebase";
 import { entryFromFirestore, letterOpenPath } from "./lib/letterConfig";
+import {
+  hasLetterEntriesAccess,
+  unlockLetterEntriesAccess,
+} from "./lib/letterEntriesAccess";
 import "./letter-entries.css";
 
 function formatCreatedAt(createdAt) {
@@ -17,6 +21,9 @@ function formatCreatedAt(createdAt) {
 }
 
 export default function LetterEntriesPage() {
+  const [isUnlocked, setIsUnlocked] = useState(() => hasLetterEntriesAccess());
+  const [passcode, setPasscode] = useState("");
+  const [passError, setPassError] = useState("");
   const [entries, setEntries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -42,14 +49,52 @@ export default function LetterEntriesPage() {
   }, []);
 
   useEffect(() => {
+    if (!isUnlocked) return undefined;
     loadEntries();
-  }, [loadEntries]);
+  }, [isUnlocked, loadEntries]);
+
+  const handleUnlock = (event) => {
+    event.preventDefault();
+    if (unlockLetterEntriesAccess(passcode)) {
+      setIsUnlocked(true);
+      setPasscode("");
+      setPassError("");
+      return;
+    }
+    setPassError("Incorrect passcode.");
+  };
 
   const openEntry = (id) => {
     window.location.href = letterOpenPath(id);
   };
 
   const helperHref = "/letterhelper/";
+
+  if (!isUnlocked) {
+    return (
+      <main className="letter-entries-page">
+        <div className="letter-entries-inner letter-entries-gate">
+          <h1>Letter entries</h1>
+          <p className="subtitle">Enter the passcode to view published letters.</p>
+          <form className="letter-entries-gate-form" onSubmit={handleUnlock}>
+            <label className="letter-entries-gate-label">
+              <span>Passcode</span>
+              <input
+                value={passcode}
+                onChange={(event) => setPasscode(event.target.value)}
+                type="password"
+                autoComplete="current-password"
+              />
+            </label>
+            {passError ? <p className="letter-entries-status error">{passError}</p> : null}
+            <button type="submit" className="letter-entries-gate-submit">
+              Unlock
+            </button>
+          </form>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="letter-entries-page">
