@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CENPELCO · Live Usage</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --off-black: #111111;
+      --card: #161616;
+      --border: #2a2a2a;
+      --muted: #3a3a3a;
+      --dim: #666666;
+      --mid: #999999;
+      --light: #cccccc;
+      --white: #f5f5f5;
+      --green: #00e87a;
+      --green-dim: #00e87a18;
+      --green-mid: #00e87a44;
+      --amber: #f5a623;
+      --amber-dim: #f5a62318;
+      --red: #ff4d4d;
+      --red-dim: #ff4d4d18;
+      --blue: #4d9fff;
+      --blue-dim: #4d9fff18;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-dot {
+      width: 9px; height: 9px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100%{ opacity:1; transform:scale(1); }
+      50%{ opacity:.45; transform:scale(.8); }
+    }
+    .brand-name {
+      font-size: .95rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+    }
+    .header-crumb {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .crumb-sep { color: var(--muted); }
+    .crumb-link {
+      font-family: 'DM Mono', monospace; font-size: .72rem;
+      color: var(--dim); text-decoration: none; letter-spacing: .04em;
+    }
+    .crumb-link:hover { color: var(--light); }
+    .crumb-current {
+      font-family: 'DM Mono', monospace; font-size: .72rem;
+      color: var(--green); letter-spacing: .04em;
+    }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .stale-badge {
+      font-family: 'DM Mono', monospace; font-size: .68rem;
+      letter-spacing: .06em; color: var(--dim);
+      border: 1px solid var(--border); padding: 4px 10px;
+      border-radius: 100px; display: none;
+    }
+    .stale-badge.warn { color: var(--amber); border-color: var(--amber); display: inline-block; }
+    .refresh-btn {
+      font-family: 'DM Mono', monospace; font-size: .72rem;
+      color: var(--green); text-decoration: none;
+      border: 1px solid var(--green); padding: 5px 12px;
+      border-radius: 100px; background: none; cursor: pointer;
+      transition: background .2s;
+    }
+    .refresh-btn:hover { background: var(--green-dim); }
+
+    /* ── LAYOUT ── */
+    .main {
+      max-width: 960px; margin: 0 auto;
+      padding: 32px 20px 72px;
+    }
+
+    /* ── HERO ── */
+    .hero { margin-bottom: 36px; }
+    .hero-label {
+      font-family: 'DM Mono', monospace; font-size: .68rem;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: var(--dim); margin-bottom: 10px;
+    }
+    .hero-title {
+      font-size: clamp(1.5rem,5vw,2.4rem);
+      font-weight: 800; line-height: 1.1;
+      letter-spacing: -.02em; color: var(--white);
+    }
+    .hero-title span { color: var(--green); }
+    .hero-sub {
+      margin-top: 10px; font-size: .88rem;
+      color: var(--mid); line-height: 1.65;
+    }
+
+    /* ── SUMMARY ROW ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent, var(--green));
+      opacity: .5;
+    }
+    .stat-label {
+      font-family: 'DM Mono', monospace; font-size: .62rem;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--dim); margin-bottom: 8px;
+    }
+    .stat-value {
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(1.3rem, 4vw, 1.8rem);
+      font-weight: 500; color: var(--white);
+      letter-spacing: -.02em; line-height: 1;
+    }
+    .stat-value .unit {
+      font-size: .6em; color: var(--dim);
+      font-weight: 400; margin-left: 3px;
+    }
+    .stat-sub {
+      margin-top: 6px; font-size: .72rem;
+      color: var(--dim); font-family: 'DM Mono', monospace;
+    }
+    .stat-card.accent-green { --accent: var(--green); }
+    .stat-card.accent-amber { --accent: var(--amber); }
+    .stat-card.accent-blue  { --accent: var(--blue); }
+    .stat-card.accent-red   { --accent: var(--red); }
+
+    /* ── PROJECTION BAR ── */
+    .projection-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px 22px 24px;
+      margin-bottom: 32px;
+    }
+    .proj-header {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px;
+      flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .proj-title {
+      font-size: .88rem; font-weight: 700;
+      letter-spacing: .02em; color: var(--white);
+    }
+    .proj-amount {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.5rem; font-weight: 500;
+      color: var(--green); letter-spacing: -.02em;
+    }
+    .proj-bar-track {
+      height: 6px; background: var(--muted);
+      border-radius: 100px; overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .proj-bar-fill {
+      height: 100%; border-radius: 100px;
+      background: var(--green);
+      transition: width .6s cubic-bezier(.4,0,.2,1);
+      width: 0%;
+    }
+    .proj-bar-fill.warn { background: var(--amber); }
+    .proj-bar-fill.danger { background: var(--red); }
+    .proj-meta {
+      display: flex; justify-content: space-between;
+      font-family: 'DM Mono', monospace; font-size: .68rem;
+      color: var(--dim); letter-spacing: .04em;
+    }
+
+    /* ── DEVICES ── */
+    .section-header {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 10px;
+      flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: -.01em;
+    }
+    .section-mono {
+      font-family: 'DM Mono', monospace;
+      font-size: .68rem; color: var(--dim);
+    }
+
+    .devices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .device-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      display: flex; flex-direction: column; gap: 12px;
+      transition: border-color .2s;
+    }
+    .device-card.on { border-color: var(--green-mid); }
+    .device-card.off { opacity: .55; }
+    .device-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 8px;
+    }
+    .device-icon {
+      font-size: 1.5rem; line-height: 1;
+      flex-shrink: 0;
+    }
+    .device-status {
+      font-family: 'DM Mono', monospace; font-size: .62rem;
+      letter-spacing: .1em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 100px;
+    }
+    .device-status.on {
+      background: var(--green-dim); color: var(--green);
+      border: 1px solid var(--green-mid);
+    }
+    .device-status.off {
+      background: transparent; color: var(--dim);
+      border: 1px solid var(--muted);
+    }
+    .device-name {
+      font-size: .9rem; font-weight: 700;
+      color: var(--white); letter-spacing: -.01em;
+    }
+    .device-model {
+      font-family: 'DM Mono', monospace; font-size: .68rem;
+      color: var(--dim); margin-top: 2px;
+    }
+    .device-stats {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .dstat-label {
+      font-family: 'DM Mono', monospace; font-size: .6rem;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--dim); margin-bottom: 3px;
+    }
+    .dstat-val {
+      font-family: 'DM Mono', monospace; font-size: .92rem;
+      font-weight: 500; color: var(--white);
+    }
+    .dstat-val.green { color: var(--green); }
+    .device-bar-track {
+      height: 3px; background: var(--muted);
+      border-radius: 100px; overflow: hidden;
+    }
+    .device-bar-fill {
+      height: 100%; border-radius: 100px;
+      background: var(--green); transition: width .5s ease;
+    }
+
+    /* ── LEDGER ── */
+    .ledger-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px;
+      margin-bottom: 32px;
+    }
+    .ledger-card table { width: 100%; border-collapse: collapse; }
+    .ledger-card thead th {
+      font-family: 'DM Mono', monospace; font-size: .62rem;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--dim); font-weight: 400;
+      padding: 0 0 12px; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .ledger-card thead th:last-child { text-align: right; }
+    .ledger-card tbody tr td {
+      padding: 11px 0; font-size: .84rem;
+      color: var(--light); border-bottom: 1px solid var(--border);
+    }
+    .ledger-card tbody tr:last-child td { border-bottom: none; }
+    .ledger-card tbody tr td.mono {
+      font-family: 'DM Mono', monospace; font-size: .82rem;
+    }
+    .ledger-card tbody tr td.right { text-align: right; }
+    .ledger-card tbody tr td.green { color: var(--green); }
+    .ledger-card tbody tr td.name { color: var(--white); font-weight: 600; }
+    .ledger-card tfoot tr td {
+      padding: 14px 0 0;
+      border-top: 2px solid var(--green);
+      font-weight: 800; font-size: .95rem;
+      color: var(--green);
+    }
+    .ledger-card tfoot tr td:last-child {
+      text-align: right;
+      font-family: 'DM Mono', monospace; font-size: 1.1rem;
+    }
+
+    /* ── LAST UPDATED ── */
+    .data-footer {
+      display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap;
+      gap: 10px; margin-bottom: 24px;
+    }
+    .data-timestamp {
+      font-family: 'DM Mono', monospace; font-size: .68rem;
+      color: var(--dim); letter-spacing: .04em;
+    }
+    .data-timestamp span { color: var(--mid); }
+
+    /* ── ERROR STATE ── */
+    .error-banner {
+      background: var(--red-dim); border: 1px solid var(--red);
+      border-radius: 10px; padding: 18px 20px;
+      font-family: 'DM Mono', monospace; font-size: .8rem;
+      color: var(--red); letter-spacing: .02em;
+      margin-bottom: 28px; display: none;
+    }
+
+    /* ── SKELETON ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--card) 25%, var(--muted) 50%, var(--card) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    @keyframes shimmer {
+      0%{ background-position: 200% 0; }
+      100%{ background-position: -200% 0; }
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      text-align: center;
+    }
+    .footer p {
+      font-family: 'DM Mono', monospace; font-size: .68rem;
+      color: var(--dim); letter-spacing: .05em; line-height: 1.9;
+    }
+    .footer a { color: var(--green); text-decoration: none; }
+
+    @media(max-width: 520px){
+      .site-header { padding: 14px 16px; }
+      .main { padding: 22px 14px 52px; }
+      .devices-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="brand">
+    <div class="brand-dot"></div>
+    <span class="brand-name">CENPELCO</span>
+    <div class="header-crumb">
+      <span class="crumb-sep">/</span>
+      <a href="../" class="crumb-link">bill</a>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current">current</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="stale-badge" id="stale-badge">⚠ stale data</span>
+    <button class="refresh-btn" onclick="location.reload()">↻ refresh</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="error-banner" id="error-banner"></div>
+
+  <div class="hero">
+    <div class="hero-label">Live Monitor · <span id="label-period">Loading…</span></div>
+    <h1 class="hero-title">Real-Time Usage<br><span>& Bill Projection</span></h1>
+    <p class="hero-sub">Live power draw from your LG ThinQ appliances, accumulated into an estimated bill at CENPELCO Lingayen residential rates. Data refreshed every 15 minutes via GitHub Actions.</p>
+  </div>
+
+  <!-- Summary stats -->
+  <div class="summary-grid">
+    <div class="stat-card accent-green">
+      <div class="stat-label">Current Draw</div>
+      <div class="stat-value" id="stat-watts">—<span class="unit">W</span></div>
+      <div class="stat-sub" id="stat-devices-on">— devices active</div>
+    </div>
+    <div class="stat-card accent-blue">
+      <div class="stat-label">kWh This Period</div>
+      <div class="stat-value" id="stat-kwh">—<span class="unit">kWh</span></div>
+      <div class="stat-sub" id="stat-days-elapsed">— days elapsed</div>
+    </div>
+    <div class="stat-card accent-amber">
+      <div class="stat-label">Bill So Far</div>
+      <div class="stat-value" id="stat-bill-so-far">—</div>
+      <div class="stat-sub">accumulated charges</div>
+    </div>
+    <div class="stat-card accent-red">
+      <div class="stat-label">Projected Bill</div>
+      <div class="stat-value" id="stat-projected">—</div>
+      <div class="stat-sub" id="stat-projected-sub">end of billing period</div>
+    </div>
+  </div>
+
+  <!-- Projection bar -->
+  <div class="projection-card">
+    <div class="proj-header">
+      <div>
+        <div class="proj-title">Monthly Projection</div>
+        <div class="section-mono" id="proj-label">Calculating…</div>
+      </div>
+      <div class="proj-amount" id="proj-amount">₱—</div>
+    </div>
+    <div class="proj-bar-track">
+      <div class="proj-bar-fill" id="proj-bar"></div>
+    </div>
+    <div class="proj-meta">
+      <span id="proj-meta-left">Day 0 of 30</span>
+      <span id="proj-meta-right">₱0 / ₱0 avg</span>
+    </div>
+  </div>
+
+  <!-- Devices -->
+  <div class="section-header">
+    <div class="section-title">Monitored Appliances</div>
+    <div class="section-mono" id="device-count">LG ThinQ · high-draw only</div>
+  </div>
+  <div class="devices-grid" id="devices-grid">
+    <!-- filled by JS -->
+    <div class="device-card"><div class="skeleton" style="width:100%;height:120px;border-radius:8px;"></div></div>
+    <div class="device-card"><div class="skeleton" style="width:100%;height:120px;border-radius:8px;"></div></div>
+    <div class="device-card"><div class="skeleton" style="width:100%;height:120px;border-radius:8px;"></div></div>
+  </div>
+
+  <!-- Itemized bill ledger -->
+  <div class="section-header">
+    <div class="section-title">Projected Bill Breakdown</div>
+    <div class="section-mono">at end-of-period kWh projection</div>
+  </div>
+  <div class="ledger-card" id="ledger-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Charge</th>
+          <th>Group</th>
+          <th>Calculation</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody id="ledger-body">
+        <tr><td colspan="4" style="text-align:center;color:var(--dim);font-family:'DM Mono',monospace;font-size:.78rem;padding:24px 0;">Loading tariff data…</td></tr>
+      </tbody>
+      <tfoot id="ledger-foot"></tfoot>
+    </table>
+  </div>
+
+  <!-- Timestamp -->
+  <div class="data-footer">
+    <div class="data-timestamp">Last polled: <span id="label-updated">—</span></div>
+    <div class="data-timestamp">Next poll: <span id="label-next">every 15 min via GitHub Actions</span></div>
+  </div>
+
+  <footer class="footer">
+    <p>
+      Live data via <a href="https://thinq.developer.lge.com/" target="_blank">LG ThinQ API</a> ·
+      Tariff rates from <a href="https://cmbis.cenpelco.com/public/rates/billrates.jsp" target="_blank">CENPELCO official rates</a><br>
+      Estimates only — refer to your actual bill for exact charges.
+      <a href="../">← Back to bill estimator</a>
+    </p>
+  </footer>
+
+</main>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────
+const CURRENT_JSON = './current.json';
+const RATES_JSON   = '../rates.json';
+
+// Device type → display config
+const DEVICE_META = {
+  'AC':      { icon: '❄️',  label: 'Air Conditioner', maxW: 2000 },
+  'WASHER':  { icon: '🫧',  label: 'Washer',          maxW: 800  },
+  'DRYER':   { icon: '🌀',  label: 'Dryer',           maxW: 1500 },
+  'FRIDGE':  { icon: '🧊',  label: 'Refrigerator',    maxW: 400  },
+};
+
+// ─────────────────────────────────────────────
+// MAIN
+// ─────────────────────────────────────────────
+async function init() {
+  let current, rates;
+
+  try {
+    const [cr, rr] = await Promise.all([
+      fetch(CURRENT_JSON).then(r => { if (!r.ok) throw new Error(`current.json: ${r.status}`); return r.json(); }),
+      fetch(RATES_JSON).then(r => { if (!r.ok) throw new Error(`rates.json: ${r.status}`); return r.json(); }),
+    ]);
+    current = cr; rates = rr;
+  } catch (err) {
+    showError(`Could not load data: ${err.message}. Make sure the GitHub Action has run at least once.`);
+    return;
+  }
+
+  // Stale check (> 30 min old)
+  const polledAt = new Date(current.polled_at);
+  const ageMin = (Date.now() - polledAt.getTime()) / 60000;
+  if (ageMin > 30) {
+    document.getElementById('stale-badge').classList.add('warn');
+  }
+  document.getElementById('label-updated').textContent = polledAt.toLocaleString('en-PH');
+  document.getElementById('label-period').textContent  = current.billing_period || rates.billing_month || 'Current Period';
+
+  // ── Stats ──
+  const totalW      = current.devices.reduce((s, d) => s + (d.on ? (d.watts || 0) : 0), 0);
+  const devicesOn   = current.devices.filter(d => d.on).length;
+  const kwhSoFar    = current.kwh_accumulated;
+  const daysElapsed = current.days_elapsed;
+  const daysTotal   = current.billing_days || 30;
+  const daysLeft    = daysTotal - daysElapsed;
+  const kwhPerDay   = daysElapsed > 0 ? kwhSoFar / daysElapsed : 0;
+  const kwhProjected = kwhPerDay * daysTotal;
+
+  document.getElementById('stat-watts').innerHTML      = `${totalW.toLocaleString()}<span class="unit">W</span>`;
+  document.getElementById('stat-devices-on').textContent = `${devicesOn} of ${current.devices.length} active`;
+  document.getElementById('stat-kwh').innerHTML        = `${kwhSoFar.toFixed(1)}<span class="unit">kWh</span>`;
+  document.getElementById('stat-days-elapsed').textContent = `Day ${daysElapsed} of ${daysTotal}`;
+
+  // ── Bill calculation ──
+  const billSoFar   = computeBill(kwhSoFar, rates.unbundled_rates);
+  const billProj    = computeBill(kwhProjected, rates.unbundled_rates);
+
+  document.getElementById('stat-bill-so-far').innerHTML = `<span style="font-size:.65em;color:var(--dim)">₱</span>${billSoFar.total.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  document.getElementById('stat-projected').innerHTML   = `<span style="font-size:.65em;color:var(--dim)">₱</span>${billProj.total.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  document.getElementById('stat-projected-sub').textContent = `~${kwhProjected.toFixed(1)} kWh projected`;
+
+  // ── Projection bar ──
+  const pct = Math.min((daysElapsed / daysTotal) * 100, 100);
+  const bar = document.getElementById('proj-bar');
+  bar.style.width = pct + '%';
+  if (pct > 85) bar.classList.add('danger');
+  else if (pct > 65) bar.classList.add('warn');
+
+  document.getElementById('proj-amount').textContent = `₱${billProj.total.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  document.getElementById('proj-label').textContent  = `Based on ${kwhPerDay.toFixed(2)} kWh/day average · ${daysLeft} days remaining`;
+  document.getElementById('proj-meta-left').textContent  = `Day ${daysElapsed} of ${daysTotal}`;
+  document.getElementById('proj-meta-right').textContent = `${kwhSoFar.toFixed(1)} kWh so far · avg ₱${(billSoFar.total / Math.max(daysElapsed,1)).toFixed(2)}/day`;
+
+  // ── Devices ──
+  renderDevices(current.devices);
+  document.getElementById('device-count').textContent = `${devicesOn} active · ${current.devices.length} monitored`;
+
+  // ── Ledger ──
+  renderLedger(billProj, kwhProjected);
+}
+
+// ─────────────────────────────────────────────
+// BILL CALC  (mirrors app.js logic)
+// ─────────────────────────────────────────────
+function computeBill(kwh, rates) {
+  if (!rates) return { total: 0, lines: [] };
+  let total = 0;
+  const lines = rates.map(r => {
+    const isVolumetric = r.type && (r.type.toLowerCase().includes('consumption') || r.type.toLowerCase().includes('kw'));
+    const amount = isVolumetric ? kwh * r.rate_val : r.rate_val;
+    total += amount;
+    return { ...r, amount, isVolumetric };
+  });
+  return { total, lines };
+}
+
+// ─────────────────────────────────────────────
+// RENDER: DEVICES
+// ─────────────────────────────────────────────
+function renderDevices(devices) {
+  const grid = document.getElementById('devices-grid');
+  if (!devices || devices.length === 0) {
+    grid.innerHTML = `<div style="color:var(--dim);font-family:'DM Mono',monospace;font-size:.8rem;">No devices returned from ThinQ.</div>`;
+    return;
+  }
+  grid.innerHTML = devices.map(d => {
+    const meta = DEVICE_META[d.type] || { icon: '🔌', label: d.type, maxW: 1000 };
+    const wattPct = Math.min(((d.watts || 0) / meta.maxW) * 100, 100);
+    const kwhToday = (d.kwh_today || 0).toFixed(2);
+    const kwhPeriod = (d.kwh_period || 0).toFixed(1);
+    const isOn = !!d.on;
+    return `
+      <div class="device-card ${isOn ? 'on' : 'off'}">
+        <div class="device-top">
+          <div>
+            <div class="device-icon">${meta.icon}</div>
+          </div>
+          <span class="device-status ${isOn ? 'on' : 'off'}">${isOn ? 'ON' : 'OFF'}</span>
+        </div>
+        <div>
+          <div class="device-name">${d.alias || meta.label}</div>
+          <div class="device-model">${d.model || '—'}</div>
+        </div>
+        <div class="device-stats">
+          <div>
+            <div class="dstat-label">Now</div>
+            <div class="dstat-val ${isOn ? 'green' : ''}">${isOn ? (d.watts || 0).toLocaleString() + ' W' : '—'}</div>
+          </div>
+          <div>
+            <div class="dstat-label">Today</div>
+            <div class="dstat-val">${kwhToday} kWh</div>
+          </div>
+          <div>
+            <div class="dstat-label">This Period</div>
+            <div class="dstat-val">${kwhPeriod} kWh</div>
+          </div>
+          <div>
+            <div class="dstat-label">Mode</div>
+            <div class="dstat-val" style="font-size:.78rem">${d.mode || '—'}</div>
+          </div>
+        </div>
+        ${isOn ? `
+        <div>
+          <div class="device-bar-track">
+            <div class="device-bar-fill" style="width:${wattPct.toFixed(1)}%"></div>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:.6rem;color:var(--dim);margin-top:4px;">${wattPct.toFixed(0)}% of rated max</div>
+        </div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// RENDER: LEDGER
+// ─────────────────────────────────────────────
+function renderLedger(bill, kwh) {
+  const tbody = document.getElementById('ledger-body');
+  const tfoot = document.getElementById('ledger-foot');
+  if (!bill.lines || bill.lines.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--dim);font-family:'DM Mono',monospace;padding:24px 0;">No rate data available.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = bill.lines.map(l => `
+    <tr>
+      <td class="name">${l.name}</td>
+      <td style="color:var(--dim);font-size:.78rem">${l.group || l.category || '—'}</td>
+      <td class="mono" style="color:var(--mid);font-size:.75rem">${l.isVolumetric ? `${kwh.toFixed(2)} kWh × ₱${l.rate_val.toFixed(4)}` : 'Flat charge'}</td>
+      <td class="mono right green">₱${l.amount.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+    </tr>
+  `).join('');
+  tfoot.innerHTML = `<tr>
+    <td colspan="3">Projected Total Bill</td>
+    <td>₱${bill.total.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+  </tr>`;
+}
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('error-banner');
+  el.textContent = '⚠ ' + msg;
+  el.style.display = 'block';
+}
+
+init();
+</script>
+</body>
+</html>
