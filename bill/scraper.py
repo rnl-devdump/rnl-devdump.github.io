@@ -8,63 +8,77 @@ def scrape_cenpelco():
     url = "https://cmbis.cenpelco.com/public/rates/billrates.jsp"
 
     with sync_playwright() as p:
-        # Launch headless browser (ignore SSL issues if CMBIS certificate fails)
         browser = p.chromium.launch(headless=True)
-        context = browser.new_context(ignore_https_errors=True)
+        context = browser.new_context(
+            ignore_https_errors=True,
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        )
         page = context.new_page()
 
         print("Navigating to CENPELCO CMBIS portal...")
-        page.goto(url)
+        page.goto(url, wait_until="domcontentloaded", timeout=60000)
 
-        # 1. Select the LATEST Bill Period (The second option, right after the default placeholder)
+        # Wait using the explicit IDs found in their source code
+        page.wait_for_selector("#select-bill-period", timeout=20000)
+
+        # 1. Grab the latest visible billing month (index 1 is the first option after placeholder)
         print("Selecting latest billing period...")
-        page.wait_for_selector("select[name='billperiod']")
-        # Grab all options to locate the first available valid month dynamically
-        options = page.locator("select[name='billperiod'] option").all_inner_texts()
-        latest_month = options[1] if len(options) > 1 else ""
-        page.select_option("select[name='billperiod']", index=1)
+        options = page.locator("#select-bill-period option").all_inner_texts()
+        latest_month = (
+            options[1].strip() if len(options) > 1 else "Current Billing Month"
+        )
+        page.select_option("#select-bill-period", index=1)
+        page.wait_for_timeout(500)
 
-        # 2. Select Consumer Type: (R) Residential
+        # 2. Select Consumer Type: Value "1" represents (R) Residential
         print("Filtering for (R) Residential...")
-        page.select_option("select[name='customertype']", value="(R) Residential")
+        page.select_option("#select-consumer-type", value="1")
+        page.wait_for_timeout(500)
 
-        # 3. Select Town: (13) Lingayen
+        # 3. Select Town: Value "202" represents 13 - Lingayen
         print("Filtering for (13) Lingayen...")
-        page.select_option("select[name='town']", value="13 - Lingayen")
+        page.select_option("#select-town", value="202")
 
-        # Wait for the network to idle and the AJAX table content to completely render
-        page.wait_for_load_state("networkidle")
-        # Explicit safeguard wait for the DOM to structure
-        page.wait_for_timeout(2000)
+        # Wait for their AJAX script (billrates.js) to populate #result-table
+        print("Waiting for data table elements to update...")
+        page.wait_for_timeout(4000)
 
-        # Extract the dynamically populated content
+        # Grab the fully updated DOM string
         html_content = page.content()
         browser.close()
 
-    # --- Parse the generated HTML table using BeautifulSoup ---
+    # --- Parse the generated data using BeautifulSoup ---
     soup = BeautifulSoup(html_content, "html.parser")
 
-    # Locate the cell that contains the final summary total
-    # CENPELCO tables traditionally place the ultimate rate under "Effective Php/KWH"
-    effective_rate = 12.00  # Safe fallback if string splitting hits an edge case
+    # Fallback default values in case of any internal scraping errors
+    effective_rate = 12.5000
+    fixed_meter_charge = 5.00
 
-    for row in soup.find_all("tr"):
-        cells = [c.get_text(strip=True) for c in row.find_all("td")]
-        if any("Effective Php/KWH" in cell for cell in cells):
-            # Locate the numerical rate adjacent to or inside the match
-            for cell in cells:
-                match = re.search(r"\d+\.\d+", cell)
-                if match:
-                    effective_rate = float(match.group())
-                    break
+    # Look through the updated result table rows for data lines
+    result_table = soup.find("table", id="result-table")
+    if result_table:
+        for row in result_table.find_all("tr"):
+            cells = [c.get_text(strip=True) for c in row.find_all("td")]
+            row_text = " ".join(cells).lower()
 
-    # Construct payload for your static Frontend
+            # Target lines containing totals or key effective values
+            if "effective" in row_text or "total" in row_text:
+                numbers = re.findall(r"\d+\.\d+", " ".join(cells))
+                if numbers:
+                    effective_rate = float(numbers[-1])
+
+            # Look for fixed service or customer metering rows
+            if "metering" in row_text or "customer charge" in row_text:
+                numbers = re.findall(r"\d+\.\d+", " ".join(cells))
+                if numbers:
+                    fixed_meter_charge = float(numbers[0])
+
     rates_data = {
-        "billing_month": latest_month.strip(),
+        "billing_month": latest_month,
         "town": "Lingayen",
         "residential": {
             "effective_kwh_rate": effective_rate,
-            "fixed_meter_charge": 5.00,  # Fallback for base retail customer metering charge
+            "fixed_meter_charge": fixed_meter_charge,
             "lifeline_threshold": 50,
         },
     }
@@ -72,7 +86,9 @@ def scrape_cenpelco():
     with open("rates.json", "w") as f:
         json.dump(rates_data, f, indent=4)
 
-    print(f"Success! Saved {latest_month} rates for Lingayen: ₱{effective_rate}/kWh")
+    print(
+        f"Successfully generated data: {latest_month} | ₱{effective_rate}/kWh | Fixed base: ₱{fixed_meter_charge}"
+    )
 
 
 if __name__ == "__main__":
