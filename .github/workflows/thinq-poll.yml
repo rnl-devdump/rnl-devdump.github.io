@@ -6,7 +6,7 @@
 #
 # Required repository secrets (Settings → Secrets → Actions):
 #   THINQ_PAT         Personal Access Token from smartsolution.developer.lge.com
-#   THINQ_CLIENT_ID   One-time generated UUID4, e.g. run: python -c "import uuid; print(uuid.uuid4())"
+#   THINQ_CLIENT_ID   One-time generated UUID4  →  python -c "import uuid; print(uuid.uuid4())"
 #
 # Optional secrets / variables:
 #   THINQ_BASE_URL    Override API region (see fetch_thinq.py header for options)
@@ -17,19 +17,9 @@ name: 🔌 Poll LG ThinQ
 
 on:
   schedule:
-    # Every 15 minutes, 24/7.  GitHub Actions guarantees ±1 min accuracy.
-    # Note: GitHub does NOT allow schedules shorter than every 5 minutes.
-    - cron: '0,15,30,45 * * * *'
+    - cron: '0,15,30,45 * * * *'   # every 15 minutes
+  workflow_dispatch:                 # manual trigger from the Actions tab
 
-  # Allow a one-click manual run from the Actions tab (great for first-time setup)
-  workflow_dispatch:
-    inputs:
-      debug:
-        description: 'Print extra debug info'
-        required: false
-        default: 'false'
-
-# The job needs write access to push current.json back to the repo
 permissions:
   contents: write
 
@@ -37,52 +27,41 @@ jobs:
   poll:
     name: Fetch & commit current.json
     runs-on: ubuntu-latest
-    timeout-minutes: 5      # Abort if LG API hangs
+    timeout-minutes: 5
 
     steps:
 
-      # ── 1. Checkout ────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Fetch with a token that can push back
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # ── 2. Python env ──────────────────────────────────────────────────────
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
+          cache: 'pip'                # works now that requirements.txt exists
 
-      # ── 3. Dependencies ────────────────────────────────────────────────────
       - name: Install dependencies
-        run: pip install --quiet aiohttp
+        run: pip install -r requirements.txt
 
-      # ── 4. Run the poller ──────────────────────────────────────────────────
       - name: Fetch ThinQ data
         env:
           THINQ_PAT:         ${{ secrets.THINQ_PAT }}
           THINQ_CLIENT_ID:   ${{ secrets.THINQ_CLIENT_ID }}
           THINQ_COUNTRY:     PH
-          # Uncomment and set THINQ_BASE_URL as a repo secret if the default fails:
-          # THINQ_BASE_URL:  ${{ secrets.THINQ_BASE_URL }}
-          BILLING_START_DAY: '26'    # ← adjust to your CENPELCO meter-read date
+          # THINQ_BASE_URL:  ${{ secrets.THINQ_BASE_URL }}   ← uncomment if needed
+          BILLING_START_DAY: '26'
           OUTPUT_PATH:       docs/current/current.json
         run: python scripts/fetch_thinq.py
 
-      # ── 5. Commit ──────────────────────────────────────────────────────────
-      # Only commits if current.json actually changed (avoids empty commits)
       - name: Commit current.json
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add docs/current/current.json
-
-          # --quiet exits 0 if nothing to commit; we check with diff --staged
           if git diff --staged --quiet; then
-            echo "ℹ No changes to commit — data is identical to last poll."
+            echo "ℹ No changes — data unchanged since last poll."
           else
             TIMESTAMP=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
             git commit -m "chore(thinq): poll ${TIMESTAMP}"
