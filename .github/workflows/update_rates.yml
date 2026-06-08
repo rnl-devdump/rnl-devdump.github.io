@@ -1,46 +1,46 @@
-name: Update CENPELCO Rates for Bill Subfolder
+name: Update Utility Rates Data
 
 on:
   schedule:
-    - cron: '0 0 1 * *' 
-  workflow_dispatch: 
+    # Runs at 00:00 UTC (8:00 AM PHT) daily
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  scrape-and-update:
+  scrape_and_update:
     runs-on: ubuntu-latest
 
-    # Explicitly grant the job permission to write content back to the repository
-    permissions:
-      contents: write
-
     steps:
-    - name: Checkout Repository
+    - name: Checkout repository code
       uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Set up Python environment
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
+        cache: 'pip'
 
-    - name: Install System Dependencies
+    - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y wget gnupg
+        python -m pip install --upgrade pip
+        pip install requests urllib3
 
-    - name: Install Python packages
+    - name: Execute rates scraper script
       run: |
-        pip install beautifulsoup4 playwright requests
-        playwright install chromium
-        playwright install-deps chromium
+        python scraper.py
 
-    - name: Run Playwright Scraper
-      working-directory: ./bill
-      run: python scraper.py
-
-    # Securely commit the file using the GitHub Token context
-    - name: Commit and Push Updated Rates
-      uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        commit_message: "Automated update of Lingayen Residential Rates in /bill"
-        file_pattern: 'bill/rates.json'
-        branch: main
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        
+        if git status --porcelain | grep -qE "rates.json|raw_rates.json"; then
+          git add rates.json raw_rates.json
+          git commit -m "chore: automated update of utility rates data [skip ci]"
+          git push
+        else
+          echo "No changes detected in rates data files."
+        fi
