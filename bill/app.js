@@ -17,12 +17,12 @@ async function runLoader() {
                     <td>${row.pct_kwh}</td>
                     <td>${Number(row.kwh_purchased).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                     <td>${row.pct_cost}</td>
-                    <td>₱${Number(row.basic_cost).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td>₱${Number(row.other_adjust).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td>₱${Number(row.discounts).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                    <td><strong>₱${Number(row.total_cost).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
-                    <td>₱${Number(row.oga).toFixed(4)}</td>
-                    <td><strong>₱${Number(row.avg_cost).toFixed(4)}</strong></td>
+                    <td>PhP ${Number(row.basic_cost).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td>PhP ${Number(row.other_adjust).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td>PhP ${Number(row.discounts).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td><strong>PhP ${Number(row.total_cost).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                    <td>PhP ${Number(row.oga).toFixed(4)}</td>
+                    <td><strong>PhP ${Number(row.avg_cost).toFixed(4)}</strong></td>
                 </tr>
             `).join('');
         } else {
@@ -75,7 +75,7 @@ function processUnbundledBill() {
         // Check if item calculation behaves as a volumetric consumption matrix charge
         if (typeCheck.includes('consumption') || typeCheck.includes('kw')) {
             costItem = kwhValue * item.rate_val;
-            breakdownDesc = `${kwhValue} kWh × ₱${item.rate_val.toFixed(4)}`;
+            breakdownDesc = `${kwhValue} kWh × PhP ${item.rate_val.toFixed(4)}`;
         } else {
             // Constant flat charges (e.g. Metering Charge of Php 5.00)
             costItem = item.rate_val;
@@ -90,7 +90,7 @@ function processUnbundledBill() {
                     <td><strong>${item.category}</strong> <small style="color:#7f8c8d;">(${item.group})</small></td>
                     <td>${item.name}</td>
                     <td><small style="color:#555;">${breakdownDesc}</small></td>
-                    <td class="text-right">₱${costItem.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td class="text-right">PhP ${costItem.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                 </tr>
             `;
         }
@@ -98,7 +98,7 @@ function processUnbundledBill() {
 
     ledgerHTML += `</tbody></table>`;
 
-    document.getElementById('label-total').innerText = `Estimated Statement: ₱${cumulativeTotal.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById('label-total').innerText = `Estimated Statement: PhP ${cumulativeTotal.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     document.getElementById('billing-statement-ledger').innerHTML = ledgerHTML;
     document.getElementById('panel-result').style.display = 'block';
 }
