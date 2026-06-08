@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 
 
-def scrape_cenpelco():
+def scrape_cenpelco_full():
     url = "https://cmbis.cenpelco.com/public/rates/billrates.jsp"
 
     with sync_playwright() as p:
@@ -17,79 +17,82 @@ def scrape_cenpelco():
 
         print("Navigating to CENPELCO CMBIS portal...")
         page.goto(url, wait_until="domcontentloaded", timeout=60000)
-
-        # Wait using the explicit IDs found in their source code
         page.wait_for_selector("#select-bill-period", timeout=20000)
 
-        # 1. Grab the latest visible billing month (index 1 is the first option after placeholder)
-        print("Selecting latest billing period...")
+        # 1. Select Parameters
         options = page.locator("#select-bill-period option").all_inner_texts()
         latest_month = (
-            options[1].strip() if len(options) > 1 else "Current Billing Month"
+            options[1].strip() if len(options) > 1 else "Current Month"
         )
+
         page.select_option("#select-bill-period", index=1)
         page.wait_for_timeout(500)
-
-        # 2. Select Consumer Type: Value "1" represents (R) Residential
-        print("Filtering for (R) Residential...")
-        page.select_option("#select-consumer-type", value="1")
+        page.select_option("#select-consumer-type", value="1")  # Residential
         page.wait_for_timeout(500)
+        page.select_option("#select-town", value="202")  # Lingayen
 
-        # 3. Select Town: Value "202" represents 13 - Lingayen
-        print("Filtering for (13) Lingayen...")
-        page.select_option("#select-town", value="202")
+        print("Waiting for tables to fully render...")
+        page.wait_for_timeout(4500)
 
-        # Wait for their AJAX script (billrates.js) to populate #result-table
-        print("Waiting for data table elements to update...")
-        page.wait_for_timeout(4000)
-
-        # Grab the fully updated DOM string
         html_content = page.content()
         browser.close()
 
-    # --- Parse the generated data using BeautifulSoup ---
     soup = BeautifulSoup(html_content, "html.parser")
 
-    # Fallback default values in case of any internal scraping errors
-    effective_rate = 12.5000
-    fixed_meter_charge = 5.00
+    # --- TABLE 1: Parse Generation Source Matrix ---
+    generation_sources = []
+    gen_table = soup.find("table", id="breakdown-table")
+    if gen_table:
+        for row in gen_table.find_all("tr")[2:]:  # Skip headers
+            cells = [c.get_text(strip=True) for c in row.find_all("td")]
+            if len(cells) >= 10:
+                generation_sources.append(
+                    {
+                        "source": cells[0],
+                        "pct_kwh": cells[1],
+                        "kwh_purchased": cells[2],
+                        "pct_cost": cells[3],
+                        "basic_cost": cells[4],
+                        "other_adjust": cells[5],
+                        "discounts": cells[6],
+                        "total_cost": cells[7],
+                        "oga": cells[8],
+                        "avg_cost": cells[9],
+                    }
+                )
 
-    # Look through the updated result table rows for data lines
+    # --- TABLE 2: Parse Comprehensive Component Rates ---
+    component_rates = []
     result_table = soup.find("table", id="result-table")
     if result_table:
         for row in result_table.find_all("tr"):
             cells = [c.get_text(strip=True) for c in row.find_all("td")]
-            row_text = " ".join(cells).lower()
+            if len(cells) == 4 and cells[0] != "Rates":  # Filter header
+                component_rates.append(
+                    {
+                        "category": cells[0],
+                        "name": cells[1],
+                        "type": cells[2],
+                        "rate_val": float(re.sub(r"[^\d\.]", "", cells[3]))
+                        if re.search(r"\d", cells[3])
+                        else 0.0,
+                        "raw_rate_str": cells[3],
+                    }
+                )
 
-            # Target lines containing totals or key effective values
-            if "effective" in row_text or "total" in row_text:
-                numbers = re.findall(r"\d+\.\d+", " ".join(cells))
-                if numbers:
-                    effective_rate = float(numbers[-1])
-
-            # Look for fixed service or customer metering rows
-            if "metering" in row_text or "customer charge" in row_text:
-                numbers = re.findall(r"\d+\.\d+", " ".join(cells))
-                if numbers:
-                    fixed_meter_charge = float(numbers[0])
-
-    rates_data = {
+    # Master Structure Payload Output
+    master_data = {
         "billing_month": latest_month,
         "town": "Lingayen",
-        "residential": {
-            "effective_kwh_rate": effective_rate,
-            "fixed_meter_charge": fixed_meter_charge,
-            "lifeline_threshold": 50,
-        },
+        "generation_breakdown": generation_sources,
+        "unbundled_rates": component_rates,
     }
 
     with open("rates.json", "w") as f:
-        json.dump(rates_data, f, indent=4)
+        json.dump(master_data, f, indent=4)
 
-    print(
-        f"Successfully generated data: {latest_month} | ₱{effective_rate}/kWh | Fixed base: ₱{fixed_meter_charge}"
-    )
+    print(f"Scraped structural values successfully for {latest_month}!")
 
 
 if __name__ == "__main__":
-    scrape_cenpelco()
+    scrape_cenpelco_full()
