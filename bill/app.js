@@ -1,68 +1,44 @@
-// Storage cache mapped against the dynamic GitHub actions target file output
-let activeRates = null;
+let localRates = null;
 
-async function bootstrapApplication() {
+async function fetchCenpelcoRates() {
     try {
-        const serverStream = await fetch('./rates.json'); // Keep the dot-slash (./)
-        if (!serverStream.ok) throw new Error("Resource structural tracking failure.");
-        
-        activeRates = await serverStream.json();
-        
-        // Render UI parameter values directly from the scraped data
-        document.getElementById('lbl-month').innerText = activeRates.billing_month;
-        document.getElementById('lbl-town').innerText = `${activeRates.town} (Zone 13)`;
-        document.getElementById('lbl-rate').innerText = `${activeRates.residential.effective_kwh_rate.toFixed(4)} ₱/kWh`;
-        document.getElementById('lbl-fixed').innerText = `${activeRates.residential.fixed_meter_charge.toFixed(2)} ₱/Mo`;
-        
-    } catch (error) {
-        console.error("Initialization Fault:", error);
-        document.getElementById('lbl-month').innerText = "System Offline";
-        document.getElementById('lbl-rate').innerText = "Error Loading Rates";
+        const response = await fetch('./rates.json');
+        localRates = await response.json();
+
+        // Populate Table UI parameters
+        document.getElementById('txt-month').innerText = localRates.billing_month;
+        document.getElementById('td-month').innerText = localRates.billing_month;
+        document.getElementById('td-rate').innerText = `₱${localRates.residential.effective_kwh_rate.toFixed(4)} / kWh`;
+        document.getElementById('td-fixed').innerText = `₱${localRates.residential.fixed_meter_charge.toFixed(2)} / Mo`;
+    } catch (e) {
+        document.getElementById('txt-month').innerText = "Offline Error";
+        console.error("Failed parsing rates json database.", e);
     }
 }
 
-function executeCalculation() {
-    if (!activeRates) {
-        alert("Pricing matrix data missing. Please refresh the page.");
-        return;
-    }
+function calculateCenpelcoBill() {
+    if(!localRates) return alert("System data not loaded yet.");
+    
+    const kwhValue = parseFloat(document.getElementById('num-kwh').value);
+    if (isNaN(kwhValue) || kwhValue < 0) return alert("Please supply a valid numeric consumption count.");
 
-    const inputElement = document.getElementById('kwh-input');
-    const consumptionKwh = parseFloat(inputElement.value);
+    const resultBox = document.getElementById('bill-result');
+    const totalBox = document.getElementById('txt-total');
+    const breakdownBox = document.getElementById('txt-breakdown');
 
-    if (isNaN(consumptionKwh) || consumptionKwh < 0) {
-        alert("Please specify a valid tracking threshold usage quantity.");
-        return;
-    }
+    const rate = localRates.residential.effective_kwh_rate;
+    const fixed = localRates.residential.fixed_meter_charge;
 
-    const outputContainer = document.getElementById('result-display');
-    const costLabel = document.getElementById('total-cost');
-    const metricLabel = document.getElementById('breakdown-desc');
+    // Direct standard calculation for every single kWh
+    const genCost = kwhValue * rate;
+    const finalCost = genCost + fixed;
+    
+    const descriptionText = `Usage Charge: ₱${genCost.toFixed(2)} (${kwhValue} kWh × ₱${rate.toFixed(4)}) + Fixed Monthly Meter Charge: ₱${fixed.toFixed(2)}.`;
 
-    const baseRatePerKwh = activeRates.residential.effective_kwh_rate;
-    const standardFixedCharge = activeRates.residential.fixed_meter_charge;
-    const systemLifelineLimit = activeRates.residential.lifeline_threshold;
-
-    let aggregateBillAmount = 0;
-    let detailBreakdownString = "";
-
-    // Lifeline Policy Evaluation
-    if (consumptionKwh <= systemLifelineLimit && consumptionKwh > 0) {
-        aggregateBillAmount = standardFixedCharge;
-        detailBreakdownString = `Lifeline Subsidized Bracket Active (≤ ${systemLifelineLimit} kWh). Energy consumption charges are waived; billing reflects base system maintenance fee only.`;
-    } else {
-        // Standard Bill Computation
-        const consumptionCost = consumptionKwh * baseRatePerKwh;
-        aggregateBillAmount = consumptionCost + standardFixedCharge;
-        
-        detailBreakdownString = `Energy Charge: ₱${consumptionCost.toFixed(2)} (${consumptionKwh} kWh × ₱${baseRatePerKwh.toFixed(4)}) + System Metering Base: ₱${standardFixedCharge.toFixed(2)}`;
-    }
-
-    // Update UI components
-    costLabel.innerText = `₱${aggregateBillAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    metricLabel.innerText = detailBreakdownString;
-    outputContainer.style.display = "block";
+    totalBox.innerText = `₱${finalCost.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    breakdownBox.innerText = descriptionText;
+    resultBox.style.display = 'block';
 }
 
-// Global initialization call execution
-bootstrapApplication();
+// Initialize on page load
+fetchCenpelcoRates();
