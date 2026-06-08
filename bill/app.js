@@ -3,8 +3,7 @@ let activeRates = null;
 
 async function bootstrapApplication() {
     try {
-        // Fetches your rates.json updated via your Playwright GitHub Action
-        const serverStream = await fetch('./rates.json');
+        const serverStream = await fetch('./rates.json'); // Keep the dot-slash (./)
         if (!serverStream.ok) throw new Error("Resource structural tracking failure.");
         
         activeRates = await serverStream.json();
