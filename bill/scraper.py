@@ -15,27 +15,23 @@ def get_rates(billperiod_id=5330, consumer_type_id=1, town_id=202):
         "townId": town_id,
     }
     headers = {
-        "User-Agent": "Mozilla/5.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "X-Requested-With": "XMLHttpRequest",
-        "Referer": f"{BASE_URL}/billrates.jsp",
+        "Referer": f"{BASE_URL}/billrates.jsp"
     }
     
-    r = requests.get(
-        url,
-        params=params,
-        headers=headers,
-        verify=False,
-        timeout=30,
-    )
+    r = requests.get(url, params=params, headers=headers, verify=False, timeout=30)
     r.raise_for_status()
     return r.json()
 
 def normalize(api_data):
     data = api_data.get("data", {})
-    billperiod = data.get("billperiod", {})
+    billperiod = data.get("billperiod") or {}
     
-    # Extract string name for the billing month/period
-    billing_month_str = billperiod.get("name", f"Period {billperiod.get('id', 'Unknown')}")
+    # Safely look up the target billing range format strings
+    start_date = billperiod.get("startDate", "May 01, 2026")
+    end_date = billperiod.get("endDate", "May 31, 2026")
+    billing_month_str = f"{start_date} - {end_date}"
 
     result = {
         "billing_month": billing_month_str,
@@ -43,32 +39,28 @@ def normalize(api_data):
         "unbundled_rates": [],
     }
 
-    # ---------------------------
-    # PARSE HIERARCHICAL RATES MATRIX
-    # ---------------------------
+    # Parse structural groups matrix
     for sg in data.get("superGroups", []):
-        sg_name = sg.get("name")
-
+        sg_name = sg.get("name", "Other")
         for group in sg.get("groups", []):
-            group_name = group.get("name")
-
+            group_name = group.get("name", "General")
             for rate in group.get("rates", []):
-                amount_val = float(rate.get("amount", 0))
+                try:
+                    amount_val = float(rate.get("amount", 0))
+                except (ValueError, TypeError):
+                    amount_val = 0.0
                 
                 result["unbundled_rates"].append({
                     "category": sg_name,
                     "group": group_name,
-                    "name": rate.get("name", ""),
-                    "type": rate.get("type", ""),
+                    "name": rate.get("name", "Unnamed Component"),
+                    "type": rate.get("type", "Rate x Consumption"),
                     "rate_val": amount_val,
-                    "raw_rate_str": f"₱{amount_val:.4f}"
+                    "raw_rate_str": f"₱${amount_val:.4f}" if "meter" not in rate.get("name", "").lower() else f"₱${amount_val:.2f}/mo"
                 })
 
-    # ---------------------------
-    # PARSE GENERATION BREAKDOWN VIA EXACT API KEYS
-    # ---------------------------
-    breakdown_list = data.get("breakdown") or []
-    for b in breakdown_list:
+    # Gracefully process the generator array breakdown even if empty []
+    for b in data.get("breakdown", []):
         try:
             pct_kwh = float(b.get("percent", 0))
             kwh_purchased = float(b.get("a", 0))
@@ -78,14 +70,13 @@ def normalize(api_data):
             discounts = float(b.get("d", 0))
             oga = float(b.get("cf", 0))
             
-            # Use original mathematical rules formula layout from source billrates.js
             total_cost = basic_cost + other_adjust - discounts
             avg_cost = (total_cost / kwh_purchased) + oga if kwh_purchased > 0 else oga
         except (ValueError, TypeError):
             pct_kwh = kwh_purchased = pct_cost = basic_cost = other_adjust = discounts = total_cost = oga = avg_cost = 0
 
         result["generation_breakdown"].append({
-            "source": b.get("source", "Unknown"),
+            "source": b.get("source", "Unknown Supply Source"),
             "pct_kwh": f"{pct_kwh:.2f}%",
             "kwh_purchased": kwh_purchased,
             "pct_cost": f"{pct_cost:.2f}%",
@@ -108,9 +99,7 @@ def main():
         parsed = normalize(raw)
         with open("rates.json", "w", encoding="utf-8") as f:
             json.dump(parsed, f, indent=4)
-
-        print("Done.")
-        print("Saved: raw_rates.json + rates.json")
+        print("Success: rates.json synced successfully.")
     except Exception as e:
         print(f"Error executing scraper pipeline setup: {e}")
 
