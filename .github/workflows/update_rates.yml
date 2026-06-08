@@ -21,7 +21,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-        cache: 'pip'
+        # Removed cache: 'pip' to prevent the missing file error you encountered
 
     - name: Install dependencies
       run: |
@@ -29,6 +29,8 @@ jobs:
         pip install requests urllib3
 
     - name: Execute rates scraper script
+      # Tells GitHub to look inside your "bill" folder to run the script
+      working-directory: ./bill
       run: |
         python scraper.py
 
@@ -37,8 +39,9 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         
-        if git status --porcelain | grep -qE "rates.json|raw_rates.json"; then
-          git add rates.json raw_rates.json
+        # Check specifically for changes inside the bill directory
+        if git status --porcelain | grep -qE "bill/rates.json|bill/raw_rates.json"; then
+          git add bill/rates.json bill/raw_rates.json
           git commit -m "chore: automated update of utility rates data [skip ci]"
           git push
         else
