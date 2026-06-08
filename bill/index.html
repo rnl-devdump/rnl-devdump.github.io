@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CENPELCO Full Matrix Estimator</title>
+    <title>CENPELCO Rate Estimator</title>
     <style>
         :root {
             --primary: #1a5276;
@@ -19,7 +19,7 @@
             color: #2c3e50;
         }
         .container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
             padding: 25px;
@@ -106,58 +106,50 @@
 
 <div class="container">
     <div class="header-box">
-        <h2>CENPELCO Interactive Billing Statement</h2>
-        <p>Current Billing Parameter Matrix: <strong><span id="txt-month">Loading...</span></strong></p>
+        <h2>CENPELCO Bill Estimator - Lingayen</h2>
+        <p>Active Bill Rates: <strong><span id="txt-month">Loading...</span></strong></p>
     </div>
 
     <div class="grid-layout">
         <div class="calculator-card">
-            <h3>Usage Calculator</h3>
-            <p style="font-size: 0.9em; color: var(--secondary);">Target Area: Lingayen | Residential Classification</p>
+            <h3>Calculate Bill</h3>
+            <p style="font-size: 0.9em; color: var(--secondary);">Consumer Type: Residential (R)</p>
             
             <div class="input-group">
-                <label style="font-weight: bold; display:block; margin-bottom:5px;">Total Current Consumption:</label>
+                <label style="font-weight: bold; display:block; margin-bottom:5px;">Power Consumption:</label>
                 <input type="number" id="num-kwh" placeholder="Enter total consumed kWh" min="0">
             </div>
             
-            <button onclick="calculateCenpelcoBill()">Compute Total Bill</button>
+            <button onclick="calculateCenpelcoBill()">Compute Total Cost</button>
 
             <div class="result-display" id="bill-result">
-                <h4>Estimated Cost Breakdown:</h4>
+                <h4>Calculation Breakdown:</h4>
                 <div class="grand-total" id="txt-total">₱0.00</div>
                 <p id="txt-breakdown" style="font-size: 0.85em; color: var(--secondary); line-height: 1.4;"></p>
             </div>
         </div>
 
         <div>
-            <h3>Active Billing Component Baseline</h3>
+            <h3>Active Billing Rates</h3>
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Tariff Element Code</th>
-                        <th>Standard Value / Rate</th>
+                        <th>Billing Component</th>
+                        <th>Rate / Charge</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Coverage Month</td>
+                        <td>Billing Month</td>
                         <td id="td-month">---</td>
                     </tr>
                     <tr>
-                        <td>Base System Generation Rate</td>
+                        <td>Electricity Rate</td>
                         <td id="td-rate">0.0000 ₱/kWh</td>
                     </tr>
                     <tr>
-                        <td>Fixed Customer Service Charge</td>
+                        <td>Fixed Monthly Fee</td>
                         <td id="td-fixed">0.00 ₱/Mo</td>
-                    </tr>
-                    <tr>
-                        <td>Lifeline Rule Exception Threshold</td>
-                        <td>50 kWh or less</td>
-                    </tr>
-                    <tr>
-                        <td>Lifeline Relief Grant Value</td>
-                        <td><strong>100% Full Waiver (₱0.00)</strong></td>
                     </tr>
                 </tbody>
             </table>
