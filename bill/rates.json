@@ -1,5 +1,5 @@
 {
-    "billing_month": "Period 5330",
+    "billing_month": "May 01, 2026 - May 31, 2026",
     "generation_breakdown": [],
     "unbundled_rates": [
         {
@@ -8,7 +8,7 @@
             "name": "Generation Charge (PhP/kWh)",
             "type": "Rate x Consumption",
             "rate_val": 5.9117,
-            "raw_rate_str": "\u20b15.9117"
+            "raw_rate_str": "\u20b1$5.9117"
         },
         {
             "category": "Generation & Transmission",
@@ -16,7 +16,7 @@
             "name": "Transmission Delivery Charge (PhP/kWh)",
             "type": "Rate x Consumption",
             "rate_val": 1.1981,
-            "raw_rate_str": "\u20b11.1981"
+            "raw_rate_str": "\u20b1$1.1981"
         },
         {
             "category": "Generation & Transmission",
@@ -24,7 +24,7 @@
             "name": "System Loss Charge (PhP/kWh)",
             "type": "Rate x Consumption",
             "rate_val": 1.0008,
-            "raw_rate_str": "\u20b11.0008"
+            "raw_rate_str": "\u20b1$1.0008"
         },
         {
             "category": "Distribution Revenues",
@@ -32,7 +32,7 @@
             "name": "Distribution Network Charge (PhP/kWh)",
             "type": "Rate x Consumption",
             "rate_val": 0.4613,
-            "raw_rate_str": "\u20b10.4613"
+            "raw_rate_str": "\u20b1$0.4613"
         },
         {
             "category": "Distribution Revenues",
@@ -40,7 +40,7 @@
             "name": "Retail Electric Service Charge (PhP/kWh)",
             "type": "Rate x Consumption",
             "rate_val": 0.5376,
-            "raw_rate_str": "\u20b10.5376"
+            "raw_rate_str": "\u20b1$0.5376"
         },
         {
             "category": "Distribution Revenues",
@@ -48,7 +48,7 @@
             "name": "Metering Charge (Php/kWh)",
             "type": "Rate x Consumption",
             "rate_val": 0.3205,
-            "raw_rate_str": "\u20b10.3205"
+            "raw_rate_str": "\u20b1$0.32/mo"
         },
         {
             "category": "Distribution Revenues",
@@ -56,7 +56,7 @@
             "name": "Metering Charge (PhP/meter/mo)",
             "type": "Constant Charge",
             "rate_val": 5.0,
-            "raw_rate_str": "\u20b15.0000"
+            "raw_rate_str": "\u20b1$5.00/mo"
         },
         {
             "category": "Distribution Revenues",
@@ -64,7 +64,7 @@
             "name": "RFSC",
             "type": "Rate x Consumption",
             "rate_val": 0.4456,
-            "raw_rate_str": "\u20b10.4456"
+            "raw_rate_str": "\u20b1$0.4456"
         },
         {
             "category": "Government Revenues",
@@ -72,7 +72,7 @@
             "name": "Franchise Tax",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "raw_rate_str": "\u20b1$0.0000"
         },
         {
             "category": "Government Revenues",
@@ -80,7 +80,7 @@
             "name": "Real Property Tax",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "raw_rate_str": "\u20b1$0.0000"
         },
         {
             "category": "Government Revenues",
@@ -88,7 +88,7 @@
             "name": "Business Tax",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "raw_rate_str": "\u20b1$0.0000"
         },
         {
             "category": "Government Revenues",
@@ -96,7 +96,7 @@
             "name": "Generation Tax",
             "type": "Rate x Consumption",
             "rate_val": 0.6401,
-            "raw_rate_str": "\u20b10.6401"
+            "raw_rate_str": "\u20b1$0.6401"
         },
         {
             "category": "Government Revenues",
@@ -104,7 +104,7 @@
             "name": "Transmission Tax",
             "type": "Rate x Consumption",
             "rate_val": 0.1493,
-            "raw_rate_str": "\u20b10.1493"
+            "raw_rate_str": "\u20b1$0.1493"
         },
         {
             "category": "Government Revenues",
@@ -112,7 +112,7 @@
             "name": "System Loss Tax",
             "type": "Rate x Consumption",
             "rate_val": 0.1125,
-            "raw_rate_str": "\u20b10.1125"
+            "raw_rate_str": "\u20b1$0.1125"
         },
         {
             "category": "Government Revenues",
@@ -120,7 +120,7 @@
             "name": "NPC Stranded Debts",
             "type": "Rate x Consumption",
             "rate_val": 0.0428,
-            "raw_rate_str": "\u20b10.0428"
+            "raw_rate_str": "\u20b1$0.0428"
         },
         {
             "category": "Government Revenues",
@@ -128,7 +128,7 @@
             "name": "NPC Stranded Costs",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "raw_rate_str": "\u20b1$0.0000"
         },
         {
             "category": "Government Revenues",
@@ -136,7 +136,7 @@
             "name": "NPC SPUG",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "raw_rate_str": "\u20b1$0.0000"
         },
         {
             "category": "Government Revenues",
@@ -144,7 +144,7 @@
             "name": "Missionary Electrification",
             "type": "Rate x Consumption",
             "rate_val": 0.2763,
-            "raw_rate_str": "\u20b10.2763"
+            "raw_rate_str": "\u20b1$0.2763"
         },
         {
             "category": "Government Revenues",
@@ -152,7 +152,7 @@
             "name": "Environmental Charges",
             "type": "Rate x Consumption",
             "rate_val": 0.0025,
-            "raw_rate_str": "\u20b10.0025"
+            "raw_rate_str": "\u20b1$0.0025"
         },
         {
             "category": "Government Revenues",
@@ -160,7 +160,7 @@
             "name": "FIT-ALL",
             "type": "Rate x Consumption",
             "rate_val": 0.2011,
-            "raw_rate_str": "\u20b10.2011"
+            "raw_rate_str": "\u20b1$0.2011"
         },
         {
             "category": "Government Revenues",
@@ -168,7 +168,7 @@
             "name": "GEA-ALL",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "raw_rate_str": "\u20b1$0.0000"
         },
         {
             "category": "Government Revenues",
@@ -176,7 +176,7 @@
             "name": "Distribution Tax",
             "type": "Distribution VAT",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "raw_rate_str": "\u20b1$0.0000"
         },
         {
             "category": "Government Revenues",
@@ -184,7 +184,7 @@
             "name": "Other Tax",
             "type": "Other VAT",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "raw_rate_str": "\u20b1$0.0000"
         },
         {
             "category": "Others",
@@ -192,7 +192,7 @@
             "name": "Lifeline Rate Subsidy",
             "type": "Rate x Consumption",
             "rate_val": 0.01,
-            "raw_rate_str": "\u20b10.0100"
+            "raw_rate_str": "\u20b1$0.0100"
         },
         {
             "category": "Others",
@@ -200,7 +200,7 @@
             "name": "Lifeline Rate Discount",
             "type": "Lifeline Discount",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "raw_rate_str": "\u20b1$0.0000"
         },
         {
             "category": "Others",
@@ -208,7 +208,7 @@
             "name": "ICCS Adj",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "raw_rate_str": "\u20b1$0.0000"
         },
         {
             "category": "Adjustments",
@@ -216,7 +216,7 @@
             "name": "Senior Citizen Subsidy",
             "type": "Rate x Consumption",
             "rate_val": 0.0001,
-            "raw_rate_str": "\u20b10.0001"
+            "raw_rate_str": "\u20b1$0.0001"
         },
         {
             "category": "Adjustments",
@@ -224,7 +224,7 @@
             "name": "Senior Citizen Discount",
             "type": "Senior Discount",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "raw_rate_str": "\u20b1$0.0000"
         }
     ]
 }
