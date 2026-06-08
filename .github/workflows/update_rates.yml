@@ -1,0 +1,41 @@
+name: Update CENPELCO Rates for Bill Subfolder
+
+on:
+  schedule:
+    - cron: '0 0 1 * *' # Automatically runs on the 1st of every month
+  workflow_dispatch: # Allows you to trigger it manually via the GitHub Actions tab
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install System and Python Dependencies
+      run: |
+        pip install beautifulsoup4 playwright
+        playwright install chromium
+
+    - name: Run Playwright Scraper
+      # 'working-directory' forces the script to execute inside your /bill folder
+      working-directory: ./bill
+      run: python scraper.py
+
+    - name: Commit and Push Updated Rates
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+        # Stage only the rates.json file inside the bill folder
+        git add bill/rates.json
+        
+        # Commit changes if any exist; ignore the step if rates haven't changed yet
+        git commit -m "Automated update of Lingayen Residential Rates in /bill" || echo "No changes to commit"
+        git push
