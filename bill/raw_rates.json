@@ -1,0 +1,422 @@
+{
+    "data": {
+        "superGroups": [
+            {
+                "name": "Generation & Transmission",
+                "refbillratesupergrouptypeId": 1,
+                "groups": [
+                    {
+                        "rates": [
+                            {
+                                "id": 68135,
+                                "name": "Generation Charge (PhP/kWh)",
+                                "amount": "5.9117",
+                                "type": "Rate x Consumption",
+                                "position": 1,
+                                "taxTypeName": ""
+                            }
+                        ],
+                        "name": "Generation Charges",
+                        "description": "Generation Charges",
+                        "id": 1,
+                        "position": 1,
+                        "isTax": 0,
+                        "refbillratesupergroupId": 1
+                    },
+                    {
+                        "rates": [
+                            {
+                                "id": 68485,
+                                "name": "Transmission Delivery Charge (PhP/kWh)",
+                                "amount": "1.1981",
+                                "type": "Rate x Consumption",
+                                "position": 4,
+                                "taxTypeName": ""
+                            }
+                        ],
+                        "name": "Transmission Charges",
+                        "description": "Transmission Charges",
+                        "id": 2,
+                        "position": 3,
+                        "isTax": 0,
+                        "refbillratesupergroupId": 1
+                    },
+                    {
+                        "rates": [
+                            {
+                                "id": 68161,
+                                "name": "System Loss Charge (PhP/kWh)",
+                                "amount": "1.0008",
+                                "type": "Rate x Consumption",
+                                "position": 5,
+                                "taxTypeName": ""
+                            }
+                        ],
+                        "name": "System Loss Charge",
+                        "description": "System Loss Charge",
+                        "id": 3,
+                        "position": 4,
+                        "isTax": 0,
+                        "refbillratesupergroupId": 1
+                    }
+                ],
+                "id": 1,
+                "position": 1
+            },
+            {
+                "name": "Distribution Revenues",
+                "refbillratesupergrouptypeId": 2,
+                "groups": [
+                    {
+                        "rates": [
+                            {
+                                "id": 68452,
+                                "name": "Distribution Network Charge (PhP/kWh)",
+                                "amount": "0.4613",
+                                "type": "Rate x Consumption",
+                                "position": 6,
+                                "taxTypeName": "Distribution VAT"
+                            }
+                        ],
+                        "name": "Distribution Charges",
+                        "description": "Distribution Charges",
+                        "id": 4,
+                        "position": 8,
+                        "isTax": 0,
+                        "refbillratesupergroupId": 2
+                    },
+                    {
+                        "rates": [
+                            {
+                                "id": 68654,
+                                "name": "Retail Electric Service Charge (PhP/kWh)",
+                                "amount": "0.5376",
+                                "type": "Rate x Consumption",
+                                "position": 8,
+                                "taxTypeName": "Distribution VAT"
+                            }
+                        ],
+                        "name": "Supply Charges",
+                        "description": "Supply Charges",
+                        "id": 5,
+                        "position": 9,
+                        "isTax": 0,
+                        "refbillratesupergroupId": 2
+                    },
+                    {
+                        "rates": [
+                            {
+                                "id": 68759,
+                                "name": "Metering Charge (Php/kWh)",
+                                "amount": "0.3205",
+                                "type": "Rate x Consumption",
+                                "position": 10,
+                                "taxTypeName": "Distribution VAT"
+                            },
+                            {
+                                "id": 68191,
+                                "name": "Metering Charge (PhP/meter/mo)",
+                                "amount": "5.0000",
+                                "type": "Constant Charge",
+                                "position": 11,
+                                "taxTypeName": "Distribution VAT"
+                            }
+                        ],
+                        "name": "Metering Charges",
+                        "description": "Metering Charges",
+                        "id": 6,
+                        "position": 10,
+                        "isTax": 0,
+                        "refbillratesupergroupId": 2
+                    },
+                    {
+                        "rates": [
+                            {
+                                "id": 68660,
+                                "name": "RFSC",
+                                "amount": "0.4456",
+                                "type": "Rate x Consumption",
+                                "position": 15,
+                                "taxTypeName": "Distribution VAT"
+                            }
+                        ],
+                        "name": "RFSC",
+                        "description": "RFSC",
+                        "id": 7,
+                        "position": 12,
+                        "isTax": 0,
+                        "refbillratesupergroupId": 2
+                    }
+                ],
+                "id": 2,
+                "position": 2
+            },
+            {
+                "name": "Government Revenues",
+                "refbillratesupergrouptypeId": 1,
+                "groups": [
+                    {
+                        "rates": [
+                            {
+                                "id": 68761,
+                                "name": "Franchise Tax",
+                                "amount": "0.0000",
+                                "type": "Rate x Consumption",
+                                "position": 18,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68512,
+                                "name": "Real Property Tax",
+                                "amount": "0.0000",
+                                "type": "Rate x Consumption",
+                                "position": 19,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68549,
+                                "name": "Business Tax",
+                                "amount": "0.0000",
+                                "type": "Rate x Consumption",
+                                "position": 20,
+                                "taxTypeName": ""
+                            }
+                        ],
+                        "name": "Local Tax",
+                        "description": "Franchise Tax",
+                        "id": 14,
+                        "position": 5,
+                        "isTax": 1,
+                        "refbillratesupergroupId": 4
+                    },
+                    {
+                        "rates": [
+                            {
+                                "id": 68619,
+                                "name": "Generation Tax",
+                                "amount": "0.6401",
+                                "type": "Rate x Consumption",
+                                "position": 21,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68481,
+                                "name": "Transmission Tax",
+                                "amount": "0.1493",
+                                "type": "Rate x Consumption",
+                                "position": 22,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68281,
+                                "name": "System Loss Tax",
+                                "amount": "0.1125",
+                                "type": "Rate x Consumption",
+                                "position": 23,
+                                "taxTypeName": ""
+                            }
+                        ],
+                        "name": "Pass-Through Value-Added Tax",
+                        "description": "Pass-Through Value-Added Tax",
+                        "id": 15,
+                        "position": 6,
+                        "isTax": 1,
+                        "refbillratesupergroupId": 4
+                    },
+                    {
+                        "rates": [
+                            {
+                                "id": 68301,
+                                "name": "NPC Stranded Debts",
+                                "amount": "0.0428",
+                                "type": "Rate x Consumption",
+                                "position": 26,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68243,
+                                "name": "NPC Stranded Costs",
+                                "amount": "0.0000",
+                                "type": "Rate x Consumption",
+                                "position": 27,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68486,
+                                "name": "NPC SPUG",
+                                "amount": "0.0000",
+                                "type": "Rate x Consumption",
+                                "position": 28,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68504,
+                                "name": "Missionary Electrification",
+                                "amount": "0.2763",
+                                "type": "Rate x Consumption",
+                                "position": 29,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68725,
+                                "name": "Environmental Charges",
+                                "amount": "0.0025",
+                                "type": "Rate x Consumption",
+                                "position": 30,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68187,
+                                "name": "FIT-ALL",
+                                "amount": "0.2011",
+                                "type": "Rate x Consumption",
+                                "position": 31,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68697,
+                                "name": "GEA-ALL",
+                                "amount": "0.0000",
+                                "type": "Rate x Consumption",
+                                "position": 33,
+                                "taxTypeName": ""
+                            }
+                        ],
+                        "name": "Universal Charges",
+                        "description": "Universal Charge",
+                        "id": 9,
+                        "position": 7,
+                        "isTax": 0,
+                        "refbillratesupergroupId": 4
+                    },
+                    {
+                        "rates": [
+                            {
+                                "id": 68242,
+                                "name": "Distribution Tax",
+                                "amount": "0.0000",
+                                "type": "Distribution VAT",
+                                "position": 24,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68548,
+                                "name": "Other Tax",
+                                "amount": "0.0000",
+                                "type": "Other VAT",
+                                "position": 25,
+                                "taxTypeName": ""
+                            }
+                        ],
+                        "name": "Value-Added Tax",
+                        "description": "Value-Added Tax",
+                        "id": 16,
+                        "position": 15,
+                        "isTax": 1,
+                        "refbillratesupergroupId": 4
+                    }
+                ],
+                "id": 4,
+                "position": 3
+            },
+            {
+                "name": "Others",
+                "refbillratesupergrouptypeId": 2,
+                "groups": [
+                    {
+                        "rates": [
+                            {
+                                "id": 68470,
+                                "name": "Lifeline Rate Subsidy",
+                                "amount": "0.0100",
+                                "type": "Rate x Consumption",
+                                "position": 16,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68648,
+                                "name": "Lifeline Rate Discount",
+                                "amount": "0.0000",
+                                "type": "Lifeline Discount",
+                                "position": 41,
+                                "taxTypeName": ""
+                            }
+                        ],
+                        "name": "Lifeline Rate",
+                        "description": "Lifeline Rate",
+                        "id": 10,
+                        "position": 13,
+                        "isTax": 0,
+                        "refbillratesupergroupId": 3
+                    },
+                    {
+                        "rates": [
+                            {
+                                "id": 68325,
+                                "name": "ICCS Adj",
+                                "amount": "0.0000",
+                                "type": "Rate x Consumption",
+                                "position": 17,
+                                "taxTypeName": ""
+                            }
+                        ],
+                        "name": "Inter-Class Cross Subsidy",
+                        "description": "Inter-Class Cross Subsidy",
+                        "id": 8,
+                        "position": 14,
+                        "isTax": 0,
+                        "refbillratesupergroupId": 3
+                    }
+                ],
+                "id": 3,
+                "position": 4
+            },
+            {
+                "name": "Adjustments",
+                "refbillratesupergrouptypeId": 2,
+                "groups": [
+                    {
+                        "rates": [
+                            {
+                                "id": 68657,
+                                "name": "Senior Citizen Subsidy",
+                                "amount": "0.0001",
+                                "type": "Rate x Consumption",
+                                "position": 32,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 68747,
+                                "name": "Senior Citizen Discount",
+                                "amount": "0.0000",
+                                "type": "Senior Discount",
+                                "position": 43,
+                                "taxTypeName": ""
+                            }
+                        ],
+                        "name": "Adjustment",
+                        "description": "Adjustment",
+                        "id": 13,
+                        "position": 16,
+                        "isTax": 0,
+                        "refbillratesupergroupId": 5
+                    }
+                ],
+                "id": 5,
+                "position": 6
+            }
+        ],
+        "breakdown": [],
+        "billperiod": {
+            "id": 5330,
+            "startDate": "May 01, 2026",
+            "endDate": "May 31, 2026",
+            "pZeroRate": "0.0211",
+            "statusId": 2,
+            "status": "Active - Lock for Billing"
+        }
+    },
+    "response": "Query successful.",
+    "time": 17555,
+    "status": 0
+}
