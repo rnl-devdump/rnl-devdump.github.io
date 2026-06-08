@@ -1,0 +1,9 @@
+{
+    "billing_month": "May 2026",
+    "town": "Lingayen",
+    "residential": {
+        "effective_kwh_rate": 12.5,
+        "fixed_meter_charge": 5.0,
+        "lifeline_threshold": 50
+    }
+}
