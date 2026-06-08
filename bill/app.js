@@ -34,8 +34,9 @@ async function runLoader() {
         if (dataset.unbundled_rates && dataset.unbundled_rates.length > 0) {
             ratesBody.innerHTML = dataset.unbundled_rates.map(r => {
                 let typeCheck = r.type ? r.type.toLowerCase() : "";
-                let ruleStr = typeCheck.includes('kw') || typeCheck.includes('kwh')
-                    ? "Rate × Consumption Usage" 
+                // Aligned with explicit API text "Rate x Consumption"
+                let ruleStr = typeCheck.includes('consumption') || typeCheck.includes('kw')
+                    ? "Rate × Consumption Usage (kWh)" 
                     : "Constant Flat Charge";
                 return `
                     <tr>
@@ -71,11 +72,12 @@ function processUnbundledBill() {
         let breakdownDesc = "";
         let typeCheck = item.type ? item.type.toLowerCase() : "";
 
-        // Volumetric calculation verification
-        if (typeCheck.includes('kw') || typeCheck.includes('kwh')) {
+        // Check if item calculation behaves as a volumetric consumption matrix charge
+        if (typeCheck.includes('consumption') || typeCheck.includes('kw')) {
             costItem = kwhValue * item.rate_val;
             breakdownDesc = `${kwhValue} kWh × ₱${item.rate_val.toFixed(4)}`;
         } else {
+            // Constant flat charges (e.g. Metering Charge of Php 5.00)
             costItem = item.rate_val;
             breakdownDesc = "Flat Cost Fixed Element Charge";
         }
