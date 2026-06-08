@@ -83,17 +83,29 @@ async def api_get(session: aiohttp.ClientSession, path: str) -> dict | list:
     """
     url = f"{BASE_URL}{path}"
     async with session.get(url, headers=_headers(), timeout=aiohttp.ClientTimeout(total=20)) as resp:
-        body = await resp.json(content_type=None)
+        raw = await resp.text()          # read as text first so we can print it on failure
+
+        # Parse JSON — guard against empty or non-JSON responses
+        try:
+            body = json.loads(raw) if raw.strip() else None
+        except json.JSONDecodeError:
+            body = None
+
+        if body is None:
+            raise RuntimeError(
+                f"LG API returned empty/non-JSON body (HTTP {resp.status}) for {path}\n"
+                f"  Raw response: {raw[:300]!r}"
+            )
 
         # LG wraps everything in { messageId, timestamp, response }
         # Some error payloads use { resultCode, resultMsg } instead
-        if "resultCode" in body and body["resultCode"] != "0000":
+        if isinstance(body, dict) and "resultCode" in body and body["resultCode"] != "0000":
             raise RuntimeError(
                 f"LG API error {body.get('resultCode')}: {body.get('resultMsg')} — {path}"
             )
 
         resp.raise_for_status()
-        return body.get("response", body)
+        return body.get("response", body) if isinstance(body, dict) else body
 
 
 # ── Billing-period maths ───────────────────────────────────────────────────────
