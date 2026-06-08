@@ -124,8 +124,19 @@ def resolve_api_server() -> str:
 # ── Step 2: Device list ───────────────────────────────────────────────────────
 def list_devices(api: str) -> list:
     print("\nFetching device list…")
-    data  = get(api, "/devices")
-    items = (data.get("response") or data.get("result") or {}).get("item", [])
+    data = get(api, "/devices")
+    print(f"  Raw /devices type: {type(data).__name__}", file=sys.stderr)
+
+    # ThinQ may return the list directly, or wrap it in response/result
+    if isinstance(data, list):
+        items = data
+    else:
+        inner = data.get("response") or data.get("result") or {}
+        if isinstance(inner, list):
+            items = inner
+        else:
+            items = inner.get("item") or inner.get("items") or inner.get("devices") or []
+
     print(f"  {len(items)} device(s) on account")
     return items
 
@@ -161,12 +172,17 @@ def fetch_device_status(api: str, device_id: str) -> Optional[dict]:
     """GET /devices/{deviceId} → response.result"""
     try:
         data = get(api, f"/devices/{device_id}")
-        resp = data.get("response") or data.get("result") or {}
-        code = resp.get("resultCode", "0000")
-        if code != "0000":
-            print(f"    Status API resultCode {code}", file=sys.stderr)
-            return None
-        return resp.get("result") or resp
+        # Handle direct dict or wrapped response
+        if isinstance(data, dict):
+            resp = data.get("response") or data.get("result") or data
+            if isinstance(resp, dict):
+                code = resp.get("resultCode", "0000")
+                if code != "0000":
+                    print(f"    Status API resultCode {code}", file=sys.stderr)
+                    return None
+                return resp.get("result") or resp
+        # If data itself looks like a status payload, return it
+        return data if isinstance(data, dict) else None
     except Exception as e:
         print(f"    Status fetch failed: {e}", file=sys.stderr)
         return None
