@@ -1,49 +1,91 @@
-name: Poll LG ThinQ → current.json
+##############################################################################
+# .github/workflows/poll_thinq.yml
+#
+# Polls LG ThinQ Connect API every 15 minutes, writes current.json,
+# and commits it back to the repo so the live-monitor page stays fresh.
+#
+# Required repository secrets (Settings → Secrets → Actions):
+#   THINQ_PAT         Personal Access Token from smartsolution.developer.lge.com
+#   THINQ_CLIENT_ID   One-time generated UUID4, e.g. run: python -c "import uuid; print(uuid.uuid4())"
+#
+# Optional secrets / variables:
+#   THINQ_BASE_URL    Override API region (see fetch_thinq.py header for options)
+#   BILLING_START_DAY Day-of-month your meter resets (default 26)
+##############################################################################
+
+name: 🔌 Poll LG ThinQ
 
 on:
   schedule:
-    # Every 15 minutes
-    - cron: "*/15 * * * *"
-  workflow_dispatch:   # allow manual trigger from Actions tab
+    # Every 15 minutes, 24/7.  GitHub Actions guarantees ±1 min accuracy.
+    # Note: GitHub does NOT allow schedules shorter than every 5 minutes.
+    - cron: '0,15,30,45 * * * *'
 
+  # Allow a one-click manual run from the Actions tab (great for first-time setup)
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Print extra debug info'
+        required: false
+        default: 'false'
+
+# The job needs write access to push current.json back to the repo
 permissions:
-  contents: write      # needed to git push the updated current.json
+  contents: write
 
 jobs:
   poll:
-    name: Fetch ThinQ & update current.json
+    name: Fetch & commit current.json
     runs-on: ubuntu-latest
+    timeout-minutes: 5      # Abort if LG API hangs
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
 
-      - name: Set up Python
+      # ── 1. Checkout ────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Fetch with a token that can push back
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Python env ──────────────────────────────────────────────────────
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.11'
+          cache: 'pip'
 
-      # No pip installs needed — script uses stdlib only (urllib, json, uuid, base64)
+      # ── 3. Dependencies ────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pip install --quiet aiohttp
 
-      - name: Run ThinQ poller
+      # ── 4. Run the poller ──────────────────────────────────────────────────
+      - name: Fetch ThinQ data
         env:
-          # Secrets — set in repo Settings → Secrets → Actions
-          THINQ_PAT:         ${{ secrets.THINQ_PAT }}        # PAT from connect-pat.lgthinq.com
-          THINQ_CLIENT_ID:   ${{ secrets.THINQ_CLIENT_ID }}  # any stable unique string you choose
-
-          # Non-secret config — edit directly here
+          THINQ_PAT:         ${{ secrets.THINQ_PAT }}
+          THINQ_CLIENT_ID:   ${{ secrets.THINQ_CLIENT_ID }}
           THINQ_COUNTRY:     PH
-          BILLING_START_DAY: "1"    # day-of-month your CENPELCO billing period starts
-          BILLING_DAYS:      "30"
-          OUTPUT_PATH:       bill/current/current.json
-        run: python bill/current/fetch_thinq.py
+          # Uncomment and set THINQ_BASE_URL as a repo secret if the default fails:
+          # THINQ_BASE_URL:  ${{ secrets.THINQ_BASE_URL }}
+          BILLING_START_DAY: '26'    # ← adjust to your CENPELCO meter-read date
+          OUTPUT_PATH:       docs/current/current.json
+        run: python scripts/fetch_thinq.py
 
-      - name: Commit & push current.json
+      # ── 5. Commit ──────────────────────────────────────────────────────────
+      # Only commits if current.json actually changed (avoids empty commits)
+      - name: Commit current.json
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add bill/current/current.json
-          git diff --cached --quiet \
-            && echo "No changes — skipping commit." \
-            || git commit -m "chore: update current.json [$(date -u '+%Y-%m-%d %H:%M UTC')]"
-          git push
+
+          git add docs/current/current.json
+
+          # --quiet exits 0 if nothing to commit; we check with diff --staged
+          if git diff --staged --quiet; then
+            echo "ℹ No changes to commit — data is identical to last poll."
+          else
+            TIMESTAMP=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+            git commit -m "chore(thinq): poll ${TIMESTAMP}"
+            git push
+            echo "✓ Pushed updated current.json"
+          fi
