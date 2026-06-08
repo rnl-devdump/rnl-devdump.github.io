@@ -1,48 +1,298 @@
-name: Poll LG ThinQ → current.json
 
+Claude finished the response
+
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>CENPELCO Bill Estimator</title> <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&displa
+
+pasted
+
+
+let dataset = null; async function runLoader() { try { const fetchStream = await fetch('./rates.json'); dataset = await fetchStream.json(); // Target header baseline string parameters document.getElementById('label-month').innerText = dataset.billing_mon
+
+pasted
+
+index
+
+app.js
+
+this codebase is on ghrepo/bill/
+
+how about I create a bill/current
+
+that uses LG ThinQ API to calc
+
+2:48 PM
+
+Check frontend design skill
+Check frontend design skill
+Great idea! Before I build this, a couple of quick questions since LG ThinQ integration shapes the whole architecture:
+
+Q: How do you want to connect to LG ThinQ?
+A: LG ThinQ API (OAuth + REST) — I have credentials
+
+Q: What should bill/current do vs bill/ ?
+A: Both: live device monitoring + auto-calculated monthly projection
+
+2:49 PM
+Let me think through the architecture before building.
+
+Q: Where will bill/current run? LG ThinQ OAuth can't be called directly from the browser (CORS + secret exposure).
+A: I'll use a GitHub Action to poll ThinQ and write a current.json (like rates.json)
+
+Q: Which LG devices should be tracked?
+A: Only high-draw appliances (AC, washer, dryer, fridge)
+
+2:49 PM
+Perfect — same pattern as rates.json. I'll build three things:
+
+bill/current/index.html — the live dashboard page
+bill/current/fetch_thinq.py — GitHub Action script that polls ThinQ and writes current.json
+.github/workflows/thinq-poll.yml — the Action that runs it on a schedule
+
+Created 3 files, read a file
+Created 3 files, read a file
+Here's what to drop into your repo:
+
+ghrepo/
+├── bill/
+│   ├── index.html          (existing)
+│   ├── app.js              (existing)
+│   ├── rates.json          (existing)
+│   └── current/
+│       ├── index.html      ← new dashboard
+│       ├── fetch_thinq.py  ← new poller
+│       └── current.json    ← written by the Action (git-ignored until first run)
+└── .github/workflows/
+    └── thinq-poll.yml      ← new workflow
+Setup checklist:
+
+GitHub Secrets — add these in repo Settings → Secrets → Actions:
+THINQ_CLIENT_ID, THINQ_CLIENT_SECRET — from thinq.developer.lge.com
+THINQ_ACCESS_TOKEN — OAuth bearer token from your ThinQ app credentials
+Billing cycle — edit BILLING_START_DAY in the workflow YAML to match when your CENPELCO period starts
+First run — trigger manually via Actions tab to generate current.json before the cron kicks in
+How the dashboard works:
+
+Loads current.json (device data) + ../rates.json (tariff) in parallel
+Computes kWh/day average → projects end-of-period kWh → runs through the same unbundled rate calc as bill/
+Shows per-device wattage bars, on/off status, and a live projection bar
+Flags stale data (badge appears if polled_at is >30 min old)
+One caveat: the ThinQ v2 energy keys (energyDailyUsage, energyMonthlyUsage, etc.) vary slightly by appliance class. If a device returns zeros, check its raw status JSON and adjust the field names in the parse_device() function — I've covered the most common ones.
+
+
+Index
+Code · HTML 
+
+Fetch thinq
+PY 
+
+Thinq poll
+YML 
+Base URL
+ThinQ API specifies a Base URL based on the location of the customer's device.
+Therefore, please select and apply the Base URL below when calling a ThinQ API, considering the region where the customer's device is located.
+Region    ThinQ API
+South Asia, East Asia and Pacific    https://api-kic.lgthinq.com
+America    https://api-aic.lgthinq.com
+Europe, Middle East, Africa    https://api-eic.lgthinq.com
+Route API
+An API to view the domain name of ThinQ Backend.
+View domain name
+get
+/route
+An API to get the Backend address for the ThinQ Platform. Views the domain name by region and configuration.
+header Parameters
+x-message-id
+required
+string
+Example: fNvdZ1brTn-wWKUlWGoSVw
+This value is for tracking the information being requested. You can track the flow of a particular API and find the cause of errors when they occur. The generation rules are as follows: Generated with the url-safe-base64-no-padding (UUID Version 4) method. The length is 22 characters.
+x-country
+required
+string
+Example: US
+Specify the country where you want to provide the service. Follow the two digits of the ISO country code alphabet (ISO 3166-1 alpha-2) (e.g., KR, US, GB, ...)
+x-service-phase
+required
+string
+Example: OP
+You can designate the configuration for service provision.
+x-api-key
+required
+string
+Example: v6GFvkweNo7DK7yD3ylIZ9w52aKBU0eJ7wLXkSR3
+API key for making API calls. Call an API with the API key below. The key is a fixed value.
+"v6GFvkweNo7DK7yD3ylIZ9w52aKBU0eJ7wLXkSR3"
+Responses
+200 OK
+Response Schema: application/json
+messageId    
+string
+Example: "fNvdZ1brTn-wWKUlWGoSVw"
+The X-Message-ID included in the header of the request. Include this value in the response message so that you can see if there are any problems.
+timestamp    
+string
+Example: "2024-09-01T06:23:20.866279"
+The time when the request came in, following the ISO 8601 format.
+response    
+object
+apiServer    
+string
+Example: "https://api-aic.lgthinq.com"
+API server domain name
+mqttServer    
+string
+Example: "mqtts://a3phael99lf879-ats.iot.us-west-2.amazonaws.com:8883"
+MQTT domain name
+webSocketServer    
+string
+Example: "wss://a3phael99lf879-ats.iot.us-west-2.amazonaws.com:443/mqtt"
+WebSocket domain name
+400 Bad request
+Response samples
+200
+Content type
+application/json
+Copy
+Expand allCollapse all
+{
+"messageId": "fNvdZ1brTn-wWKUlWGoSVw",
+"timestamp": "2024-09-01T06:23:20.866279",
+"response": {
+"apiServer": "https://api-aic.lgthinq.com",
+"mqttServer": "mqtts://a3phael99lf879-ats.iot.us-west-2.amazonaws.com:8883",
+"webSocketServer": "wss://a3phael99lf879-ats.iot.us-west-2.amazonaws.com:443/mqtt"
+}
+}
+
+Show more
+2:57 PM
+Good catch. Let me fix the base URL, headers, and add the /route discovery call.
+
+
+Viewed a file, ran a command
+Viewed a file, ran a command
+Claude's response was interrupted.
+
+Retrieve Energy Data Profile get /devices/energy/{deviceId}/profile An API to retrieve the energy data profile provided by appliance devices. header Parameters Authorization required string Example: Bearer 4d76546d61f01baf31c1sd8f6b4e38b110ba0a34f825b8c5d54c PAT token received via https
+
+pasted
+
+2:58 PM
+Good — now I have the real energy endpoints. Key corrections needed:
+
+/route first to get the actual apiServer
+x-api-key is a fixed public key (not a secret)
+Authorization: Bearer is a PAT token from connect-pat.lgthinq.com, not OAuth
+Energy data comes from /devices/energy/{deviceId}/usage with DAILY period, not from device status
+x-message-id must be a fresh url-safe base64 UUID per request
+
+Ran 2 commands, edited a file
+Ran 2 commands, edited a file
+
+Running command
+
+Script
+
+test
+
+Script
+
+Replace entire fetch_thinq.py with corrected version using real ThinQ API spec
+
+fetch_thinq.py
++329
+-209
+Done
+Now update the workflow to match the new secret names:
+
+
+Edited a file, viewed a file, created a file
+Edited a file, viewed a file, created a file
+Here's what changed and why:
+
+Auth — completely reworked
+
+Before (wrong)	After (correct)
+THINQ_CLIENT_SECRET + THINQ_ACCESS_TOKEN	THINQ_PAT — Personal Access Token from connect-pat.lgthinq.com
+x-client-secret header	Removed — not a real ThinQ header
+x-language-code, x-service-code, x-app-type	Removed — not in the official spec
+x-country-code	Corrected to x-country
+Headers — now exactly per spec
+
+Authorization: Bearer {PAT}
+x-api-key: v6GFvkweNo7DK7yD3ylIZ9w52aKBU0eJ7wLXkSR3 (fixed public key, not a secret)
+x-message-id — freshly generated url-safe base64 UUID per request (was a static string before)
+x-client-id — your stable identifier, just needs to be unique
+API flow — now correct
+
+GET {bootstrap}/route → get real apiServer for your account
+GET {apiServer}/devices → device list
+GET {apiServer}/devices/energy/{id}/usage?period=DAILY&startDate=…&endDate=… → actual kWh data (was reading from device status object, which doesn't have energy history)
+GET {apiServer}/devices/{id} → live on/off, watts, mode
+Two secrets to add in repo Settings → Secrets:
+
+THINQ_PAT — get from connect-pat.lgthinq.com
+THINQ_CLIENT_ID — any string you pick, e.g. "cenpelco-bill-poller"
+
+Fetch thinq
+PY 
+
+Thinq poll
+YML 
+
+
+
+
+
+Claude is AI and can make mistakes. Please double-check responses.
+Thinq poll · YML
+name: Poll LG ThinQ → current.json
+ 
 on:
   schedule:
-    # Every 15 minutes (GitHub Actions minimum is 5 min)
+    # Every 15 minutes
     - cron: "*/15 * * * *"
   workflow_dispatch:   # allow manual trigger from Actions tab
-
+ 
 permissions:
   contents: write      # needed to git push the updated current.json
-
+ 
 jobs:
   poll:
     name: Fetch ThinQ & update current.json
     runs-on: ubuntu-latest
-
+ 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
+ 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      # No extra pip packages needed — script uses stdlib only
-
+ 
+      # No pip installs needed — script uses stdlib only (urllib, json, uuid, base64)
+ 
       - name: Run ThinQ poller
         env:
-          THINQ_CLIENT_ID:     ${{ secrets.THINQ_CLIENT_ID }}
-          THINQ_CLIENT_SECRET: ${{ secrets.THINQ_CLIENT_SECRET }}
-          THINQ_ACCESS_TOKEN:  ${{ secrets.THINQ_ACCESS_TOKEN }}
-          THINQ_COUNTRY:       PH
-          THINQ_LANGUAGE:      en-PH
-          BILLING_START_DAY:   "1"       # change to your billing cycle start
-          BILLING_DAYS:        "30"
-          OUTPUT_PATH:         bill/current/current.json
+          # Secrets — set in repo Settings → Secrets → Actions
+          THINQ_PAT:         ${{ secrets.THINQ_PAT }}        # PAT from connect-pat.lgthinq.com
+          THINQ_CLIENT_ID:   ${{ secrets.THINQ_CLIENT_ID }}  # any stable unique string you choose
+ 
+          # Non-secret config — edit directly here
+          THINQ_COUNTRY:     PH
+          BILLING_START_DAY: "1"    # day-of-month your CENPELCO billing period starts
+          BILLING_DAYS:      "30"
+          OUTPUT_PATH:       bill/current/current.json
         run: python bill/current/fetch_thinq.py
-
+ 
       - name: Commit & push current.json
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add bill/current/current.json
-          # Only commit if there are actual changes
-          git diff --cached --quiet && echo "No changes, skipping commit." || \
-          git commit -m "chore: update current.json [$(date -u '+%Y-%m-%d %H:%M UTC')]"
+          git diff --cached --quiet \
+            && echo "No changes — skipping commit." \
+            || git commit -m "chore: update current.json [$(date -u '+%Y-%m-%d %H:%M UTC')]"
           git push
+ 
