@@ -1,92 +1,603 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CENPELCO Full Rates Calculator & Statement Reference</title>
-    <style>
-        :root { --primary: #1b4f72; --accent: #218c74; --bg: #f8f9f9; }
-        body { font-family: -apple-system, Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; font-size: 14px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .header { text-align: center; border-bottom: 3px solid var(--primary); padding-bottom: 15px; margin-bottom: 25px; }
-        .ref-link { display: inline-block; margin-top: 10px; color: #2980b9; font-weight: bold; text-decoration: none; }
-        .ref-link:hover { text-decoration: underline; }
-        
-        .calc-section { background: #eaf2f8; padding: 20px; border-radius: 6px; margin-bottom: 30px; border-left: 6px solid var(--primary); }
-        .input-box { width: 250px; padding: 10px; font-size: 1.1em; border: 2px solid #bdc3c7; border-radius: 4px; margin-right: 10px; }
-        .btn { background: var(--accent); color: white; border: none; padding: 11px 20px; font-size: 1.1em; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        
-        .result-panel { margin-top: 15px; background: white; padding: 15px; border-radius: 4px; border: 1px solid #d5dbdb; display: none; }
-        .total-amount { font-size: 1.8em; color: var(--accent); font-weight: bold; margin-bottom: 10px; }
-        
-        h3 { color: var(--primary); border-bottom: 2px solid #d5dbdb; padding-bottom: 5px; margin-top: 30px; }
-        table.master-table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 25px; }
-        table.master-table th, table.master-table td { border: 1px solid #d5dbdb; padding: 8px 12px; text-align: left; }
-        table.master-table th { background: var(--primary); color: white; font-weight: 600; font-size: 0.95em; }
-        table.master-table tr:nth-child(even) { background: #fdfefe; }
-        .text-right { text-align: right; }
-        .no-data { text-align: center; color: #7f8c8d; font-style: italic; padding: 20px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CENPELCO Bill Estimator</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --off-black: #111111;
+      --card: #161616;
+      --border: #2a2a2a;
+      --muted: #3a3a3a;
+      --dim: #666666;
+      --mid: #999999;
+      --light: #cccccc;
+      --white: #f5f5f5;
+      --green: #00e87a;
+      --green-dim: #00e87a22;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* Header */
+    .site-header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+    .brand-name {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+    .header-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--dim);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 100px;
+      letter-spacing: 0.04em;
+    }
+    .source-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--green);
+      text-decoration: none;
+      border: 1px solid var(--green);
+      padding: 5px 12px;
+      border-radius: 100px;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .source-link:hover { background: var(--green-dim); }
+
+    /* Main layout */
+    .main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    /* Hero */
+    .hero {
+      margin-bottom: 40px;
+    }
+    .hero-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 10px;
+    }
+    .hero-title {
+      font-size: clamp(1.6rem, 5vw, 2.6rem);
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+    .hero-title span { color: var(--green); }
+    .hero-sub {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--mid);
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    /* Calculator card */
+    .calc-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 24px;
+      margin-bottom: 32px;
+    }
+    .card-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 20px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
+    .input-wrap {
+      flex: 1;
+      min-width: 180px;
+      position: relative;
+    }
+    .input-wrap label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--mid);
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .kwh-input {
+      width: 100%;
+      background: var(--off-black);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'DM Mono', monospace;
+      font-size: 1.3rem;
+      font-weight: 500;
+      padding: 14px 50px 14px 18px;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+    .kwh-input::-webkit-outer-spin-button,
+    .kwh-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .kwh-input:focus { border-color: var(--green); }
+    .kwh-input::placeholder { color: var(--muted); }
+    .input-unit {
+      position: absolute;
+      right: 14px;
+      bottom: 16px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--dim);
+      letter-spacing: 0.08em;
+    }
+
+    .compute-btn {
+      background: var(--green);
+      color: var(--black);
+      border: none;
+      padding: 14px 26px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.2s, transform 0.1s;
+      align-self: flex-end;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .compute-btn:active { transform: scale(0.97); opacity: 0.85; }
+
+    /* Result */
+    .result-area {
+      display: none;
+      margin-top: 28px;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .result-total-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--dim);
+      margin-bottom: 6px;
+    }
+    .result-total-amount {
+      font-family: 'DM Mono', monospace;
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 500;
+      color: var(--green);
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+
+    /* Ledger table */
+    .ledger {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .ledger-group-header {
+      background: transparent;
+    }
+    .ledger-group-header td {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dim);
+      padding: 16px 0 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ledger tr.data-row td {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--muted);
+      font-size: 0.88rem;
+      color: var(--light);
+    }
+    .ledger tr.data-row:last-child td { border-bottom: none; }
+    .ledger tr.data-row td.name { color: var(--white); }
+    .ledger tr.data-row td.amount {
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--white);
+    }
+    .ledger tr.subtotal td {
+      padding: 10px 0;
+      border-top: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--white);
+    }
+    .ledger tr.subtotal td.amount {
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      color: var(--white);
+    }
+    .ledger tr.grand-total td {
+      padding: 14px 0;
+      border-top: 2px solid var(--green);
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: 0.02em;
+    }
+    .ledger tr.grand-total td.amount {
+      text-align: right;
+      font-family: 'DM Mono', monospace;
+      font-size: 1.1rem;
+      color: var(--green);
+    }
+
+    /* Rates section */
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.01em;
+    }
+    .section-mono {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--dim);
+      letter-spacing: 0.08em;
+    }
+
+    .rates-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .rates-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .rates-table thead tr {
+      background: var(--off-black);
+      border-bottom: 1px solid var(--border);
+    }
+    .rates-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dim);
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 400;
+    }
+    .rates-table td {
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: var(--light);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.4;
+    }
+    .rates-table tr:last-child td { border-bottom: none; }
+    .rates-table tr:hover td { background: #1c1c1c; }
+    .rates-table td.group-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--dim);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .rates-table td.name-col { color: var(--white); font-weight: 600; }
+    .rates-table td.value-col {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--green);
+      white-space: nowrap;
+    }
+    .rates-table td.formula-col {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--mid);
+      word-break: break-word;
+    }
+    .type-badge {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid var(--muted);
+      color: var(--dim);
+      white-space: nowrap;
+    }
+
+    .no-data-row td {
+      text-align: center;
+      color: var(--dim);
+      font-size: 0.82rem;
+      padding: 28px 16px;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.04em;
+    }
+
+    /* Generation section */
+    .gen-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .gen-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 620px;
+    }
+    .gen-table thead tr {
+      background: var(--off-black);
+      border-bottom: 1px solid var(--border);
+    }
+    .gen-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--dim);
+      padding: 12px 14px;
+      text-align: left;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+    .gen-table td {
+      padding: 12px 14px;
+      font-size: 0.83rem;
+      color: var(--light);
+      border-bottom: 1px solid var(--border);
+    }
+    .gen-table tr:last-child td { border-bottom: none; }
+    .gen-table tr:hover td { background: #1c1c1c; }
+
+    /* Footer */
+    .footer {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .footer p {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--dim);
+      letter-spacing: 0.06em;
+      line-height: 1.8;
+    }
+    .footer a { color: var(--green); text-decoration: none; }
+
+    @media (max-width: 520px) {
+      .site-header { padding: 16px; gap: 10px; }
+      .main { padding: 24px 16px 48px; }
+      .calc-card { padding: 20px 16px; }
+      .input-row { flex-direction: column; }
+      .compute-btn { width: 100%; padding: 16px; font-size: 1rem; }
+      .rates-table th:nth-child(3),
+      .rates-table td:nth-child(3) { display: none; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h2>CENPELCO Interactive Billing Cost Matrix</h2>
-        <p>Billing Statement Parameters For: <strong><span id="label-month">...</span></strong> (Lingayen Residential)</p>
-        <a href="https://cmbis.cenpelco.com/public/rates/billrates.jsp" target="_blank" class="ref-link">🔗 Source Reference: Official CENPELCO CMBIS Portal</a>
+<header class="site-header">
+  <div class="brand">
+    <div class="brand-dot"></div>
+    <span class="brand-name">CENPELCO</span>
+    <span class="header-badge">Lingayen Residential</span>
+  </div>
+  <a href="https://cmbis.cenpelco.com/public/rates/billrates.jsp" target="_blank" class="source-link">↗ Official Rates</a>
+</header>
+
+<main class="main">
+
+  <div class="hero">
+    <div class="hero-label">Bill Estimator · <span id="label-month">Current Billing Period</span></div>
+    <h1 class="hero-title">Monthly Bill<br><span>Statement Calculator</span></h1>
+    <p class="hero-sub">Enter your consumption in kilowatt-hours to generate an itemized breakdown of your electricity charges for the current billing period.</p>
+  </div>
+
+  <div class="calc-card">
+    <div class="card-label">Enter Consumption Details</div>
+    <div class="input-row">
+      <div class="input-wrap">
+        <label for="input-kwh">Total Consumption this Billing Period</label>
+        <input type="number" id="input-kwh" class="kwh-input" placeholder="e.g. 150" min="0">
+        <span class="input-unit">kWh</span>
+      </div>
+      <button onclick="processUnbundledBill()" class="compute-btn">Compute Bill →</button>
     </div>
 
-    <div class="calc-section">
-        <h3>Statement Simulation Calculator</h3>
-        <p>Input your meter usage consumption value to generate an itemized unbundled cost ledger estimate.</p>
-        <input type="number" id="input-kwh" class="input-box" placeholder="e.g. 150" min="0">
-        <button onclick="processUnbundledBill()" class="btn">Compute Estimated Statement</button>
-
-        <div id="panel-result" class="result-panel">
-            <div class="total-amount" id="label-total">₱0.00</div>
-            <div id="billing-statement-ledger"></div>
-        </div>
+    <div id="panel-result" class="result-area">
+      <div class="result-total-label">Computed Bill Amount</div>
+      <div class="result-total-amount" id="label-total">₱0.00</div>
+      <table class="ledger" id="billing-statement-ledger"></table>
     </div>
+  </div>
 
-    <h3>Breakdown of Generation Charge</h3>
-    <table class="master-table">
+  <div class="section-header">
+    <div class="section-title">Applicable Rates</div>
+    <div class="section-mono">Unbundled charges per kWh</div>
+  </div>
+
+  <div class="rates-card">
+    <table class="rates-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Charge Name</th>
+          <th>Type</th>
+          <th>Rate</th>
+          <th>How it's calculated</th>
+        </tr>
+      </thead>
+      <tbody id="body-rates-table">
+        <tr class="no-data-row"><td colspan="5">Rate data not yet loaded</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Generation Charge Sources</div>
+    <div class="section-mono">Cost breakdown by power supplier</div>
+  </div>
+
+  <div class="rates-card">
+    <div class="gen-scroll">
+      <table class="gen-table">
         <thead>
-            <tr>
-                <th>Source</th>
-                <th>% Total kWh</th>
-                <th>kWh Purchased</th>
-                <th>% Gen Cost</th>
-                <th>Basic Cost (Php)</th>
-                <th>Other Cost Adj</th>
-                <th>Discounts</th>
-                <th>Total Cost</th>
-                <th>OGA</th>
-                <th>Avg Gen Cost</th>
-            </tr>
+          <tr>
+            <th>Source</th>
+            <th>Share of Usage</th>
+            <th>kWh Purchased</th>
+            <th>% of Gen Cost</th>
+            <th>Base Cost (₱)</th>
+            <th>Adjustments</th>
+            <th>Discounts</th>
+            <th>Total Cost</th>
+            <th>Avg Rate</th>
+          </tr>
         </thead>
         <tbody id="body-generation-table">
-            <tr><td colspan="10" class="no-data">Data currently unavailable. Select billing parameters via the source scraper pipeline.</td></tr>
+          <tr class="no-data-row"><td colspan="9">Power source data not yet available</td></tr>
         </tbody>
-    </table>
+      </table>
+    </div>
+  </div>
 
-    <h3>Unbundled Sub-Component Pricing Tariff Chart</h3>
-    <table class="master-table">
-        <thead>
-            <tr>
-                <th>Rates Classification Category (Group)</th>
-                <th>Name Element</th>
-                <th>Type Format</th>
-                <th>Active Baseline Rate Metric Value</th>
-                <th>Dynamic Computation Rule Formula</th>
-            </tr>
-        </thead>
-        <tbody id="body-rates-table">
-            <tr><td colspan="5" class="no-data">Loading matrix profile data parameters...</td></tr>
-        </tbody>
-    </table>
-</div>
+  <footer class="footer">
+    <p>Estimates are based on official CENPELCO rates for Lingayen Residential customers.<br>
+    Figures are for reference only. Please refer to your actual bill for exact charges. <a href="https://cmbis.cenpelco.com/public/rates/billrates.jsp" target="_blank">View official rates →</a></p>
+  </footer>
+
+</main>
 
 <script src="app.js"></script>
+
+<script>
+  // Set current billing month label
+  const now = new Date();
+  document.getElementById('label-month').textContent = now.toLocaleString('en-PH', { month: 'long', year: 'numeric' });
+
+  // Fallback demo if app.js doesn't define processUnbundledBill
+  if (typeof processUnbundledBill === 'undefined') {
+    window.processUnbundledBill = function() {
+      const kwh = parseFloat(document.getElementById('input-kwh').value);
+      if (!kwh || kwh <= 0) return;
+
+      // Demo rates (replace with real data from app.js)
+      const charges = [
+        { group: 'Generation', name: 'Generation Charge', rate: 5.1234 },
+        { group: 'Transmission', name: 'Transmission Charge', rate: 0.9785 },
+        { group: 'Distribution', name: 'Distribution Charge', rate: 1.4320 },
+        { group: 'Distribution', name: 'Supply Charge', rate: 0.2546 },
+        { group: 'Distribution', name: 'Metering Charge', rate: 0.1832 },
+        { group: 'Subsidies', name: 'Lifeline Rate Subsidy', rate: 0.1523 },
+        { group: 'Taxes & Fees', name: 'Value Added Tax (VAT)', rate: 0.0 },
+        { group: 'Taxes & Fees', name: 'Franchise Tax', rate: 0.0 },
+        { group: 'Universal Charges', name: 'NPC Stranded Cost', rate: 0.0428 },
+        { group: 'Universal Charges', name: 'Missionary Electrification', rate: 0.1754 },
+      ];
+
+      let groups = {};
+      charges.forEach(c => {
+        if (!groups[c.group]) groups[c.group] = [];
+        groups[c.group].push(c);
+      });
+
+      let totalBase = charges.reduce((sum, c) => sum + c.rate * kwh, 0);
+      const VAT = totalBase * 0.12;
+      const francTax = totalBase * 0.005;
+      const grandTotal = totalBase + VAT + francTax;
+
+      let rows = '';
+      Object.keys(groups).forEach(group => {
+        rows += `<tr class="ledger-group-header"><td colspan="2"><td/></tr>`;
+        rows += `<tr class="ledger-group-header"><td colspan="2" style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:#666;padding:16px 0 6px;border-bottom:1px solid #2a2a2a">${group}</td></tr>`;
+        groups[group].forEach(c => {
+          const amt = c.rate * kwh;
+          rows += `<tr class="data-row"><td class="name">${c.name}</td><td class="amount">${amt > 0 ? '₱' + amt.toFixed(2) : '—'}</td></tr>`;
+        });
+      });
+
+      rows += `<tr class="subtotal"><td>Subtotal (before tax)</td><td class="amount">₱${totalBase.toFixed(2)}</td></tr>`;
+      rows += `<tr class="data-row"><td class="name">VAT (12%)</td><td class="amount">₱${VAT.toFixed(2)}</td></tr>`;
+      rows += `<tr class="data-row"><td class="name">Franchise Tax (0.5%)</td><td class="amount">₱${francTax.toFixed(2)}</td></tr>`;
+      rows += `<tr class="grand-total"><td>Total Bill</td><td class="amount">₱${grandTotal.toFixed(2)}</td></tr>`;
+
+      document.getElementById('billing-statement-ledger').innerHTML = rows;
+      document.getElementById('label-total').textContent = '₱' + grandTotal.toFixed(2);
+      const panel = document.getElementById('panel-result');
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+  }
+</script>
 </body>
 </html>
