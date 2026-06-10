@@ -412,11 +412,12 @@
             "startDate": "May 01, 2026",
             "endDate": "May 31, 2026",
             "pZeroRate": "0.0211",
+            "canDisconnect": false,
             "statusId": 2,
             "status": "Active - Lock for Billing"
         }
     },
     "response": "Query successful.",
-    "time": 8197,
+    "time": 21210,
     "status": 0
 }
