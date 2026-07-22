@@ -17,10 +17,10 @@ export default function Photobooth() {
   const [isCapturing, setIsCapturing] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [flash, setFlash] = useState(false);
-  const [logs, setLogs] = useState([]);
 
+  // We can just keep a dummy addLog if WebRTCManager still expects it
   const addLog = useCallback((msg) => {
-    setLogs(prev => [...prev.slice(-30), msg]);
+    // console.log(msg);
   }, []);
 
   useEffect(() => {
@@ -158,17 +158,6 @@ export default function Photobooth() {
               }} 
             />
           )}
-
-          {/* Connection log */}
-          <div className="connection-log">
-            <div className="connection-log-header">Connection Log</div>
-            <div className="connection-log-body">
-              {logs.map((entry, i) => (
-                <div key={i} className="connection-log-entry">{entry}</div>
-              ))}
-              {logs.length === 0 && <div className="connection-log-entry">Starting...</div>}
-            </div>
-          </div>
 
         </div>
       </div>
