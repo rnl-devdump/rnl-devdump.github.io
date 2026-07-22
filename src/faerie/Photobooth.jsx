@@ -16,6 +16,7 @@ export default function Photobooth() {
   const [photos, setPhotos] = useState([]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+  const [flash, setFlash] = useState(false);
   const [logs, setLogs] = useState([]);
 
   const addLog = useCallback((msg) => {
@@ -78,6 +79,7 @@ export default function Photobooth() {
         await new Promise(r => setTimeout(r, 1000));
       }
       setCountdown('SNAP!');
+      setFlash(true);
       
       const canvas = document.createElement('canvas');
       canvas.width = 640;
@@ -96,6 +98,8 @@ export default function Photobooth() {
       
       captured.push(canvas.toDataURL('image/jpeg', 0.8));
       setPhotos([...captured]);
+      
+      setTimeout(() => setFlash(false), 300);
       
       await new Promise(r => setTimeout(r, 800));
       setCountdown(null);
@@ -131,7 +135,8 @@ export default function Photobooth() {
                 <div className="video-label">Partner</div>
                 {!remoteStream && <div className="waiting-overlay">Waiting for partner...</div>}
               </div>
-              {countdown && <div className="countdown-overlay">{countdown}</div>}
+              {countdown && <div className="countdown-overlay" key={countdown}>{countdown}</div>}
+              {flash && <div className="flash-overlay"></div>}
             </div>
           )}
           

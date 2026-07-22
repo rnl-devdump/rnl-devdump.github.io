@@ -196,9 +196,30 @@
   justify-content: center;
   font-size: 72px;
   color: white;
-  text-shadow: 0 0 20px #8b5cf6;
+  text-shadow: 0 0 20px #8b5cf6, 0 0 40px #b026ff;
   font-family: 'Great Vibes', cursive;
   z-index: 20;
+  animation: countdownFadeIn 0.8s ease-out;
+}
+
+@keyframes countdownFadeIn {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.flash-overlay {
+  position: absolute;
+  inset: 0;
+  background: white;
+  z-index: 30;
+  animation: flashAnim 0.3s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes flashAnim {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 .pb-controls {
@@ -206,11 +227,12 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  background: rgba(200, 180, 255, 0.05);
+  background: rgba(40, 15, 60, 0.75);
   padding: 20px 40px;
   border-radius: 12px;
-  border: 1px solid rgba(210, 190, 255, 0.15);
+  border: 1px solid rgba(210, 190, 255, 0.3);
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
 .pb-settings {
@@ -219,18 +241,21 @@
 }
 
 .pb-label {
-  color: #eddeff;
-  font-family: 'Lato', sans-serif;
-  font-size: 14px;
+  color: #fff;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  text-shadow: 0 0 8px rgba(255,255,255,0.4);
 }
 
 .pb-select {
-  margin-left: 8px;
-  background: rgba(20, 10, 40, 0.8);
+  margin-left: 10px;
+  background: rgba(30, 15, 50, 0.9);
   color: white;
-  border: 1px solid rgba(190, 150, 255, 0.3);
-  padding: 4px 8px;
-  border-radius: 4px;
+  border: 1px solid rgba(190, 150, 255, 0.5);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
 }
 
 .pb-actions .faerie-btn.ready-active {
@@ -245,60 +270,88 @@
 }
 
 .status-indicator {
-  color: rgba(255, 255, 255, 0.5);
-  font-family: 'Lato', sans-serif;
-  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  transition: all 0.3s ease;
 }
 .status-indicator.active {
-  color: #c9a0ff;
-  text-shadow: 0 0 10px rgba(190, 140, 255, 0.8);
+  color: #fff;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(180, 100, 255, 0.8);
 }
 
 .pb-strip-view {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  width: 100%;
+  gap: 24px;
+  animation: stripDrop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes stripDrop {
+  0% { transform: translateY(-50px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 .pb-strip-container {
-  background: #1a0b2e;
-  padding: 20px;
-  border: 2px solid #8b5cf6;
-  border-radius: 10px;
+  background: linear-gradient(180deg, #160a29 0%, #290847 50%, #160a29 100%);
+  padding: 24px;
+  border: 2px solid rgba(210, 170, 255, 0.4);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(130, 60, 255, 0.2);
+  border-radius: 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  box-shadow: 0 0 40px rgba(140, 90, 230, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add a subtle galaxy sparkle overlay to the strip */
+.pb-strip-container::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 1px, transparent 1px),
+                    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
 }
 
 .pb-strip-header {
   font-family: 'Great Vibes', cursive;
-  color: #eddeff;
+  color: #fce8ff;
   font-size: 32px;
-  margin-bottom: 8px;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(190,120,255,0.8);
+  position: relative;
+  z-index: 2;
 }
 
 .pb-strip-photos {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  position: relative;
+  z-index: 2;
 }
 
 .pb-strip-img {
-  width: 100%;
-  max-width: 400px;
+  width: 260px;
+  height: auto;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
 }
 
 .pb-strip-footer {
-  font-family: 'Lato', sans-serif;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
-  margin-top: 8px;
+  font-family: 'Cormorant Garamond', serif;
+  color: rgba(255,255,255,0.7);
+  font-size: 16px;
+  margin-top: 16px;
+  letter-spacing: 2px;
+  position: relative;
+  z-index: 2;
 }
 
 .pb-strip-actions {
