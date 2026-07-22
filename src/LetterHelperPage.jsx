@@ -216,7 +216,7 @@ export default function LetterHelperPage() {
           </p>
           <div className="mt-3 grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-violet-900">Picture 1 (left)</span>
+              <span className="text-xs font-medium text-violet-900">Picture / Photostrip 1 (left)</span>
               <input
                 value={isEmbeddedPicRef(pic1) ? "(embedded image — use Publish for live link)" : pic1}
                 readOnly={isEmbeddedPicRef(pic1)}
@@ -249,7 +249,7 @@ export default function LetterHelperPage() {
               ) : null}
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-xs font-medium text-violet-900">Picture 2 (right)</span>
+              <span className="text-xs font-medium text-violet-900">Picture / Photostrip 2 (right)</span>
               <input
                 value={isEmbeddedPicRef(pic2) ? "(embedded image — use Publish for live link)" : pic2}
                 readOnly={isEmbeddedPicRef(pic2)}
