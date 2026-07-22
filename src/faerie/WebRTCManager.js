@@ -63,9 +63,9 @@ export class WebRTCManager {
     
     try {
       const ccSnap = await getDocs(callerCandidates);
-      ccSnap.forEach(d => deleteDoc(d.ref));
+      await Promise.all(ccSnap.docs.map(d => deleteDoc(d.ref)));
       const ceSnap = await getDocs(calleeCandidates);
-      ceSnap.forEach(d => deleteDoc(d.ref));
+      await Promise.all(ceSnap.docs.map(d => deleteDoc(d.ref)));
     } catch(e) {
       console.warn("Could not clear old candidates", e);
     }
@@ -83,6 +83,7 @@ export class WebRTCManager {
 
     const roomData = {
       offer: { type: offer.type, sdp: offer.sdp },
+      answer: null,
       callerReady: false,
       calleeReady: false,
       photosCount: 4,
@@ -96,17 +97,21 @@ export class WebRTCManager {
       if (!this.peerConnection.currentRemoteDescription && data?.answer) {
         const rtcSessionDescription = new RTCSessionDescription(data.answer);
         await this.peerConnection.setRemoteDescription(rtcSessionDescription);
-      }
-    });
 
-    // Listen for remote ICE candidates
-    this.unsubscribeCallee = onSnapshot(calleeCandidates, snapshot => {
-      snapshot.docChanges().forEach(async change => {
-        if (change.type === 'added') {
-          let data = change.doc.data();
-          await this.peerConnection.addIceCandidate(new RTCIceCandidate(data));
-        }
-      });
+        // Listen for remote ICE candidates ONLY AFTER remote description is set
+        this.unsubscribeCallee = onSnapshot(calleeCandidates, snapshot2 => {
+          snapshot2.docChanges().forEach(async change => {
+            if (change.type === 'added') {
+              let candidateData = change.doc.data();
+              try {
+                await this.peerConnection.addIceCandidate(new RTCIceCandidate(candidateData));
+              } catch (err) {
+                console.error('Error adding received ice candidate', err);
+              }
+            }
+          });
+        });
+      }
     });
   }
 
@@ -123,7 +128,7 @@ export class WebRTCManager {
       }
     });
 
-    // Set remote description
+    // Set remote description FIRST
     await this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
     
     // Create answer
@@ -136,12 +141,16 @@ export class WebRTCManager {
       updatedAt: serverTimestamp()
     });
 
-    // Listen for remote ICE candidates
+    // Listen for remote ICE candidates safely since remoteDescription is already set
     this.unsubscribeCaller = onSnapshot(callerCandidates, snapshot => {
       snapshot.docChanges().forEach(async change => {
         if (change.type === 'added') {
           let data = change.doc.data();
-          await this.peerConnection.addIceCandidate(new RTCIceCandidate(data));
+          try {
+            await this.peerConnection.addIceCandidate(new RTCIceCandidate(data));
+          } catch (err) {
+            console.error('Error adding received ice candidate', err);
+          }
         }
       });
     });
