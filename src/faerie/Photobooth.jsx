@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { WebRTCManager } from './WebRTCManager';
 import PhotoboothControls from './PhotoboothControls';
 import PhotoboothStrip from './PhotoboothStrip';
@@ -16,11 +16,18 @@ export default function Photobooth() {
   const [photos, setPhotos] = useState([]);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+  const [logs, setLogs] = useState([]);
+
+  const addLog = useCallback((msg) => {
+    setLogs(prev => [...prev.slice(-30), msg]);
+  }, []);
 
   useEffect(() => {
     async function startMedia() {
       try {
+        addLog('[UI] Requesting camera access...');
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        addLog('[UI] Camera access granted');
         setLocalStream(stream);
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
@@ -28,6 +35,7 @@ export default function Photobooth() {
         
         const manager = new WebRTCManager(
           (rStream) => {
+            addLog('[UI] Remote stream received!');
             setRemoteStream(rStream);
             if (remoteVideoRef.current) {
               remoteVideoRef.current.srcObject = rStream;
@@ -35,11 +43,14 @@ export default function Photobooth() {
           },
           (state) => {
             setRoomState(state);
-          }
+          },
+          addLog
         );
         await manager.init(stream);
         webrtcManager.current = manager;
+        addLog(`[UI] Initialized as ${manager.role}`);
       } catch (err) {
+        addLog(`[UI] Error: ${err.message}`);
         console.error("Error accessing webcam: ", err);
       }
     }
@@ -48,7 +59,7 @@ export default function Photobooth() {
     return () => {
       if (webrtcManager.current) webrtcManager.current.leaveRoom();
     };
-  }, []);
+  }, [addLog]);
 
   useEffect(() => {
     if (roomState && roomState.callerReady && roomState.calleeReady && !isCapturing && !isFinished) {
@@ -68,17 +79,14 @@ export default function Photobooth() {
       }
       setCountdown('SNAP!');
       
-      // Capture frame
       const canvas = document.createElement('canvas');
       canvas.width = 640;
       canvas.height = 480;
       const ctx = canvas.getContext('2d');
       
-      // Fill background
       ctx.fillStyle = '#1a0b2e';
       ctx.fillRect(0, 0, 640, 480);
       
-      // Draw videos
       if (localVideoRef.current) {
         ctx.drawImage(localVideoRef.current, 10, 10, 305, 460);
       }
@@ -145,6 +153,18 @@ export default function Photobooth() {
               }} 
             />
           )}
+
+          {/* Connection log */}
+          <div className="connection-log">
+            <div className="connection-log-header">Connection Log</div>
+            <div className="connection-log-body">
+              {logs.map((entry, i) => (
+                <div key={i} className="connection-log-entry">{entry}</div>
+              ))}
+              {logs.length === 0 && <div className="connection-log-entry">Starting...</div>}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

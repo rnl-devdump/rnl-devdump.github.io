@@ -324,3 +324,44 @@
   margin-top: 10px;
 }
 
+/* Connection log */
+.connection-log {
+  width: 100%;
+  max-width: 600px;
+  margin-top: 24px;
+  border: 1px solid rgba(180, 150, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(10, 5, 25, 0.7);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+
+.connection-log-header {
+  padding: 8px 14px;
+  font-family: 'Lato', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(200, 180, 255, 0.7);
+  background: rgba(120, 80, 200, 0.1);
+  border-bottom: 1px solid rgba(180, 150, 255, 0.1);
+}
+
+.connection-log-body {
+  padding: 10px 14px;
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.connection-log-entry {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(210, 195, 255, 0.75);
+  line-height: 1.5;
+  word-break: break-all;
+}
+
