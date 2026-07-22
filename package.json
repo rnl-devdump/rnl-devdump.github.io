@@ -10,6 +10,7 @@
     "dev:letter": "vite --config vite.letter.config.js",
     "dev:letterhelper": "vite --config vite.letterhelper.config.js",
     "dev:letterx": "vite --config vite.letterx.config.js",
+    "dev:faerie": "vite --config vite.faerie.config.js",
     "build": "vite build",
     "build:dataset": "vite build",
     "build:directory": "vite build --config vite.directory.config.js --configLoader native",
@@ -18,11 +19,14 @@
     "build:letter": "vite build --config vite.letter.config.js && node scripts/finalize-letter-build.mjs",
     "build:letterhelper": "vite build --config vite.letterhelper.config.js && node scripts/finalize-letterhelper-build.mjs",
     "build:letterx": "vite build --config vite.letterx.config.js && node scripts/finalize-letterx-build.mjs",
-    "build:all": "npm run build:dataset && npm run build:directory && npm run build:validation && npm run build:forum && npm run build:letter && npm run build:letterx && npm run build:letterhelper",
+    "build:faerie": "vite build --config vite.faerie.config.js && node scripts/finalize-faerie-build.mjs",
+    "build:all": "npm run build:dataset && npm run build:directory && npm run build:validation && npm run build:forum && npm run build:letter && npm run build:letterx && npm run build:letterhelper && npm run build:faerie",
     "preview": "vite preview"
   },
   "dependencies": {
     "firebase": "^12.12.1",
+    "gif.js": "^0.2.0",
+    "html-to-image": "^1.11.13",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
