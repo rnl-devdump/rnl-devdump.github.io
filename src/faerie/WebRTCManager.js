@@ -48,7 +48,8 @@ export class WebRTCManager {
       event.streams[0].getTracks().forEach(track => {
         this.remoteStream.addTrack(track);
       });
-      if (this.onRemoteStream) this.onRemoteStream(this.remoteStream);
+      // Pass a completely new MediaStream instance so React detects the state change!
+      if (this.onRemoteStream) this.onRemoteStream(new MediaStream(this.remoteStream.getTracks()));
     });
   }
 

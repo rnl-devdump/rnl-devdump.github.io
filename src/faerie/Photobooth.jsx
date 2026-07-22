@@ -68,6 +68,19 @@ export default function Photobooth() {
     }
   }, [roomState, isCapturing, isFinished]);
 
+  // Ensure video elements stay synced with streams even if React re-renders them
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream;
+    }
+  }, [localStream, countdown, flash]);
+
+  useEffect(() => {
+    if (remoteVideoRef.current && remoteStream) {
+      remoteVideoRef.current.srcObject = remoteStream;
+    }
+  }, [remoteStream, countdown, flash]);
+
   const startCaptureSequence = async () => {
     setIsCapturing(true);
     const count = roomState.photosCount || 4;

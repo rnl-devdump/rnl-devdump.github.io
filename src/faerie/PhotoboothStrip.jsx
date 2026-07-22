@@ -14,8 +14,9 @@ const TEMPLATES = [
     footerColor: 'rgba(255,255,255,0.7)',
     imgBorder: '3px solid rgba(255,255,255,0.9)',
     imgShadow: '0 4px 12px rgba(0,0,0,0.6)',
-    overlay: 'radial-gradient(circle at 20% 30%, rgba(255,255,255,0.08) 1px, transparent 1px), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.08) 1px, transparent 1px)',
+    overlay: 'radial-gradient(circle at 20% 30%, rgba(255,255,255,0.15) 2px, transparent 2px), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.15) 2px, transparent 2px)',
     overlaySize: '50px 50px',
+    icon: '✨',
   },
   {
     id: 'rose',
@@ -31,6 +32,7 @@ const TEMPLATES = [
     imgShadow: '0 4px 12px rgba(0,0,0,0.5)',
     overlay: 'radial-gradient(circle at 15% 25%, rgba(255,180,200,0.06) 1px, transparent 1px), radial-gradient(circle at 85% 75%, rgba(255,180,200,0.06) 1px, transparent 1px)',
     overlaySize: '40px 40px',
+    icon: '🌹',
   },
   {
     id: 'classic',
@@ -46,6 +48,7 @@ const TEMPLATES = [
     imgShadow: '0 4px 12px rgba(0,0,0,0.8)',
     overlay: 'none',
     overlaySize: '0',
+    icon: '🖤',
   },
   {
     id: 'polaroid',
@@ -61,6 +64,7 @@ const TEMPLATES = [
     imgShadow: '0 2px 8px rgba(0,0,0,0.15)',
     overlay: 'none',
     overlaySize: '0',
+    icon: '📸',
   },
   {
     id: 'neon',
@@ -76,6 +80,7 @@ const TEMPLATES = [
     imgShadow: '0 0 12px rgba(176,38,255,0.4)',
     overlay: 'none',
     overlaySize: '0',
+    icon: '⚡',
   },
 ];
 
@@ -194,7 +199,7 @@ export default function PhotoboothStrip({ photos, onRetake }) {
           position: 'relative',
           zIndex: 2,
         }}>
-          Faerie Photobooth
+          {new Date().toLocaleDateString()}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', zIndex: 2 }}>
           {photos.map((src, i) => (
@@ -208,20 +213,22 @@ export default function PhotoboothStrip({ photos, onRetake }) {
                 borderRadius: '4px',
                 border: tpl.imgBorder,
                 boxShadow: tpl.imgShadow,
+                position: 'relative',
+                zIndex: 4,
               }}
             />
           ))}
         </div>
+        
+        {/* Lower-middle icon */}
         <div style={{
-          fontFamily: "'Cormorant Garamond', serif",
-          color: tpl.footerColor,
-          fontSize: '16px',
-          marginTop: '16px',
-          letterSpacing: '2px',
-          position: 'relative',
-          zIndex: 2,
+          marginTop: '24px',
+          fontSize: '28px',
+          zIndex: 3,
+          textShadow: tpl.headerShadow,
+          opacity: 0.8
         }}>
-          {new Date().toLocaleDateString()}
+          {tpl.icon}
         </div>
       </div>
 
