@@ -9,6 +9,9 @@ const configuration = {
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:19302' },
+    { urls: 'stun:stun4.l.google.com:19302' },
   ]
 };
 
@@ -58,6 +61,22 @@ export class WebRTCManager {
     const callerCandidates = collection(roomRef, 'callerCandidates');
     const calleeCandidates = collection(roomRef, 'calleeCandidates');
     
+    try {
+      const ccSnap = await getDocs(callerCandidates);
+      ccSnap.forEach(d => deleteDoc(d.ref));
+      const ceSnap = await getDocs(calleeCandidates);
+      ceSnap.forEach(d => deleteDoc(d.ref));
+    } catch(e) {
+      console.warn("Could not clear old candidates", e);
+    }
+
+    // Listen for local ICE candidates BEFORE setLocalDescription
+    this.peerConnection.addEventListener('icecandidate', event => {
+      if (event.candidate) {
+        addDoc(callerCandidates, event.candidate.toJSON());
+      }
+    });
+    
     // Create offer
     const offer = await this.peerConnection.createOffer();
     await this.peerConnection.setLocalDescription(offer);
@@ -70,13 +89,6 @@ export class WebRTCManager {
       updatedAt: serverTimestamp()
     };
     await setDoc(roomRef, roomData);
-
-    // Listen for local ICE candidates
-    this.peerConnection.addEventListener('icecandidate', event => {
-      if (event.candidate) {
-        addDoc(callerCandidates, event.candidate.toJSON());
-      }
-    });
 
     // Listen for remote answer
     this.unsubscribeRoom = onSnapshot(roomRef, async snapshot => {
@@ -104,7 +116,7 @@ export class WebRTCManager {
     const callerCandidates = collection(roomRef, 'callerCandidates');
     const calleeCandidates = collection(roomRef, 'calleeCandidates');
 
-    // Listen for local ICE candidates
+    // Listen for local ICE candidates BEFORE setLocalDescription
     this.peerConnection.addEventListener('icecandidate', event => {
       if (event.candidate) {
         addDoc(calleeCandidates, event.candidate.toJSON());
