@@ -10,6 +10,7 @@ import SearchPage from './pages/SearchPage.jsx';
 import BrowsePage from './pages/BrowsePage.jsx';
 import GenrePage from './pages/GenrePage.jsx';
 import PlayerPage from './pages/PlayerPage.jsx';
+import AiAssistantButton from './components/AiAssistantButton.jsx';
 
 function parseHash() {
   const hash = window.location.hash.replace('#', '') || '/';
@@ -84,6 +85,7 @@ export default function MovieApp() {
         currentPage={route.page}
       />
       <main>{renderPage()}</main>
+      <AiAssistantButton navigate={navigate} />
       <Footer />
       <MobileNav navigate={navigate} currentPage={route.page} onSearchOpen={() => setSearchOpen(true)} />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} navigate={navigate} />
