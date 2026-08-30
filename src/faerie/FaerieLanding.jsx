@@ -243,6 +243,16 @@ export default function FaerieLanding() {
               <h2 className="faerie-card-title">Letter Helper</h2>
               <p className="faerie-card-desc">Write and edit your own letter and send to your babi</p>
             </a>
+
+            <a href="/movie/" className="faerie-card">
+              <div className="faerie-card-icon">
+                <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="5 3 19 12 5 21"></polygon>
+                </svg>
+              </div>
+              <h2 className="faerie-card-title">Movies & TV</h2>
+              <p className="faerie-card-desc">Watch movies and TV shows together with your babi</p>
+            </a>
           </div>
         </div>
       </div>
