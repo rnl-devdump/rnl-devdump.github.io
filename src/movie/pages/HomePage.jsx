@@ -3,6 +3,7 @@ import { getTrending, getPopular, getTopRated, getNowPlaying, getOnTheAir } from
 import HeroBanner from '../components/HeroBanner.jsx';
 import TopTenRow from '../components/TopTenRow.jsx';
 import ContentRow from '../components/ContentRow.jsx';
+import ActiveRoomsRow from '../components/ActiveRoomsRow.jsx';
 
 export default function HomePage({ navigate }) {
   const [data, setData] = useState({});
@@ -37,6 +38,8 @@ export default function HomePage({ navigate }) {
       <HeroBanner navigate={navigate} />
 
       <div style={{ marginTop: -40, position: 'relative', zIndex: 10 }}>
+        <ActiveRoomsRow />
+
         <TopTenRow
           title="🔥 Top 10 Movies This Week"
           items={data.trendingMovies}

@@ -49,7 +49,7 @@ export default function PlayerPage({ route, navigate }) {
         season={route.season} 
         episode={route.episode} 
       >
-        <WatchParty route={route} />
+        <WatchParty route={route} media={media} />
       </VideoPlayer>
 
       {/* Hover Overlay */}

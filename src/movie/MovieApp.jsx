@@ -13,11 +13,15 @@ import PlayerPage from './pages/PlayerPage.jsx';
 
 function parseHash() {
   const hash = window.location.hash.replace('#', '') || '/';
-  const parts = hash.split('/').filter(Boolean);
+  const roomMatch = window.location.hash.match(/[?&]room=([A-Z0-9]+)/i);
+  const roomId = roomMatch ? roomMatch[1].toUpperCase() : null;
+
+  const cleanHash = hash.split('?')[0];
+  const parts = cleanHash.split('/').filter(Boolean);
 
   if (parts.length === 0) return { page: 'home' };
-  if (parts[0] === 'play' && parts[1] === 'movie') return { page: 'play', type: 'movie', id: parts[2] };
-  if (parts[0] === 'play' && parts[1] === 'tv') return { page: 'play', type: 'tv', id: parts[2], season: parseInt(parts[3] || 1), episode: parseInt(parts[4] || 1) };
+  if (parts[0] === 'play' && parts[1] === 'movie') return { page: 'play', type: 'movie', id: parts[2], roomId };
+  if (parts[0] === 'play' && parts[1] === 'tv') return { page: 'play', type: 'tv', id: parts[2], season: parseInt(parts[3] || 1), episode: parseInt(parts[4] || 1), roomId };
   if (parts[0] === 'movie' && parts[1]) return { page: 'movie', id: parts[1], play: parts[2] === 'play' };
   if (parts[0] === 'tv' && parts[1]) {
     return {

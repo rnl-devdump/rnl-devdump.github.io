@@ -11,12 +11,20 @@ function generateRoomId() {
   return result;
 }
 
-export default function WatchParty({ route }) {
+export default function WatchParty({ route, media }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [roomId, setRoomId] = useState('');
+  const [roomId, setRoomId] = useState(route?.roomId || '');
   const [joinId, setJoinId] = useState('');
   const [roomData, setRoomData] = useState(null);
   const [countdown, setCountdown] = useState(null);
+
+  // Auto join if roomId is in URL
+  useEffect(() => {
+    if (route?.roomId && route.roomId !== roomId) {
+      setRoomId(route.roomId);
+      setIsOpen(true);
+    }
+  }, [route?.roomId]);
 
   // Listen to room data
   useEffect(() => {
@@ -57,11 +65,16 @@ export default function WatchParty({ route }) {
   const createRoom = async () => {
     try {
       const newId = generateRoomId();
+      const titleStr = media?.title || media?.name || (route.type === 'movie' ? `Movie ${route.id}` : `TV Show ${route.id}`);
       await setDoc(doc(db, 'watchParties', newId), {
         type: route.type,
         tmdbId: route.id,
         season: route.season || 1,
         episode: route.episode || 1,
+        title: titleStr,
+        posterPath: media?.poster_path || '',
+        startedAt: Date.now(),
+        updatedAt: serverTimestamp(),
         syncPlayAt: null,
         createdAt: serverTimestamp()
       });
@@ -73,9 +86,9 @@ export default function WatchParty({ route }) {
   };
 
   const joinRoom = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     try {
-      const id = joinId.toUpperCase();
+      const id = (joinId || route?.roomId || '').toUpperCase();
       const docSnap = await getDoc(doc(db, 'watchParties', id));
       if (docSnap.exists()) {
         setRoomId(id);
@@ -91,17 +104,23 @@ export default function WatchParty({ route }) {
   const triggerSyncPlay = async () => {
     if (!roomId) return;
     await updateDoc(doc(db, 'watchParties', roomId), {
-      syncPlayAt: Date.now() + 4000 // 4 seconds from now to allow for network delay
+      syncPlayAt: Date.now() + 4000, // 4 seconds delay for sync
+      updatedAt: serverTimestamp()
     });
   };
 
   const updateRoomMedia = async () => {
     if (!roomId) return;
+    const titleStr = media?.title || media?.name || (route.type === 'movie' ? `Movie ${route.id}` : `TV Show ${route.id}`);
     await updateDoc(doc(db, 'watchParties', roomId), {
       type: route.type,
       tmdbId: route.id,
       season: route.season || 1,
       episode: route.episode || 1,
+      title: titleStr,
+      posterPath: media?.poster_path || '',
+      startedAt: Date.now(),
+      updatedAt: serverTimestamp()
     });
   };
 
@@ -112,9 +131,9 @@ export default function WatchParty({ route }) {
 
   const jumpToRoomMedia = () => {
     if (roomData.type === 'movie') {
-      window.location.hash = `/play/movie/${roomData.tmdbId}`;
+      window.location.hash = `/play/movie/${roomData.tmdbId}?room=${roomId}`;
     } else {
-      window.location.hash = `/play/tv/${roomData.tmdbId}/${roomData.season}/${roomData.episode}`;
+      window.location.hash = `/play/tv/${roomData.tmdbId}/${roomData.season}/${roomData.episode}?room=${roomId}`;
     }
   };
 
