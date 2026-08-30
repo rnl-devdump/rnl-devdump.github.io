@@ -16,12 +16,22 @@ export default function AiAssistantButton({ navigate }) {
           {/* Animated Glow Ring */}
           <span className="absolute -inset-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 opacity-75 blur animate-pulse group-hover:opacity-100 transition-opacity" />
 
-          {/* Icon */}
-          <div className="relative flex items-center gap-2">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+          {/* AI Logo */}
+          <div className="relative">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="2" />
+              <circle cx="9" cy="9" r="1.5" fill="currentColor" stroke="none" />
+              <circle cx="15" cy="9" r="1.5" fill="currentColor" stroke="none" />
+              <path d="M9 15c.8 1.2 2.2 2 3.5 1.8 1.1-.2 2-.9 2.5-1.8" />
+              <line x1="9" y1="1" x2="9" y2="4" />
+              <line x1="15" y1="1" x2="15" y2="4" />
+              <line x1="9" y1="20" x2="9" y2="23" />
+              <line x1="15" y1="20" x2="15" y2="23" />
+              <line x1="20" y1="9" x2="23" y2="9" />
+              <line x1="20" y1="15" x2="23" y2="15" />
+              <line x1="1" y1="9" x2="4" y2="9" />
+              <line x1="1" y1="15" x2="4" y2="15" />
             </svg>
-            <span className="hidden md:inline font-semibold text-xs pr-1">Ask AI</span>
           </div>
         </button>
       </div>
