@@ -1,40 +1,49 @@
 import { searchMulti, getTrending } from './tmdb.js';
 import { trackAiEvent } from '../../lib/telemetry.js';
 
-const GENRE_MAP = {
-  action: 28,
-  adventure: 12,
-  animation: 16,
-  comedy: 35,
-  crime: 80,
-  documentary: 99,
-  drama: 18,
-  family: 10751,
-  fantasy: 14,
-  history: 36,
-  horror: 27,
-  music: 10402,
-  mystery: 9648,
-  romance: 10749,
-  scifi: 878,
-  'sci-fi': 878,
-  science: 878,
-  thriller: 53,
-  war: 10752,
-  western: 37,
-};
+const MODELS = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-pro'];
 
 export async function askAiAssistant(userPrompt, apiKey = null) {
   const defaultKey = (import.meta.env.VITE_FIREBASE_API_KEY_P1 || 'AIzaSy') + (import.meta.env.VITE_FIREBASE_API_KEY_P2 || 'BPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c');
   const geminiKey = apiKey || import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY || defaultKey;
 
   // Log AI interaction telemetry
-  trackAiEvent(userPrompt, geminiKey ? 'Gemini 1.5 Flash' : 'TMDB Smart Engine');
+  trackAiEvent(userPrompt, geminiKey ? 'Gemini AI' : 'TMDB Smart Engine');
 
   if (geminiKey) {
+    const replyText = await fetchGeminiResponse(userPrompt, geminiKey);
+
+    if (replyText) {
+      // Extract movie titles in quotes to search TMDB for interactive cards
+      const titleMatches = [...replyText.matchAll(/"([^"]+)"/g)].map(m => m[1]);
+      const items = [];
+
+      for (const title of titleMatches.slice(0, 5)) {
+        try {
+          const res = await searchMulti(title);
+          const match = res.results?.find(r => (r.media_type === 'movie' || r.media_type === 'tv') && r.poster_path);
+          if (match) items.push(match);
+        } catch (e) {
+          // Ignore individual search failures
+        }
+      }
+
+      return {
+        text: replyText.replace(/"([^"]+)"/g, '**$1**'),
+        items: items,
+      };
+    }
+  }
+
+  // Fallback TMDB Smart Engine if Gemini API is unreachable or key has Generative Language API disabled
+  return await getFallbackItems(userPrompt);
+}
+
+async function fetchGeminiResponse(userPrompt, key) {
+  for (const model of MODELS) {
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -44,9 +53,13 @@ export async function askAiAssistant(userPrompt, apiKey = null) {
                 role: 'user',
                 parts: [
                   {
-                    text: `You are Kiruu AI, a friendly and expert movie & TV show recommender assistant.
-The user prompt is: "${userPrompt}".
-Provide a warm, enthusiastic 2-3 sentence recommendation introduction, followed by a list of 4 specific movie or TV show title titles matching their query. Format the title names inside double quotes like "Movie Title".`,
+                    text: `You are Kiruu AI, a friendly, intelligent movie & TV show recommender assistant.
+User input: "${userPrompt}".
+
+Instructions:
+1. Answer the user prompt naturally, warmly, and helpfully.
+2. If the user is asking for movie or TV show suggestions or vibes, recommend 3-4 specific real titles and wrap each title in double quotes like "Interstellar".
+3. If the user is asking a general question (such as programming, trivia, advice), answer directly and accurately.`,
                   },
                 ],
               },
@@ -56,31 +69,19 @@ Provide a warm, enthusiastic 2-3 sentence recommendation introduction, followed 
       );
 
       const data = await response.json();
-      const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (replyText) {
-        // Extract movie titles in quotes to search TMDB
-        const titleMatches = [...replyText.matchAll(/"([^"]+)"/g)].map(m => m[1]);
-        const items = [];
-
-        for (const title of titleMatches.slice(0, 5)) {
-          const res = await searchMulti(title);
-          const match = res.results?.find(r => r.media_type === 'movie' || r.media_type === 'tv');
-          if (match) items.push(match);
-        }
-
-        return {
-          text: replyText.replace(/"([^"]+)"/g, '**$1**'),
-          items: items,
-        };
+      
+      if (data.error) {
+        console.warn(`Gemini model [${model}] API notice:`, data.error.message || data.error);
+        continue; // Try next model fallback
       }
+
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) return text;
     } catch (err) {
-      console.warn("Gemini API call failed, falling back to TMDB Smart Engine:", err);
+      console.warn(`Gemini fetch exception for model [${model}]:`, err);
     }
   }
-
-  // Fallback TMDB Smart Engine
-  return await getFallbackItems(userPrompt);
+  return null;
 }
 
 async function getFallbackItems(userPrompt) {
