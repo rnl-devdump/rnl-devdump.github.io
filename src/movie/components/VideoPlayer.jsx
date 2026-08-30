@@ -27,7 +27,7 @@ const SERVERS = [
   }
 ];
 
-export default function VideoPlayer({ type, tmdbId, season, episode }) {
+export default function VideoPlayer({ type, tmdbId, season, episode, children }) {
   const [loaded, setLoaded] = useState(false);
   const [server, setServer] = useState(SERVERS[0]);
 
@@ -38,6 +38,7 @@ export default function VideoPlayer({ type, tmdbId, season, episode }) {
   return (
     <div className="video-player-container">
       <div className="server-selector" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px', gap: '12px', alignItems: 'center' }}>
+        {children}
         <span style={{ fontSize: '0.85rem', color: 'var(--color-text-lo)' }}>
           Seeing ads or stream not loading? Switch servers:
         </span>

@@ -42,16 +42,15 @@ export default function PlayerPage({ route, navigate }) {
 
   return (
     <div className="fullscreen-player-container">
-      {/* Video Player */}
+      {/* Video Player & Top Controls */}
       <VideoPlayer 
         type={route.type} 
         tmdbId={route.id} 
         season={route.season} 
         episode={route.episode} 
-      />
-
-      {/* Watch Party Module */}
-      <WatchParty route={route} />
+      >
+        <WatchParty route={route} />
+      </VideoPlayer>
 
       {/* Hover Overlay */}
       <div className={`player-hover-overlay ${showOverlay ? 'visible' : ''}`}>
