@@ -1,28 +1,29 @@
 const BASE_URL = 'https://api.jikan.moe/v4';
 
-// Jikan API has rate limiting: 3 requests/second and 60 requests/minute.
-// We'll add a simple delay helper to avoid hitting limits too easily on rapid clicks.
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-let lastRequestTime = 0;
+
+let queue = Promise.resolve();
 
 async function jikanFetch(endpoint, params = {}) {
-  const now = Date.now();
-  if (now - lastRequestTime < 340) {
-    await delay(340 - (now - lastRequestTime));
-  }
-  
-  const url = new URL(`${BASE_URL}${endpoint}`);
-  Object.entries(params).forEach(([k, v]) => {
-    if (v !== undefined && v !== null) {
-      url.searchParams.set(k, v);
-    }
+  // Chain each request onto the queue to ensure they run sequentially with a 350ms delay
+  const requestPromise = queue.then(async () => {
+    const url = new URL(`${BASE_URL}${endpoint}`);
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== null) {
+        url.searchParams.set(k, v);
+      }
+    });
+
+    const res = await fetch(url.toString());
+    if (!res.ok) throw new Error(`Jikan API error: ${res.status}`);
+    const json = await res.json();
+    return json.data;
   });
 
-  lastRequestTime = Date.now();
-  const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`Jikan API error: ${res.status}`);
-  const json = await res.json();
-  return json.data;
+  // Advance the queue by adding a 350ms delay after this request starts
+  queue = queue.then(() => delay(350)).catch(() => delay(350));
+
+  return requestPromise;
 }
 
 /* ─── Top Anime (Replaces Trending/Popular) ─── */

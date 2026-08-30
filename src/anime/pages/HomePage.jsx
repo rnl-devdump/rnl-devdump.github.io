@@ -11,10 +11,10 @@ export default function HomePage({ navigate }) {
 
   useEffect(() => {
     Promise.all([
-      getTrending(1),
-      getPopular(1),
-      getTopRated(1),
-      getNowPlaying(1),
+      getTrending(1).catch(() => []),
+      getPopular(1).catch(() => []),
+      getTopRated(1).catch(() => []),
+      getNowPlaying(1).catch(() => []),
     ]).then(([trending, popular, topRated, nowPlaying]) => {
       setData({
         trending: trending || [],
