@@ -28,12 +28,13 @@ async function jikanFetch(endpoint, params = {}) {
 
 /* ─── Top Anime (Replaces Trending/Popular) ─── */
 export function getTrending(page = 1) {
-  // We'll use top anime with 'bypopularity' filter to act as "trending"
-  return jikanFetch(`/top/anime`, { page, filter: 'bypopularity' });
+  // Use top airing anime as "trending" since bypopularity often times out (504)
+  return jikanFetch(`/top/anime`, { page, filter: 'airing' });
 }
 
 export function getPopular(page = 1) {
-  return jikanFetch(`/top/anime`, { page, filter: 'favorite' });
+  // Use upcoming anime since favorite/bypopularity endpoints are unstable on Jikan
+  return jikanFetch(`/seasons/upcoming`, { page });
 }
 
 export function getTopRated(page = 1) {
