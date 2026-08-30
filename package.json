@@ -13,6 +13,7 @@
     "dev:faerie": "vite --config vite.faerie.config.js",
     "dev:movie": "vite --config vite.movie.config.js",
     "dev:dashboard": "vite --config vite.dashboard.config.js",
+    "dev:anime": "vite --config vite.anime.config.js",
     "build": "vite build",
     "build:dataset": "vite build",
     "build:directory": "vite build --config vite.directory.config.js --configLoader native",
@@ -24,7 +25,8 @@
     "build:faerie": "vite build --config vite.faerie.config.js && node scripts/finalize-faerie-build.mjs",
     "build:movie": "vite build --config vite.movie.config.js && node scripts/finalize-movie-build.mjs",
     "build:dashboard": "vite build --config vite.dashboard.config.js && node scripts/finalize-dashboard-build.mjs",
-    "build:all": "npm run build:dataset && npm run build:directory && npm run build:validation && npm run build:forum && npm run build:letter && npm run build:letterx && npm run build:letterhelper && npm run build:faerie && npm run build:movie && npm run build:dashboard",
+    "build:anime": "vite build --config vite.anime.config.js && node scripts/finalize-anime-build.mjs",
+    "build:all": "npm run build:dataset && npm run build:directory && npm run build:validation && npm run build:forum && npm run build:letter && npm run build:letterx && npm run build:letterhelper && npm run build:faerie && npm run build:movie && npm run build:dashboard && npm run build:anime",
     "preview": "vite preview"
   },
   "dependencies": {

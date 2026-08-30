@@ -1,4 +1,4 @@
-import { searchMulti, getTrending } from './tmdb.js';
+import { searchMulti, getTrending } from './jikan.js';
 import { trackAiEvent } from '../../lib/telemetry.js';
 
 const MODELS = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-pro'];
@@ -9,7 +9,7 @@ export async function askAiAssistant(userPrompt, apiKey = null) {
 
   // Rate Limiting Logic
   const today = new Date().toLocaleDateString();
-  const usageKey = 'ai_usage_stats_movie';
+  const usageKey = 'ai_usage_stats';
   let usage = JSON.parse(localStorage.getItem(usageKey) || '{"date":"","count":0}');
   
   if (usage.date !== today) {
@@ -18,13 +18,13 @@ export async function askAiAssistant(userPrompt, apiKey = null) {
   
   if (usage.count >= 10) {
     return {
-      text: "Whoa there! You've reached the limit of 10 AI requests per day to prevent abuse. Please try again tomorrow! 🎥",
+      text: "Whoa there! You've reached the limit of 10 AI requests per day to prevent abuse. Please try again tomorrow! 🌸",
       items: []
     };
   }
 
   // Log AI interaction telemetry
-  trackAiEvent(userPrompt, geminiKey ? 'Gemini AI' : 'TMDB Smart Engine');
+  trackAiEvent(userPrompt, geminiKey ? 'Gemini AI' : 'Jikan Smart Engine');
 
   if (geminiKey) {
     const replyText = await fetchGeminiResponse(userPrompt, geminiKey);
@@ -33,14 +33,15 @@ export async function askAiAssistant(userPrompt, apiKey = null) {
       usage.count += 1;
       localStorage.setItem(usageKey, JSON.stringify(usage));
 
-      // Extract movie titles in quotes to search TMDB for interactive cards
+      // Extract anime titles in quotes to search Jikan for interactive cards
       const titleMatches = [...replyText.matchAll(/"([^"]+)"/g)].map(m => m[1]);
       const items = [];
 
       for (const title of titleMatches.slice(0, 5)) {
         try {
           const res = await searchMulti(title);
-          const match = res.results?.find(r => (r.media_type === 'movie' || r.media_type === 'tv') && r.poster_path);
+          // res is the data array for Jikan
+          const match = res?.find(r => r.images?.jpg?.image_url);
           if (match) items.push(match);
         } catch (e) {
           // Ignore individual search failures
@@ -56,7 +57,7 @@ export async function askAiAssistant(userPrompt, apiKey = null) {
 
   usage.count += 1;
   localStorage.setItem(usageKey, JSON.stringify(usage));
-  // Fallback TMDB Smart Engine if Gemini API is unreachable or key has Generative Language API disabled
+  // Fallback Jikan Smart Engine if Gemini API is unreachable or key has Generative Language API disabled
   return await getFallbackItems(userPrompt);
 }
 
@@ -74,13 +75,13 @@ async function fetchGeminiResponse(userPrompt, key) {
                 role: 'user',
                 parts: [
                   {
-                    text: `You are Kiruu AI, a friendly, intelligent movie & TV show recommender assistant.
+                    text: `You are Kiruu AI, a friendly, intelligent anime recommender assistant.
 User input: "${userPrompt}".
 
 Instructions:
 1. Answer the user prompt naturally, warmly, and helpfully.
-2. If the user is asking for movie or TV show suggestions or vibes, recommend 3-4 specific real titles and wrap each title in double quotes like "Interstellar".
-3. If the user is asking a general question (such as programming, trivia, advice), answer directly and accurately.`,
+2. If the user is asking for anime suggestions or genres, recommend 3-4 specific real anime titles and wrap each title in double quotes like "Attack on Titan".
+3. If the user is asking a general question (such as anime trivia, advice), answer directly and accurately.`,
                   },
                 ],
               },
@@ -108,33 +109,33 @@ Instructions:
 async function getFallbackItems(userPrompt) {
   const promptLower = userPrompt.toLowerCase();
   
-  // Search TMDB multi directly with user query
+  // Search Jikan multi directly with user query
   let results = [];
   try {
     const searchRes = await searchMulti(userPrompt);
-    results = (searchRes.results || []).filter(r => (r.media_type === 'movie' || r.media_type === 'tv') && r.poster_path);
+    results = (searchRes || []).filter(r => r.images?.jpg?.image_url);
   } catch (err) {
     console.error(err);
   }
 
   if (results.length === 0) {
     // Try trending fallback
-    const trending = await getTrending('movie', 'week');
-    results = trending.results || [];
+    const trending = await getTrending(1);
+    results = trending || [];
   }
 
-  let text = `Here are some great picks matching "${userPrompt}":`;
+  let text = `Here are some great anime picks matching "${userPrompt}":`;
 
-  if (promptLower.includes('sci-fi') || promptLower.includes('space') || promptLower.includes('alien')) {
-    text = `🌌 Here are some mind-bending Sci-Fi adventures tailored for you:`;
-  } else if (promptLower.includes('scary') || promptLower.includes('horror') || promptLower.includes('ghost')) {
-    text = `👻 Spine-chilling picks for a terrifying movie night:`;
-  } else if (promptLower.includes('funny') || promptLower.includes('comedy') || promptLower.includes('laugh')) {
-    text = `😂 Hilarious comedies to lighten up your day:`;
-  } else if (promptLower.includes('love') || promptLower.includes('romance') || promptLower.includes('date')) {
-    text = `💖 Cozy romantic stories perfect for a date night:`;
-  } else if (promptLower.includes('action') || promptLower.includes('fight') || promptLower.includes('explosion')) {
-    text = `⚡ High-octane action thrillers packed with adrenaline:`;
+  if (promptLower.includes('sci-fi') || promptLower.includes('mecha') || promptLower.includes('space')) {
+    text = `🌌 Here are some mind-bending sci-fi/mecha adventures tailored for you:`;
+  } else if (promptLower.includes('isekai') || promptLower.includes('fantasy') || promptLower.includes('magic')) {
+    text = `🗡️ Epic fantasy and isekai worlds waiting for you:`;
+  } else if (promptLower.includes('funny') || promptLower.includes('comedy') || promptLower.includes('slice of life')) {
+    text = `😂 Hilarious and wholesome picks to lighten up your day:`;
+  } else if (promptLower.includes('love') || promptLower.includes('romance') || promptLower.includes('shoujo')) {
+    text = `💖 Cozy romantic stories perfect for a binge:`;
+  } else if (promptLower.includes('action') || promptLower.includes('shounen') || promptLower.includes('fight')) {
+    text = `🔥 High-octane action anime packed with adrenaline:`;
   }
 
   return {

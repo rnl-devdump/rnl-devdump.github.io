@@ -71,6 +71,11 @@
           return;
         }
 
+        if (path.indexOf("/anime") === 0) {
+          window.location.replace("/anime/" + hash);
+          return;
+        }
+
         // Default fallback route.
         window.location.replace("/dataset/");
       })();
