@@ -55,26 +55,36 @@ export default function WatchParty({ route }) {
   };
 
   const createRoom = async () => {
-    const newId = generateRoomId();
-    await setDoc(doc(db, 'watchParties', newId), {
-      type: route.type,
-      tmdbId: route.id,
-      season: route.season || 1,
-      episode: route.episode || 1,
-      syncPlayAt: null,
-      createdAt: serverTimestamp()
-    });
-    setRoomId(newId);
+    try {
+      const newId = generateRoomId();
+      await setDoc(doc(db, 'watchParties', newId), {
+        type: route.type,
+        tmdbId: route.id,
+        season: route.season || 1,
+        episode: route.episode || 1,
+        syncPlayAt: null,
+        createdAt: serverTimestamp()
+      });
+      setRoomId(newId);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to create room: " + err.message);
+    }
   };
 
   const joinRoom = async (e) => {
     e.preventDefault();
-    const id = joinId.toUpperCase();
-    const docSnap = await getDoc(doc(db, 'watchParties', id));
-    if (docSnap.exists()) {
-      setRoomId(id);
-    } else {
-      alert("Room not found!");
+    try {
+      const id = joinId.toUpperCase();
+      const docSnap = await getDoc(doc(db, 'watchParties', id));
+      if (docSnap.exists()) {
+        setRoomId(id);
+      } else {
+        alert("Room not found!");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to join room: " + err.message);
     }
   };
 
