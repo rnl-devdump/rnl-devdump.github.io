@@ -250,8 +250,8 @@ export default function FaerieLanding() {
                   <polygon points="5 3 19 12 5 21"></polygon>
                 </svg>
               </div>
-              <h2 className="faerie-card-title">Movies & TV</h2>
-              <p className="faerie-card-desc">Watch movies and TV shows together with your babi</p>
+              <h2 className="faerie-card-title">Movie</h2>
+              <p className="faerie-card-desc">Movie [a movie site made by your babi]</p>
             </a>
           </div>
         </div>

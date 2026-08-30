@@ -56,6 +56,16 @@
           return;
         }
 
+        if (path.indexOf("/movie") === 0) {
+          window.location.replace("/movie/" + hash);
+          return;
+        }
+
+        if (path.indexOf("/faerie") === 0) {
+          window.location.replace("/faerie/" + hash);
+          return;
+        }
+
         // Default fallback route.
         window.location.replace("/dataset/");
       })();

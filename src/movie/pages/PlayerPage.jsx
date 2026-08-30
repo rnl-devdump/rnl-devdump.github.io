@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getDetails, logoUrl } from '../api/tmdb.js';
 import VideoPlayer from '../components/VideoPlayer.jsx';
+import WatchParty from '../components/WatchParty.jsx';
 
 export default function PlayerPage({ route, navigate }) {
   const [media, setMedia] = useState(null);
@@ -48,6 +49,9 @@ export default function PlayerPage({ route, navigate }) {
         season={route.season} 
         episode={route.episode} 
       />
+
+      {/* Watch Party Module */}
+      <WatchParty route={route} />
 
       {/* Hover Overlay */}
       <div className={`player-hover-overlay ${showOverlay ? 'visible' : ''}`}>
