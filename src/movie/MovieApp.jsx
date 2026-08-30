@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { trackVisitEvent } from '../lib/telemetry.js';
 import Header from './components/Header.jsx';
 import MobileNav from './components/MobileNav.jsx';
 import SearchOverlay from './components/SearchOverlay.jsx';
@@ -44,6 +45,7 @@ export default function MovieApp() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
+    trackVisitEvent('movie');
     const handleHash = () => {
       setRoute(parseHash());
       window.scrollTo(0, 0);

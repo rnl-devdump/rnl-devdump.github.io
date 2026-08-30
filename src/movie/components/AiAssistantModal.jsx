@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { askAiAssistant } from '../api/aiRecommender.js';
 import { posterUrl } from '../api/tmdb.js';
 
-const DAILY_LIMIT = 20;
+const DAILY_LIMIT = 10;
 
 function getDailyUsage() {
   const today = new Date().toISOString().split('T')[0];
@@ -55,7 +55,7 @@ export default function AiAssistantModal({ navigate, isOpen, onClose }) {
         { sender: 'user', text: queryText },
         {
           sender: 'ai',
-          text: "⚠️ **Daily Limit Reached!** You have used all 20 of your daily AI queries for today. Please come back tomorrow for more recommendations!",
+          text: "⚠️ **Daily Limit Reached!** You have used all 10 of your daily AI queries for today. Please come back tomorrow for more recommendations!",
           items: [],
         },
       ]);

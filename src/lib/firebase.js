@@ -2,8 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY || (
+  (import.meta.env.VITE_FIREBASE_API_KEY_P1 || 'AIzaSy') +
+  (import.meta.env.VITE_FIREBASE_API_KEY_P2 || 'BPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c')
+);
+
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  apiKey,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,

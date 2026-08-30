@@ -66,6 +66,11 @@
           return;
         }
 
+        if (path.indexOf("/dashboard") === 0) {
+          window.location.replace("/dashboard/" + hash);
+          return;
+        }
+
         // Default fallback route.
         window.location.replace("/dataset/");
       })();
