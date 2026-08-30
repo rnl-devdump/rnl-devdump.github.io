@@ -41,7 +41,7 @@ export default function PlayerPage({ route, navigate }) {
   }, [route.type, route.id]);
 
   return (
-    <div className="fullscreen-player-container">
+    <div className={`fullscreen-player-container ${showOverlay ? 'controls-visible' : ''}`}>
       {/* Video Player & Top Controls */}
       <VideoPlayer 
         type={route.type} 
@@ -99,11 +99,13 @@ export default function PlayerPage({ route, navigate }) {
           right: 24px;
           z-index: 10001; /* Above overlay */
           opacity: 0;
-          transition: opacity 0.3s ease;
+          pointer-events: none;
+          transition: opacity 0.5s ease;
         }
 
-        .fullscreen-player-container:hover .server-selector {
+        .fullscreen-player-container.controls-visible .server-selector {
           opacity: 1;
+          pointer-events: auto;
         }
 
         .fullscreen-player-container .video-player-wrap {
