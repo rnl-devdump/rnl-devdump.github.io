@@ -1,6 +1,55 @@
 {
     "billing_month": "May 01, 2026 - May 31, 2026",
-    "generation_breakdown": [],
+    "generation_breakdown": [
+        {
+            "source": "WESM",
+            "pct_kwh": "56.97%",
+            "kwh_purchased": 41652509.5246,
+            "pct_cost": "58.59%",
+            "basic_cost": 247904966.01,
+            "other_adjust": 0.0,
+            "discounts": 69866.22,
+            "total_cost": 247835099.79,
+            "oga": 0.0,
+            "avg_cost": 5.950064056611725
+        },
+        {
+            "source": "TLI",
+            "pct_kwh": "25.44%",
+            "kwh_purchased": 18600000.0,
+            "pct_cost": "24.37%",
+            "basic_cost": 103121901.54,
+            "other_adjust": 0.0,
+            "discounts": 0.0,
+            "total_cost": 103121901.54,
+            "oga": 0.0,
+            "avg_cost": 5.54418825483871
+        },
+        {
+            "source": "MPCL",
+            "pct_kwh": "17.23%",
+            "kwh_purchased": 12600000.0,
+            "pct_cost": "16.68%",
+            "basic_cost": 70558758.43,
+            "other_adjust": 0.0,
+            "discounts": 0.0,
+            "total_cost": 70558758.43,
+            "oga": 0.0,
+            "avg_cost": 5.599901462698413
+        },
+        {
+            "source": "Net Metering",
+            "pct_kwh": "0.36%",
+            "kwh_purchased": 263376.0,
+            "pct_cost": "0.36%",
+            "basic_cost": 1507221.84,
+            "other_adjust": 0.0,
+            "discounts": 0.0,
+            "total_cost": 1507221.84,
+            "oga": 0.0,
+            "avg_cost": 5.722700018224896
+        }
+    ],
     "unbundled_rates": [
         {
             "category": "Generation & Transmission",
