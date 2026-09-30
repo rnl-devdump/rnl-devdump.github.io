@@ -1,0 +1,97 @@
+﻿{
+  "updatedAt": "2026-09-30T13:10:00.000Z",
+  "masterSwitch": true,
+  "sublinks": {
+    "tawir-webapp": {
+      "name": "TAWIR v4 Web App",
+      "path": "/tawir-webapp",
+      "category": "AI Assistant",
+      "enabled": true,
+      "message": "TAWIR v4 is currently undergoing scheduled updates."
+    },
+    "tawir": {
+      "name": "TAWIR v3 (Legacy)",
+      "path": "/tawir",
+      "category": "AI Assistant",
+      "enabled": true,
+      "message": "TAWIR v3 is offline."
+    },
+    "anime": {
+      "name": "Anime Hub",
+      "path": "/anime",
+      "category": "Media",
+      "enabled": true,
+      "message": "Anime portal is temporarily unavailable."
+    },
+    "movie": {
+      "name": "Movie Hub",
+      "path": "/movie",
+      "category": "Media",
+      "enabled": true,
+      "message": "Movie streaming portal is offline."
+    },
+    "faerie": {
+      "name": "Faerie",
+      "path": "/faerie",
+      "category": "Storybook",
+      "enabled": true,
+      "message": "Faerie tales reader is undergoing maintenance."
+    },
+    "forum": {
+      "name": "Community Forum",
+      "path": "/forum",
+      "category": "Social",
+      "enabled": true,
+      "message": "The forum is temporarily closed for maintenance."
+    },
+    "letter": {
+      "name": "Letter Archive",
+      "path": "/letter",
+      "category": "Document",
+      "enabled": true,
+      "message": "Letter archive is temporarily offline."
+    },
+    "letterx": {
+      "name": "LetterX Viewer",
+      "path": "/letterx",
+      "category": "Document",
+      "enabled": true,
+      "message": "LetterX viewer is currently disabled."
+    },
+    "letterhelper": {
+      "name": "Letter Helper",
+      "path": "/letterhelper",
+      "category": "Tool",
+      "enabled": true,
+      "message": "Letter helper utility is temporarily down."
+    },
+    "dataset": {
+      "name": "Dataset Annotator",
+      "path": "/dataset",
+      "category": "Data Tool",
+      "enabled": true,
+      "message": "Dataset annotation portal is undergoing maintenance."
+    },
+    "directory": {
+      "name": "Directory Explorer",
+      "path": "/directory",
+      "category": "System",
+      "enabled": true,
+      "message": "Directory explorer is temporarily unavailable."
+    },
+    "validation": {
+      "name": "Validation Suite",
+      "path": "/validation",
+      "category": "Quality",
+      "enabled": true,
+      "message": "Validation tools are currently offline."
+    },
+    "bill": {
+      "name": "Utility Rates Tracker",
+      "path": "/bill",
+      "category": "Finance",
+      "enabled": true,
+      "message": "Utility rates service is temporarily unavailable."
+    }
+  }
+}
