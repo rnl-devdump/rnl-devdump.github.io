@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <script src="/sublink-guard.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TAWIR Conversations — Live Model Monitor</title>
-  <link rel="icon" type="image/png" href="/tawir-webapp/favicon.png">
+  <link rel="icon" type="image/png" href="./tawir_logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -25,11 +25,16 @@
       --border-subtle: #E8E5DC;
       --border-strong: #D6D2C4;
       
-      /* Claude Signature Accent */
+      /* Claude Signature Terracotta Accent */
       --accent: #D97757;
       --accent-hover: #C56545;
       --accent-tint: #FDF4F0;
       --accent-border: #F3C9BA;
+
+      /* Danger (Delete) */
+      --danger: #D32F2F;
+      --danger-bg: #FFEBEE;
+      --danger-border: #FFCDD2;
 
       /* Typography */
       --text-main: #1F1E1D;
@@ -60,6 +65,10 @@
       --accent-hover: #EC9477;
       --accent-tint: #2B211D;
       --accent-border: #52372E;
+
+      --danger: #EF5350;
+      --danger-bg: #2C1818;
+      --danger-border: #522727;
 
       --text-main: #EDEBE6;
       --text-secondary: #A3A199;
@@ -95,6 +104,86 @@
       transition: background-color 0.2s ease, color 0.2s ease;
     }
 
+    /* Auth Gate Overlay */
+    #authOverlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-page);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+
+    .auth-logo {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 16px;
+      display: block;
+      border: 2px solid rgba(0, 242, 254, 0.4);
+      box-shadow: 0 4px 12px rgba(0, 242, 254, 0.2);
+    }
+
+    .auth-title {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .auth-subtitle {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .auth-input-group {
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-main);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s ease;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    .auth-input:focus {
+      border-color: var(--accent);
+      background: var(--bg-card);
+    }
+
+    .auth-error {
+      color: var(--danger);
+      font-size: 12px;
+      margin-top: 8px;
+      display: none;
+    }
+
     /* Top Navigation Header */
     header {
       background: var(--bg-card);
@@ -110,22 +199,16 @@
     .brand-group {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
 
-    .brand-logo {
-      width: 28px;
-      height: 28px;
-      border-radius: 7px;
-      background: var(--accent);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-serif);
-      font-weight: 600;
-      font-size: 17px;
-      box-shadow: 0 2px 5px rgba(217, 119, 87, 0.3);
+    .brand-logo-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid rgba(0, 242, 254, 0.4);
+      box-shadow: 0 2px 6px rgba(0, 242, 254, 0.25);
     }
 
     .brand-title {
@@ -174,7 +257,6 @@
       100% { transform: scale(0.95); opacity: 0.8; }
     }
 
-    /* Top Stats Strip */
     .header-actions {
       display: flex;
       align-items: center;
@@ -210,6 +292,17 @@
     .btn-accent:hover {
       background: var(--accent-hover);
       border-color: var(--accent-hover);
+    }
+
+    .btn-danger {
+      color: var(--danger);
+      border-color: var(--border-subtle);
+      background: var(--bg-card);
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
     }
 
     /* Stats Bar below header */
@@ -310,6 +403,8 @@
       background: transparent;
       transition: all 0.15s ease;
       position: relative;
+      display: flex;
+      flex-direction: column;
     }
 
     .convo-card:hover {
@@ -355,6 +450,13 @@
       margin-bottom: 6px;
     }
 
+    .convo-card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 2px;
+    }
+
     .convo-card-tags {
       display: flex;
       align-items: center;
@@ -378,6 +480,29 @@
       background: var(--accent-tint);
       color: var(--accent);
       border: 1px solid var(--accent-border);
+    }
+
+    .btn-card-delete {
+      opacity: 0;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 3px 5px;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .convo-card:hover .btn-card-delete {
+      opacity: 1;
+    }
+
+    .btn-card-delete:hover {
+      color: var(--danger);
+      background: var(--danger-bg);
     }
 
     /* Right Main Inspector */
@@ -417,6 +542,9 @@
     .convo-time-detail {
       font-size: 12px;
       color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     /* User Message Card */
@@ -563,7 +691,7 @@
       margin-bottom: 2px;
     }
 
-    /* Model Response Bubble / Article */
+    /* Model Response Bubble */
     .response-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -617,40 +745,33 @@
       color: var(--accent);
       background: var(--accent-tint);
     }
-
-    /* Empty state */
-    .empty-state {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      text-align: center;
-      padding: 40px;
-    }
-
-    .empty-state-icon {
-      font-size: 36px;
-      margin-bottom: 12px;
-      color: var(--border-strong);
-    }
-
-    .empty-state h3 {
-      font-family: var(--font-serif);
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--text-main);
-      margin-bottom: 6px;
-    }
   </style>
 </head>
 <body data-theme="light">
 
+  <!-- Password Authentication Gate Overlay -->
+  <div id="authOverlay">
+    <div class="auth-card">
+      <img src="./tawir_logo.png" alt="Tawir Logo" class="auth-logo">
+      <h2 class="auth-title">Tawir Conversations</h2>
+      <p class="auth-subtitle">Enter the access passcode to unlock the live model monitor.</p>
+      
+      <form id="authForm" onsubmit="handleAuthSubmit(event)">
+        <div class="auth-input-group">
+          <input type="password" id="authPassInput" class="auth-input" placeholder="Passcode..." autofocus autocomplete="off">
+        </div>
+        <div id="authErrorMsg" class="auth-error">Incorrect passcode. Please try again.</div>
+        <button type="submit" class="btn btn-accent" style="width: 100%; justify-content: center; padding: 10px; margin-top: 12px;">
+          Unlock Monitor
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Header -->
   <header>
     <div class="brand-group">
-      <div class="brand-logo">T</div>
+      <img src="./tawir_logo.png" alt="Tawir Logo" class="brand-logo-img">
       <div>
         <div style="display: flex; align-items: center; gap: 8px;">
           <span class="brand-title">Tawir Conversations</span>
@@ -681,6 +802,11 @@
 
       <button class="btn" id="btnThemeToggle" title="Toggle Light/Dark Theme">
         <span id="themeIcon">🌙</span>
+      </button>
+
+      <button class="btn btn-danger" id="btnLockSession" title="Lock Monitor">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Lock</span>
       </button>
     </div>
   </header>
@@ -732,17 +858,71 @@
 
   <script>
     const API_ENDPOINT = "https://ocamporavenneil--pangasinan-agent-agent-web.modal.run/conversations";
+    
+    // Cryptographic Password Verification
+    const AUTH_SALT = "mablin_tawir_salt_2026_convo";
+    const AUTH_HASH = "a3532e563208ec968c4b0ec59770ca08000abbe8ec4a1cd36cfa36b285e541d6";
+    const AUTH_KEY = "tawir_convo_auth_session";
+
     let conversations = [];
     let selectedConvoId = null;
     let autoPolling = true;
     let pollInterval = null;
 
-    // Load initial theme from localStorage
+    // SHA-256 helper
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Check Authentication
+    function checkAuth() {
+      const isAuth = sessionStorage.getItem(AUTH_KEY) === "true";
+      const overlay = document.getElementById("authOverlay");
+      if (isAuth) {
+        overlay.style.display = "none";
+        fetchConversations(false);
+        startPolling();
+      } else {
+        overlay.style.display = "flex";
+        clearInterval(pollInterval);
+      }
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById("authPassInput");
+      const errBox = document.getElementById("authErrorMsg");
+      const entered = input.value.trim();
+
+      const hashed = await sha256(AUTH_SALT + ":" + entered);
+      if (hashed === AUTH_HASH) {
+        sessionStorage.setItem(AUTH_KEY, "true");
+        errBox.style.display = "none";
+        document.getElementById("authOverlay").style.display = "none";
+        fetchConversations(false);
+        startPolling();
+      } else {
+        errBox.style.display = "block";
+        input.value = "";
+        input.focus();
+      }
+    }
+
+    // Lock Session
+    document.getElementById("btnLockSession").addEventListener("click", () => {
+      sessionStorage.removeItem(AUTH_KEY);
+      document.getElementById("authPassInput").value = "";
+      checkAuth();
+    });
+
+    // Theme Setup
     const savedTheme = localStorage.getItem("tawir_convo_theme") || "light";
     document.body.setAttribute("data-theme", savedTheme);
     document.getElementById("themeIcon").textContent = savedTheme === "dark" ? "☀️" : "🌙";
 
-    // Theme Toggle
     document.getElementById("btnThemeToggle").addEventListener("click", () => {
       const current = document.body.getAttribute("data-theme");
       const next = current === "dark" ? "light" : "dark";
@@ -788,11 +968,9 @@
 
           renderConversationList();
 
-          // Auto-select latest if none selected
           if (!selectedConvoId && conversations.length > 0) {
             selectConversation(conversations[0].id);
           } else if (selectedConvoId) {
-            // Re-render currently selected
             const found = conversations.find(c => c.id === selectedConvoId);
             if (found) renderInspector(found);
           }
@@ -801,6 +979,40 @@
         console.warn("Failed to fetch conversations:", err);
       } finally {
         btn.classList.remove("loading");
+      }
+    }
+
+    // Delete single conversation
+    async function deleteConversation(convoId, event) {
+      if (event) event.stopPropagation();
+      const confirmDelete = confirm("Are you sure you want to delete this conversation?");
+      if (!confirmDelete) return;
+
+      try {
+        const res = await fetch(`${API_ENDPOINT}/${convoId}`, { method: "DELETE" });
+        if (res.ok) {
+          conversations = conversations.filter(c => c.id !== convoId);
+          renderConversationList();
+          
+          if (selectedConvoId === convoId) {
+            selectedConvoId = conversations.length > 0 ? conversations[0].id : null;
+            if (selectedConvoId) {
+              const nextConvo = conversations.find(c => c.id === selectedConvoId);
+              renderInspector(nextConvo);
+            } else {
+              document.getElementById("inspectorPane").innerHTML = `
+                <div style="height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                  All conversations cleared.
+                </div>
+              `;
+            }
+          }
+          document.getElementById("statTotalQueries").textContent = conversations.length;
+        } else {
+          alert("Failed to delete conversation on server.");
+        }
+      } catch (err) {
+        alert("Network error deleting conversation: " + err);
       }
     }
 
@@ -839,10 +1051,15 @@
             </div>
             <div class="convo-card-query">${escapeHtml(c.user_message || "Empty query")}</div>
             <div class="convo-card-preview">${escapeHtml(c.response_text || "No response")}</div>
-            <div class="convo-card-tags">
-              ${hasTools ? `<span class="tag-pill tag-pill-search">🔍 ${c.tool_calls.length} search</span>` : ''}
-              ${hasThoughts ? `<span class="tag-pill">🧠 ${c.thoughts.length} thoughts</span>` : ''}
-              ${c.sources && c.sources.length > 0 ? `<span class="tag-pill">🌐 ${c.sources.length} sources</span>` : ''}
+            <div class="convo-card-bottom">
+              <div class="convo-card-tags">
+                ${hasTools ? `<span class="tag-pill tag-pill-search">🔍 ${c.tool_calls.length} search</span>` : ''}
+                ${hasThoughts ? `<span class="tag-pill">🧠 ${c.thoughts.length} thoughts</span>` : ''}
+                ${c.sources && c.sources.length > 0 ? `<span class="tag-pill">🌐 ${c.sources.length} sources</span>` : ''}
+              </div>
+              <button class="btn-card-delete" onclick="deleteConversation('${c.id}', event)" title="Delete Conversation">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              </button>
             </div>
           </div>
         `;
@@ -877,6 +1094,10 @@
             <div class="convo-time-detail">
               <span>${new Date(c.timestamp).toLocaleString()}</span>
               ${c.duration_ms ? ` • <strong style="color: var(--text-main);">${c.duration_ms} ms</strong>` : ''}
+              <button class="btn btn-danger" style="padding: 4px 10px; font-size: 11.5px; margin-left: 8px;" onclick="deleteConversation('${c.id}')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <span>Delete</span>
+              </button>
             </div>
           </div>
 
@@ -1020,15 +1241,14 @@
     function startPolling() {
       clearInterval(pollInterval);
       pollInterval = setInterval(() => {
-        if (autoPolling) {
+        if (autoPolling && sessionStorage.getItem(AUTH_KEY) === "true") {
           fetchConversations(true);
         }
       }, 5000);
     }
 
-    // Initial load
-    fetchConversations(false);
-    startPolling();
+    // Start with Auth Check
+    checkAuth();
   </script>
 </body>
 </html>
