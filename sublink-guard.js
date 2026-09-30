@@ -8,112 +8,255 @@
   }
 
   const SALT = "kiruu_console_guard_salt_2026_x89a";
-  const HASH = "8489a8f6711c61354beebb60cd5daf96f62d22296294e75d6d82b87260dcf63f";
+  const HASH = "78c2a001ef868e6e51e2aa5015eb6e88efe412744a62f027ebe1663853acb67f";
 
   // Check admin session bypass
   if (sessionStorage.getItem('kiruu_console_bypass') === 'true' || sessionStorage.getItem('kiruu_console_session') === 'active') {
     return;
   }
 
-  function renderOfflineUI(serviceName, customMessage) {
+  function renderOfflineUI() {
     window.stop && window.stop();
 
-    const offlineHTML = `
-      <div id="kiruu-offline-root" style="
-        position: fixed; inset: 0; z-index: 9999999;
-        background: radial-gradient(circle at 50% 20%, #151a24 0%, #06090e 100%);
-        color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box;
-      ">
-        <div style="
-          max-width: 540px; width: 100%;
-          background: rgba(15, 23, 42, 0.75);
-          border: 1px solid rgba(239, 68, 68, 0.35);
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(239, 68, 68, 0.15);
-          backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-          border-radius: 24px; padding: 40px 32px; text-align: center; box-sizing: border-box;
-        ">
-          <div style="
-            width: 72px; height: 72px; margin: 0 auto 20px;
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.1));
-            border: 2px solid rgba(239, 68, 68, 0.4); border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-          ">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-          </div>
-
-          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 9999px; padding: 6px 14px; margin-bottom: 16px;">
-            <span style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 8px #ef4444;"></span>
-            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #f87171;">Service Offline</span>
-          </div>
-
-          <h1 style="font-size: 26px; font-weight: 800; margin: 0 0 10px; color: #ffffff; letter-spacing: -0.02em;">
-            ${serviceName || ('/' + slug)}
-          </h1>
-
-          <p style="font-size: 14px; line-height: 1.6; color: #94a3b8; margin: 0 0 28px;">
-            ${customMessage || "This sublink has been temporarily deactivated by the administrator via KIRUUCONSOLE."}
-          </p>
-
-          <div style="display: flex; flex-direction: column; gap: 12px;">
-            <a href="/" style="
-              display: block; padding: 12px 20px; border-radius: 12px;
-              background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-              color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none;
-              transition: all 0.2s; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
-            ">Return to Home</a>
-
-            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 6px;">
-              <a href="/dashboard/" style="
-                flex: 1; padding: 10px 16px; border-radius: 12px;
-                background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-                color: #cbd5e1; font-size: 13px; font-weight: 500; text-decoration: none;
-              ">Console Login</a>
-
-              <button id="admin-bypass-btn" style="
-                flex: 1; padding: 10px 16px; border-radius: 12px;
-                background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25);
-                color: #fca5a5; font-size: 13px; font-weight: 500; cursor: pointer;
-              ">Admin Unlock</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
     function inject() {
-      // Clear head links or stop scripts if possible
-      document.title = "Service Offline | " + (serviceName || slug);
-      document.body.innerHTML = offlineHTML;
-      document.body.style.overflow = "hidden";
-
-      const bypassBtn = document.getElementById("admin-bypass-btn");
-      if (bypassBtn) {
-        bypassBtn.addEventListener("click", async function() {
-          const pwd = prompt("Enter KIRUUCONSOLE Password to unlock this service:");
-          if (!pwd) return;
-
-          try {
-            const enc = new TextEncoder();
-            const data = enc.encode(SALT + ":" + pwd.trim());
-            const buf = await crypto.subtle.digest("SHA-256", data);
-            const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-
-            if (hex === HASH) {
-              sessionStorage.setItem('kiruu_console_bypass', 'true');
-              alert("Admin authenticated. Service unlocked for this session.");
-              window.location.reload();
-            } else {
-              alert("Incorrect password.");
-            }
-          } catch(e) {
-            alert("Verification failed: " + e.message);
-          }
-        });
+      document.title = "Service Offline | TheKiruu";
+      
+      // Inject DotLottie module if not already loaded
+      if (!document.querySelector('script[src*="dotlottie"]')) {
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = 'https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs';
+        document.head.appendChild(script);
       }
+
+      document.body.innerHTML = `
+        <style>
+          @font-face {
+            font-family: 'Vandelvira';
+            src: url('/fonts/Vandelvira-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+          }
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          html, body {
+            height: 100vh !important;
+            width: 100vw !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-family: 'Vandelvira', sans-serif !important;
+            color: #1A1A19 !important;
+            overflow: hidden !important;
+            position: relative !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: none !important;
+          }
+          #kiruu-bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(90deg, #e3ffe7 0%, #d9e7ff 40%, rgba(0, 0, 0, 0.5) 100%), url('/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+          }
+          header.kiruu-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+          }
+          .kiruu-logo {
+            height: 20dvh;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+          }
+          .kiruu-logo:hover {
+            transform: scale(1.03);
+          }
+          main.kiruu-main {
+            text-align: left;
+            max-width: 650px;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+          }
+          .kiruu-subtitle {
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1A1A19;
+            letter-spacing: 0.5px;
+          }
+          .kiruu-title {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+            margin: 10px 0;
+            color: #1A1A19;
+          }
+          .kiruu-notice {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 20px 0 24px;
+            color: #2a2a28;
+            line-height: 1.35;
+          }
+          .button-rn {
+            align-items: center;
+            background-color: #fee6e3;
+            border: 2px solid #111;
+            border-radius: 8px;
+            color: #111;
+            cursor: pointer;
+            display: inline-flex;
+            font-family: 'Vandelvira', sans-serif;
+            font-weight: 600;
+            font-size: 17.6px;
+            height: 48px;
+            justify-content: center;
+            padding: 0 32px;
+            position: relative;
+            text-decoration: none;
+            box-shadow: none;
+          }
+          .button-rn:after {
+            background-color: #111;
+            border-radius: 8px;
+            content: "";
+            height: 48px;
+            left: 0;
+            width: 100%;
+            position: absolute;
+            top: -2px;
+            transform: translate(8px, 8px);
+            transition: transform .2s ease-out;
+            z-index: -1;
+          }
+          .button-rn:hover:after {
+            transform: translate(0, 0);
+          }
+          .button-rn:active {
+            background-color: #ffdeda;
+          }
+          .kiruu-lottie {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 250px;
+            height: 250px;
+            z-index: 10;
+          }
+          .kiruu-admin-links {
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+          }
+          .kiruu-admin-links a, .kiruu-admin-links button {
+            font-family: 'Vandelvira', sans-serif;
+            font-size: 14px;
+            color: #444;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: underline;
+          }
+          .kiruu-admin-links button:hover, .kiruu-admin-links a:hover {
+            color: #111;
+          }
+          @media (max-width: 768px) {
+            .kiruu-logo {
+              height: 14vh;
+            }
+            .kiruu-title {
+              font-size: 2.85rem;
+            }
+            .kiruu-subtitle {
+              font-size: 1.15rem;
+            }
+            .kiruu-notice {
+              font-size: 1.15rem;
+            }
+            .kiruu-lottie {
+              width: 160px;
+              height: 160px;
+              bottom: 10px;
+              right: 10px;
+            }
+            .button-rn {
+              width: 100%;
+              padding: 0 15px;
+            }
+          }
+        </style>
+
+        <div id="kiruu-bg-layer"></div>
+
+        <header class="kiruu-header">
+          <img src="/logo.png" alt="logo" class="kiruu-logo" id="kiruu-logo-trigger" title="TheKiruu">
+        </header>
+
+        <main class="kiruu-main">
+          <h3 class="kiruu-subtitle">We'll be right back!</h3>
+          <h1 class="kiruu-title">Service</h1>
+          <h1 class="kiruu-title">Offline</h1>
+          <p class="kiruu-notice">This service is turned off! Please try again later.</p>
+          <div>
+            <a href="/" class="button-rn" role="button">
+              Return to Homepage
+            </a>
+          </div>
+          <div class="kiruu-admin-links">
+            <a href="/dashboard/">Console Login</a>
+            <button id="admin-bypass-trigger">Admin Unlock</button>
+          </div>
+        </main>
+
+        <dotlottie-player
+          src="https://lottie.host/08baa036-4ce6-4674-a6a1-3fdab92aa5c4/v73OLDfSlm.json"
+          background="transparent"
+          speed="1"
+          class="kiruu-lottie"
+          loop
+          autoplay
+        ></dotlottie-player>
+      `;
+
+      async function promptAdminBypass() {
+        const pwd = prompt("Enter KIRUUCONSOLE Password to unlock this service:");
+        if (!pwd) return;
+
+        try {
+          const enc = new TextEncoder();
+          const data = enc.encode(SALT + ":" + pwd.trim());
+          const buf = await crypto.subtle.digest("SHA-256", data);
+          const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+
+          if (hex === HASH) {
+            sessionStorage.setItem('kiruu_console_bypass', 'true');
+            alert("Admin authenticated. Service unlocked for this session.");
+            window.location.reload();
+          } else {
+            alert("Incorrect password.");
+          }
+        } catch(e) {
+          alert("Verification error: " + e.message);
+        }
+      }
+
+      const bypassBtn = document.getElementById("admin-bypass-trigger");
+      if (bypassBtn) bypassBtn.addEventListener("click", promptAdminBypass);
+
+      const logoTrigger = document.getElementById("kiruu-logo-trigger");
+      if (logoTrigger) logoTrigger.addEventListener("click", promptAdminBypass);
     }
 
     if (document.readyState === "loading") {
@@ -130,15 +273,10 @@
     const sublinkConfig = config.sublinks && config.sublinks[slug];
 
     if (isMasterOff || (sublinkConfig && sublinkConfig.enabled === false)) {
-      const name = sublinkConfig ? sublinkConfig.name : slug;
-      const msg = isMasterOff 
-        ? "All sublinks have been deactivated globally under Emergency Maintenance."
-        : (sublinkConfig ? sublinkConfig.message : null);
-      renderOfflineUI(name, msg);
+      renderOfflineUI();
     }
   }
 
-  // 1. Fast local check
   try {
     const cached = localStorage.getItem('kiruu_sublinks_status');
     if (cached) {
@@ -146,7 +284,6 @@
     }
   } catch (e) {}
 
-  // 2. Fetch authoritative sublinks.json
   fetch('/sublinks.json?t=' + Date.now(), { cache: 'no-store' })
     .then(res => res.json())
     .then(data => {

@@ -3,7 +3,7 @@ import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestor
 import { db } from '../lib/firebase.js';
 
 const PWD_SALT = "kiruu_console_guard_salt_2026_x89a";
-const PWD_HASH = "8489a8f6711c61354beebb60cd5daf96f62d22296294e75d6d82b87260dcf63f";
+const PWD_HASH = "78c2a001ef868e6e51e2aa5015eb6e88efe412744a62f027ebe1663853acb67f";
 
 const INITIAL_SUBLINKS = {
   "tawir-webapp": {
