@@ -116,8 +116,6 @@
   }
 
   function renderMaintenance(message) {
-    if (window.stop) window.stop();
-
     try {
       window._flutter = { loader: { load: () => new Promise(() => {}) } };
       Object.defineProperty(window, '_flutter', { configurable: false, writable: false, value: window._flutter });
@@ -314,10 +312,26 @@
       }
     }
 
+    function mountMaintenance() {
+      if (!document.body) {
+        if (document.documentElement) {
+          try {
+            const newBody = document.createElement('body');
+            document.documentElement.appendChild(newBody);
+          } catch (e) {}
+        }
+      }
+
+      if (document.body) {
+        injectHtml();
+      } else {
+        setTimeout(mountMaintenance, 10);
+      }
+    }
+
+    mountMaintenance();
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", injectHtml, { once: true });
-    } else {
-      injectHtml();
+      document.addEventListener("DOMContentLoaded", mountMaintenance, { once: true });
     }
   }
 })();

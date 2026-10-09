@@ -64,9 +64,9 @@
                     <h1 class="title">All Applications</h1>
                 </div>
                 <div class="stats-bar">
-                    <div class="stat-chip">
-                        <span class="status-dot"></span>
-                        <span>10 Apps Online</span>
+                    <div class="stat-chip" id="heroAppsOnlineChip">
+                        <span class="status-dot" id="heroAppsOnlineDot"></span>
+                        <span id="heroAppsOnlineText">10 Apps Online</span>
                     </div>
                     <div class="stat-chip">
                         <span>Domain: <strong>kiruu.xyz</strong></span>
@@ -735,6 +735,68 @@
                         });
                     }
                 });
+
+                // Calculate dynamic online count across ecosystem services
+                var totalApps = cards.length || 10;
+                var onlineApps = 0;
+
+                cards.forEach(function(card) {
+                    var sKey = card.getAttribute("data-service");
+                    if (sKey === "dashboard") {
+                        onlineApps++;
+                        return;
+                    }
+                    if (!masterOn) {
+                        return;
+                    }
+                    if (sKey === "tawir") {
+                        var v3Obj = services["tawir"];
+                        var v4Obj = services["tawir-webapp"];
+                        var v3Online = !v3Obj || v3Obj.enabled !== false;
+                        var v4Online = !v4Obj || v4Obj.enabled !== false;
+                        if (v3Online || v4Online) {
+                            onlineApps++;
+                        }
+                        return;
+                    }
+                    var svc = services[sKey];
+                    var isOnline = !svc || svc.enabled !== false;
+                    if (isOnline) {
+                        onlineApps++;
+                    }
+                });
+
+                // Update hero stats pill dynamically
+                var chipEl = document.getElementById("heroAppsOnlineChip");
+                var dotEl = document.getElementById("heroAppsOnlineDot");
+                var textEl = document.getElementById("heroAppsOnlineText");
+                if (textEl && dotEl) {
+                    if (onlineApps === totalApps) {
+                        textEl.textContent = totalApps + " Apps Online";
+                        dotEl.style.backgroundColor = "#059669";
+                        dotEl.style.borderColor = "#047857";
+                        if (chipEl) {
+                            chipEl.className = "stat-chip";
+                            chipEl.title = "All ecosystem applications are fully operational.";
+                        }
+                    } else if (onlineApps > 0) {
+                        textEl.textContent = onlineApps + " of " + totalApps + " Apps Online";
+                        dotEl.style.backgroundColor = "#f59e0b";
+                        dotEl.style.borderColor = "#d97706";
+                        if (chipEl) {
+                            chipEl.className = "stat-chip chip-warning";
+                            chipEl.title = (totalApps - onlineApps) + " service(s) currently under maintenance.";
+                        }
+                    } else {
+                        textEl.textContent = "All Apps Under Maintenance";
+                        dotEl.style.backgroundColor = "#ef4444";
+                        dotEl.style.borderColor = "#dc2626";
+                        if (chipEl) {
+                            chipEl.className = "stat-chip chip-danger";
+                            chipEl.title = "Ecosystem is currently offline.";
+                        }
+                    }
+                }
             }
 
             // 2. Admin Announcement Banner

@@ -16,8 +16,6 @@
   }
 
   function renderOfflineUI(customNotice) {
-    window.stop && window.stop();
-
     // 1. Immediately neutralize Flutter Web bootstrap, service worker, and engine loader
     try {
       window._flutter = {
@@ -42,6 +40,14 @@
     } catch (e) {}
 
     function inject() {
+      if (document.getElementById("kiruu-offline-root")) {
+        const noticeEl = document.getElementById("kiruu-notice-text");
+        if (noticeEl && customNotice) {
+          noticeEl.textContent = customNotice;
+        }
+        return;
+      }
+
       document.title = "Service Offline | TheKiruu";
       
       // Ensure viewport meta tag exists for proper mobile scaling
@@ -200,32 +206,6 @@
             flex: 1 1 540px;
             max-width: 620px;
             text-align: left;
-          }
-
-          .kiruu-status-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px 14px;
-            background-color: var(--color-peach);
-            border: 2px solid var(--color-border);
-            border-radius: 20px;
-            font-family: var(--font-ui);
-            font-size: 13px;
-            font-weight: 700;
-            color: #111;
-            box-shadow: 2.5px 2.5px 0 var(--color-border);
-            margin-bottom: 12px;
-            user-select: none;
-          }
-
-          .kiruu-status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #e11d48;
-            border: 1px solid #9f1239;
-            display: inline-block;
           }
 
           .kiruu-subtitle {
@@ -544,10 +524,6 @@
               max-width: 60%;
             }
 
-            .kiruu-status-chip {
-              display: none;
-            }
-
             .kiruu-subtitle {
               text-align: left;
               font-size: 1rem;
@@ -612,11 +588,6 @@
 
             <main class="kiruu-main">
               <div class="kiruu-content-col">
-                <div class="kiruu-status-chip" role="status" aria-live="polite">
-                  <span class="kiruu-status-dot" aria-hidden="true"></span>
-                  <span>Service Offline</span>
-                </div>
-
                 <p class="kiruu-subtitle">We'll be right back!</p>
                 <h1 class="kiruu-title">
                   <span class="kiruu-title-line">Service</span>
@@ -715,10 +686,26 @@
       }
     }
 
+    function mountOfflineView() {
+      if (!document.body) {
+        if (document.documentElement) {
+          try {
+            const newBody = document.createElement('body');
+            document.documentElement.appendChild(newBody);
+          } catch (e) {}
+        }
+      }
+
+      if (document.body) {
+        inject();
+      } else {
+        setTimeout(mountOfflineView, 10);
+      }
+    }
+
+    mountOfflineView();
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", inject);
-    } else {
-      inject();
+      document.addEventListener("DOMContentLoaded", mountOfflineView, { once: true });
     }
   }
 
