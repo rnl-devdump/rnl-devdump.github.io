@@ -584,23 +584,35 @@ function setupDataChannelEvents(channel) {
 }
 
 function handlePeerDataMessage(data) {
+  if (!data || typeof data !== "object") return;
+
   switch (data.type) {
     case "handshake":
-      if (data.name) {
-        state.peerName = data.name;
-        elements.remoteNameLabel.textContent = data.name;
-        elements.remoteAvatarLetter.textContent = data.name.charAt(0).toUpperCase();
+      if (typeof data.name === "string") {
+        const safeName = data.name.trim().slice(0, 32);
+        if (safeName) {
+          state.peerName = safeName;
+          elements.remoteNameLabel.textContent = safeName;
+          elements.remoteAvatarLetter.textContent = safeName.charAt(0).toUpperCase();
+        }
       }
-      applyRemoteMicUI(data.muted);
-      applyRemoteCamUI(data.camOff);
+      applyRemoteMicUI(Boolean(data.muted));
+      applyRemoteCamUI(Boolean(data.camOff));
       break;
 
     case "chat":
-      appendChatMessage(data.sender, data.text, data.timestamp, false);
-      if (state.activeDrawer !== "chat") {
-        state.unreadChatCount++;
-        elements.chatUnreadBadge.textContent = state.unreadChatCount;
-        elements.chatUnreadBadge.classList.remove("hidden");
+      if (typeof data.text === "string" && typeof data.sender === "string") {
+        const safeSender = data.sender.trim().slice(0, 32);
+        const safeText = data.text.trim().slice(0, 500);
+        const safeTime = Number(data.timestamp) || Date.now();
+        if (safeText) {
+          appendChatMessage(safeSender, safeText, safeTime, false);
+          if (state.activeDrawer !== "chat") {
+            state.unreadChatCount++;
+            elements.chatUnreadBadge.textContent = state.unreadChatCount;
+            elements.chatUnreadBadge.classList.remove("hidden");
+          }
+        }
       }
       break;
 
@@ -1283,13 +1295,24 @@ function appendChatMessage(sender, text, timestamp, isSelf) {
     minute: "2-digit"
   });
 
-  bubble.innerHTML = `
-    <div class="chat-bubble-meta">
-      <strong>${isSelf ? "You" : escapeHtml(sender)}</strong>
-      <span>${timeFormatted}</span>
-    </div>
-    <div class="chat-bubble-content">${escapeHtml(text)}</div>
-  `;
+  const metaDiv = document.createElement("div");
+  metaDiv.className = "chat-bubble-meta";
+
+  const senderStrong = document.createElement("strong");
+  senderStrong.textContent = isSelf ? "You" : String(sender || "Peer").slice(0, 32);
+
+  const timeSpan = document.createElement("span");
+  timeSpan.textContent = timeFormatted;
+
+  metaDiv.appendChild(senderStrong);
+  metaDiv.appendChild(timeSpan);
+
+  const contentDiv = document.createElement("div");
+  contentDiv.className = "chat-bubble-content";
+  contentDiv.textContent = String(text || "").slice(0, 500);
+
+  bubble.appendChild(metaDiv);
+  bubble.appendChild(contentDiv);
 
   elements.chatMessagesContainer.appendChild(bubble);
   elements.chatMessagesContainer.scrollTop = elements.chatMessagesContainer.scrollHeight;
@@ -1299,21 +1322,19 @@ const renderedChatTimestamps = new Set();
 function syncFirestoreChat(messagesList) {
   if (!Array.isArray(messagesList)) return;
   messagesList.forEach(msg => {
-    const key = `${msg.sender}_${msg.timestamp}_${msg.text}`;
+    if (!msg || typeof msg !== "object") return;
+    const safeSender = String(msg.sender || "").trim().slice(0, 32);
+    const safeText = String(msg.text || "").trim().slice(0, 500);
+    const safeTimestamp = Number(msg.timestamp) || Date.now();
+    const key = `${safeSender}_${safeTimestamp}_${safeText}`;
     if (!renderedChatTimestamps.has(key)) {
       renderedChatTimestamps.add(key);
-      const isSelf = msg.sender === state.userName;
-      if (!isSelf) {
-        appendChatMessage(msg.sender, msg.text, msg.timestamp, false);
+      const isSelf = safeSender === state.userName;
+      if (!isSelf && safeText) {
+        appendChatMessage(safeSender, safeText, safeTimestamp, false);
       }
     }
   });
-}
-
-function escapeHtml(string) {
-  const div = document.createElement("div");
-  div.textContent = string;
-  return div.innerHTML;
 }
 
 // ============================================================

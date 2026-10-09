@@ -449,7 +449,7 @@ export default function GalaxyLetterExperience({ config }) {
               </div>
             ))}
           </div>
-          <div className={`pin-error${pinError ? " show" : ""}`}>incorrect — try again</div>
+          <div className={`pin-error${pinError ? " show" : ""}`}>incorrect: try again</div>
           <button type="button" className="pin-btn" id="pinBtn" onClick={submitPin}>
             Continue
           </button>

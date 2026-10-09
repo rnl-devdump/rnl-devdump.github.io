@@ -9,14 +9,14 @@ import {
 import "./letter-entries.css";
 
 function formatCreatedAt(createdAt) {
-  if (!createdAt) return "—";
+  if (!createdAt) return "N/A";
   const date =
     typeof createdAt.toDate === "function"
       ? createdAt.toDate()
       : createdAt.seconds
         ? new Date(createdAt.seconds * 1000)
         : null;
-  if (!date || Number.isNaN(date.getTime())) return "—";
+  if (!date || Number.isNaN(date.getTime())) return "N/A";
   return date.toLocaleString();
 }
 

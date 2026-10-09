@@ -17,6 +17,9 @@
       return;
     }
 
+    const SALT = "kiruu_console_guard_salt_2026_x89a";
+    const HASH = "78c2a001ef868e6e51e2aa5015eb6e88efe412744a62f027ebe1663853acb67f";
+
     // 2. Check admin session bypass
     if (
       sessionStorage.getItem("kiruu_console_bypass") === "true" ||
@@ -258,7 +261,7 @@
           <div class="ks-card">
             <div class="ks-icon">⚠️</div>
             <h1 class="ks-title">Service Temporarily Offline</h1>
-            <p class="ks-desc">${message || "This service is currently undergoing scheduled maintenance."}</p>
+            <p class="ks-desc" id="ks-desc-text"></p>
             <div class="ks-actions">
               <a href="/" class="ks-btn-primary">Return to Kiruu Portal</a>
               <button id="admin-bypass-btn" class="ks-btn-secondary" type="button">Admin Bypass</button>
@@ -267,14 +270,30 @@
         </div>
       `;
 
+      const descEl = document.getElementById("ks-desc-text");
+      if (descEl) {
+        descEl.textContent = message || "This service is currently undergoing scheduled maintenance.";
+      }
+
       const bypassBtn = document.getElementById("admin-bypass-btn");
       if (bypassBtn) {
-        bypassBtn.addEventListener("click", () => {
+        bypassBtn.addEventListener("click", async () => {
           const pass = prompt("Enter Admin Bypass Password:");
-          if (pass) {
-            // Check bypass against salt/hash or session
-            sessionStorage.setItem("kiruu_console_bypass", "true");
-            window.location.reload();
+          if (!pass) return;
+          try {
+            const enc = new TextEncoder();
+            const data = enc.encode(SALT + ":" + pass.trim());
+            const buf = await crypto.subtle.digest("SHA-256", data);
+            const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+            if (hex === HASH) {
+              sessionStorage.setItem("kiruu_console_bypass", "true");
+              alert("Admin authenticated. Service unlocked for this session.");
+              window.location.reload();
+            } else {
+              alert("Incorrect password.");
+            }
+          } catch (e) {
+            alert("Authentication failed.");
           }
         });
       }

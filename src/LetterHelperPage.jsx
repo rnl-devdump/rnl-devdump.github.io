@@ -94,7 +94,7 @@ export default function LetterHelperPage() {
       const dataUrl = await compressImageToDataUrl(file);
       if (slot === 1) setPic1(dataUrl);
       else setPic2(dataUrl);
-      setStatus(`Picture ${slot} embedded (saved with Publish — no Storage needed).`);
+      setStatus(`Picture ${slot} embedded (saved with Publish: no Storage needed).`);
     } catch (error) {
       setStatus(error?.message || `Picture ${slot} could not be embedded.`);
     } finally {
@@ -206,10 +206,10 @@ export default function LetterHelperPage() {
 
         <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50/60 p-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-violet-800">
-            Letter X — pictures
+            Letter X: pictures
           </p>
           <p className="mt-1 text-xs text-violet-900/80">
-            <strong>Pick image</strong> — compresses and stores inside Firestore when you Publish (no
+            <strong>Pick image</strong>: compresses and stores inside Firestore when you Publish (no
             paid Storage). Works on the live <code>/letterx/?id=…</code> link.{" "}
             <strong>Or type a filename</strong> (e.g. <code>left.jpg</code> in{" "}
             <code>assets/pics/</code>) for preview URLs too.
@@ -218,11 +218,11 @@ export default function LetterHelperPage() {
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-violet-900">Picture / Photostrip 1 (left)</span>
               <input
-                value={isEmbeddedPicRef(pic1) ? "(embedded image — use Publish for live link)" : pic1}
+                value={isEmbeddedPicRef(pic1) ? "(embedded image: use Publish for live link)" : pic1}
                 readOnly={isEmbeddedPicRef(pic1)}
                 onChange={(event) => setPic1(event.target.value)}
                 placeholder="left.jpg"
-                className="w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-violet-500 read-only:text-violet-700 read-only:italic"
+                className="w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-violet-500 focus-visible:ring-2 focus-visible:ring-violet-600 read-only:text-violet-700 read-only:italic"
               />
               <input
                 type="file"
@@ -242,7 +242,7 @@ export default function LetterHelperPage() {
                 <button
                   type="button"
                   onClick={() => setPic1("")}
-                  className="w-fit text-xs font-semibold text-violet-800 underline"
+                  className="w-fit text-xs font-semibold text-violet-800 underline focus-visible:ring-2 focus-visible:ring-violet-800 focus-visible:outline-none"
                 >
                   Clear embedded picture 1
                 </button>
@@ -251,11 +251,11 @@ export default function LetterHelperPage() {
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-violet-900">Picture / Photostrip 2 (right)</span>
               <input
-                value={isEmbeddedPicRef(pic2) ? "(embedded image — use Publish for live link)" : pic2}
+                value={isEmbeddedPicRef(pic2) ? "(embedded image: use Publish for live link)" : pic2}
                 readOnly={isEmbeddedPicRef(pic2)}
                 onChange={(event) => setPic2(event.target.value)}
                 placeholder="right.jpg"
-                className="w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-violet-500 read-only:text-violet-700 read-only:italic"
+                className="w-full rounded-lg border border-violet-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-violet-500 focus-visible:ring-2 focus-visible:ring-violet-600 read-only:text-violet-700 read-only:italic"
               />
               <input
                 type="file"
@@ -275,7 +275,7 @@ export default function LetterHelperPage() {
                 <button
                   type="button"
                   onClick={() => setPic2("")}
-                  className="w-fit text-xs font-semibold text-violet-800 underline"
+                  className="w-fit text-xs font-semibold text-violet-800 underline focus-visible:ring-2 focus-visible:ring-violet-800 focus-visible:outline-none"
                 >
                   Clear embedded picture 2
                 </button>
@@ -286,7 +286,7 @@ export default function LetterHelperPage() {
 
         <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Preview — standard letter (/letter/)
+            Preview: standard letter (/letter/)
           </p>
           <p className="mt-2 break-all rounded-lg bg-white px-3 py-2 text-sm text-slate-800">
             {absolute(generatedLetterPath)}
@@ -294,7 +294,7 @@ export default function LetterHelperPage() {
           <button
             type="button"
             onClick={() => copyText(absolute(generatedLetterPath), "Letter link copied.")}
-            className="mt-3 rounded-md bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-900"
+            className="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-md bg-blue-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-900 focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:outline-none"
           >
             Copy letter link
           </button>
@@ -302,7 +302,7 @@ export default function LetterHelperPage() {
 
         <div className="mt-4 rounded-xl border border-violet-200 bg-white p-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-violet-700">
-            Preview — letter X (/letterx/)
+            Preview: letter X (/letterx/)
           </p>
           <p className="mt-2 break-all rounded-lg bg-violet-50 px-3 py-2 text-sm text-slate-800">
             {absolute(generatedLetterxPath)}
@@ -311,7 +311,7 @@ export default function LetterHelperPage() {
             <button
               type="button"
               onClick={() => copyText(absolute(generatedLetterxPath), "Letter X link copied.")}
-              className="rounded-md bg-violet-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-900"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-violet-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-violet-900 focus-visible:ring-2 focus-visible:ring-violet-900 focus-visible:outline-none"
             >
               Copy letter X link
             </button>

@@ -415,7 +415,7 @@
               <span class="kiruu-title-line">Service</span>
               <span class="kiruu-title-line">Offline</span>
             </h1>
-            <p class="kiruu-notice">${customNotice || "This service is turned off! Please try again later."}</p>
+            <p class="kiruu-notice" id="kiruu-notice-text"></p>
 
             <div class="kiruu-actions-wrap">
               <a href="/" class="button-rn" role="button">
@@ -431,6 +431,11 @@
           </main>
         </div>
       `;
+
+      const noticeEl = document.getElementById("kiruu-notice-text");
+      if (noticeEl) {
+        noticeEl.textContent = customNotice || "This service is turned off! Please try again later.";
+      }
 
       async function promptAdminBypass() {
         const pwd = prompt("Enter KIRUUCONSOLE Password to unlock this service:");
