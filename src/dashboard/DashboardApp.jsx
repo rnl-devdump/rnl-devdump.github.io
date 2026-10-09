@@ -71,6 +71,14 @@ const INITIAL_SUBLINKS = {
     description: "A classic Java desktop chess game seamlessly ported to the web using WebAssembly and CheerpJ client-side JVM.",
     enabled: true,
     message: "Chess game is temporarily unavailable."
+  },
+  "vibe": {
+    name: "Vibe Video & Screen Share",
+    path: "/vibe",
+    category: "Media",
+    description: "Peer-to-peer video calling and presentation room with passcode security and Google Meet style controls.",
+    enabled: true,
+    message: "Vibe video calling is temporarily offline."
   }
 };
 
@@ -1140,7 +1148,27 @@ export default function DashboardApp() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1 p-1 rounded-lg bg-white/5 border border-white/10">
+                  {['ALL', 'ONLINE', 'OFFLINE'].map(f => (
+                    <button
+                      key={f}
+                      onClick={() => setStatusFilter(f)}
+                      className={`px-3 py-1 rounded-md text-[11px] font-bold transition ${
+                        statusFilter === f
+                          ? f === 'ONLINE'
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                            : f === 'OFFLINE'
+                              ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                              : 'bg-white/10 text-white border border-white/20'
+                          : 'text-slate-500 hover:text-slate-300'
+                      }`}
+                    >
+                      {f === 'ALL' ? 'All' : f === 'ONLINE' ? '● Live' : '● Turned Off'}
+                    </button>
+                  ))}
+                </div>
+
                 <button
                   onClick={downloadConfigJSON}
                   className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 transition flex items-center gap-1.5"
@@ -1176,7 +1204,7 @@ export default function DashboardApp() {
                   >
                     <div>
                       <div className="flex items-start justify-between gap-3 mb-3">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold tracking-wider uppercase text-slate-300">
                             {item.category}
                           </span>
@@ -1198,6 +1226,7 @@ export default function DashboardApp() {
                           className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                             item.enabled ? 'bg-cyan-500' : 'bg-slate-700'
                           }`}
+                          title={item.enabled ? 'Click to turn off' : 'Click to turn on'}
                         >
                           <span
                             className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-slate-950 shadow-lg ring-0 transition duration-200 ease-in-out ${
@@ -1208,23 +1237,32 @@ export default function DashboardApp() {
                       </div>
 
                       <div className="mb-4">
-                        <h3 className="text-base font-bold text-white flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-rose-500'}`} />
-                          {item.name}
-                        </h3>
-                        <p className="text-xs text-slate-400 mt-1 leading-relaxed line-clamp-2">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <h3 className="text-base font-bold text-white">{item.name}</h3>
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-black tracking-wide uppercase border ${
+                            isOnline
+                              ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400'
+                              : 'bg-rose-500/15 border-rose-500/40 text-rose-400'
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${
+                              isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'
+                            }`} />
+                            {isOnline ? 'Live' : 'Turned Off'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
                           {item.description}
                         </p>
                       </div>
 
                       <div className="mb-4 flex items-center justify-between text-xs pt-3 border-t border-white/5">
-                        <span className="text-slate-400 font-medium">Service State:</span>
+                        <span className="text-slate-400 font-medium">Status reason:</span>
                         <span className={`font-bold px-2 py-0.5 rounded-md ${
                           isOnline 
                             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
                             : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                         }`}>
-                          {isOnline ? "ONLINE" : (!masterSwitch ? "MASTER OFFLINE" : "DISABLED")}
+                          {isOnline ? 'Enabled' : (!masterSwitch ? 'Master kill switch' : 'Manually disabled')}
                         </span>
                       </div>
                     </div>

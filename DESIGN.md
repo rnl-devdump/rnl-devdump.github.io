@@ -116,3 +116,26 @@ This document establishes the authentic visual identity, personality, typography
 - **Personality:** Timeless classic board, distraction-free play area.
 - **Dials:** `ENERGY 1 / RHYTHM 1 / MOTION 1`
 - **Palette:** Warm slate `#292524`, wood board cream `#f5f5f4` / walnut `#78716c`.
+
+---
+
+## 8. Vibe Video & Screen Share (`/vibe`)
+
+- **Page Kind:** Peer-to-peer secure video calling and screen sharing room (Google Meet aesthetic).
+- **Audience:** Collaborators, teammates, and friends.
+- **Personality:** Focused, distraction-free meeting canvas; tactile matte controls; clear participant states.
+- **Dials:** `ENERGY 1 / RHYTHM 1 / MOTION 1`
+- **Palette:**
+  - Canvas background: `#202124` (Google Meet dark slate)
+  - Surface tiles: `#3c4043` / `#2d2e30`
+  - Accent / Positive: Google Blue `#1a73e8` / `#8ab4f8`
+  - End Call: Vibrant Crimson `#ea4335`
+  - Text: High-contrast pure white `#ffffff` and muted `#bdc1c6`
+- **Typography:**
+  - Plus Jakarta Sans / Roboto / system sans-serif stack
+- **Rules & Restraints:**
+  - Passcode verification required for room entry on both sides.
+  - Video stream dynamically fits aspect ratio without cropping vital screen share details.
+  - Controls bar pinned at the bottom with accessible >=44px buttons, clear active/muted toggles, and tooltip feedback.
+  - No decorative AI fluff: clear audio indicator, camera preview, participant avatar tiles with initial when video is off.
+

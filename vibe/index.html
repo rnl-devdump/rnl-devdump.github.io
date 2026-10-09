@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibe | Secure Video Calling & Screen Share</title>
+  <meta name="description" content="Peer-to-peer video calling and presentation room with passcode security and Google Meet style controls.">
+  <script src="/sublink-guard.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dashboard">
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <!-- Audio Playback Prompt (if browser autoplay policy requires click) -->
+  <div id="audio-prompt" class="audio-prompt hidden" role="alert">
+    <span>Audio is paused by your browser.</span>
+    <button id="btn-enable-audio" class="btn-prompt-audio" type="button">
+      <span class="material-symbols-outlined">volume_up</span>
+      Enable Sound
+    </button>
+  </div>
+
+  <!-- Screen 1: Lobby / Pre-join Room -->
+  <main id="lobby-screen" class="lobby-container">
+    <header class="lobby-header">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <span class="material-symbols-outlined">video_camera_front</span>
+        </div>
+        <div class="brand-text-group">
+          <span class="brand-title">VIBE</span>
+          <span class="brand-sub">Call &amp; Share</span>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge-tag">
+          <span class="material-symbols-outlined icon-inline">lock</span>
+          P2P ENCRYPTED
+        </span>
+        <span class="badge-status-live">
+          <span class="status-indicator-dot"></span>
+          READY
+        </span>
+      </div>
+    </header>
+
+    <div class="lobby-content">
+      <!-- Media Preview Column -->
+      <section class="lobby-preview-col" aria-label="Camera and microphone preview">
+        <div class="preview-card">
+          <div class="video-preview-wrapper">
+            <video id="lobby-preview-video" autoplay playsinline muted></video>
+            <div id="lobby-avatar-fallback" class="avatar-fallback hidden">
+              <span id="lobby-avatar-letter">Y</span>
+            </div>
+            <div class="preview-status-pill" id="lobby-mic-indicator">
+              <span class="pulse-dot" id="lobby-audio-dot"></span>
+              <span id="lobby-audio-text">Mic ready</span>
+            </div>
+          </div>
+          <div class="preview-controls">
+            <button id="lobby-toggle-mic" class="preview-control-btn active" title="Toggle Microphone" aria-label="Toggle microphone" type="button">
+              <span class="material-symbols-outlined">mic</span>
+            </button>
+            <button id="lobby-toggle-cam" class="preview-control-btn active" title="Toggle Camera" aria-label="Toggle camera" type="button">
+              <span class="material-symbols-outlined">videocam</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Action Panel Column -->
+      <section class="lobby-action-col" aria-label="Meeting configuration">
+        <div class="action-card">
+          <h1 class="lobby-title">Video Call &amp; Screen Share</h1>
+          <p class="lobby-subtitle">Set a passcode for your meeting. Both host and guest require the passcode to enter.</p>
+
+          <!-- User Name Input -->
+          <div class="input-group">
+            <label for="display-name-input">Your Display Name</label>
+            <input type="text" id="display-name-input" placeholder="e.g. Neil" maxlength="24" required>
+          </div>
+
+          <!-- Lobby Tabs: Start vs Join -->
+          <div class="tab-switch" role="tablist">
+            <button id="tab-btn-create" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-create" type="button">
+              New Meeting
+            </button>
+            <button id="tab-btn-join" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-join" type="button">
+              Join with Code
+            </button>
+          </div>
+
+          <!-- Tab Panel 1: Create Meeting -->
+          <div id="panel-create" class="tab-panel active" role="tabpanel">
+            <div class="input-group">
+              <label for="create-passcode-input">
+                Room Passcode
+                <span class="label-hint">(Required for both caller and guest)</span>
+              </label>
+              <div class="password-field">
+                <input type="password" id="create-passcode-input" placeholder="Set meeting passcode" maxlength="32">
+                <button type="button" class="field-icon-btn" id="toggle-create-passcode" aria-label="Show passcode">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="custom-room-id">
+                Meeting Code
+                <span class="label-hint">(Auto-generated or custom)</span>
+              </label>
+              <div class="room-code-wrapper">
+                <input type="text" id="custom-room-id" placeholder="e.g. vibe-829-104">
+                <button type="button" id="btn-generate-code" class="secondary-inline-btn" title="Generate random code">
+                  <span class="material-symbols-outlined icon-inline">shuffle</span>
+                  Generate
+                </button>
+              </div>
+            </div>
+
+            <button id="btn-start-meeting" class="btn-primary full-width" type="button">
+              <span class="material-symbols-outlined">videocam</span>
+              Start Meeting
+            </button>
+          </div>
+
+          <!-- Tab Panel 2: Join Meeting -->
+          <div id="panel-join" class="tab-panel hidden" role="tabpanel">
+            <div class="input-group">
+              <label for="join-room-id">Meeting Code</label>
+              <input type="text" id="join-room-id" placeholder="e.g. vibe-829-104" required>
+            </div>
+
+            <div class="input-group">
+              <label for="join-passcode-input">
+                Room Passcode
+                <span class="label-hint">(Enter the host passcode)</span>
+              </label>
+              <div class="password-field">
+                <input type="password" id="join-passcode-input" placeholder="Enter room passcode" maxlength="32" required>
+                <button type="button" class="field-icon-btn" id="toggle-join-passcode" aria-label="Show passcode">
+                  <span class="material-symbols-outlined">visibility</span>
+                </button>
+              </div>
+            </div>
+
+            <button id="btn-join-meeting" class="btn-primary full-width" type="button">
+              <span class="material-symbols-outlined">login</span>
+              Join Meeting
+            </button>
+          </div>
+
+          <!-- Error notice box -->
+          <div id="lobby-error-notice" class="error-notice-box hidden" role="alert">
+            <span class="material-symbols-outlined">error</span>
+            <span id="lobby-error-message"></span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Screen 2: Active Meeting Stage -->
+  <div id="meeting-screen" class="meeting-container hidden">
+    <!-- Meeting Top Header Bar -->
+    <header class="meeting-header">
+      <div class="meeting-header-left">
+        <div class="brand-pill">
+          <span class="brand-pill-dot"></span>
+          <span class="meeting-id-pill" id="header-room-code" title="Room Code">vibe-room</span>
+        </div>
+        <span class="meeting-timer" id="call-duration-timer">00:00</span>
+        <span class="security-indicator" title="Peer to Peer Secure Connection">
+          <span class="material-symbols-outlined icon-inline">lock</span>
+          Encrypted P2P
+        </span>
+      </div>
+
+      <div class="meeting-header-right">
+        <!-- Pin status banner when a feed is pinned -->
+        <span id="pin-status-banner" class="pin-status-banner hidden">
+          <span class="material-symbols-outlined icon-inline">push_pin</span>
+          <span id="pin-status-text">Feed Pinned</span>
+          <button id="btn-unpin-all" class="btn-unpin-header" title="Unpin feed (Equal view)" type="button">Unpin</button>
+        </span>
+        <div class="network-badge connecting" id="connection-status-badge">Connecting</div>
+      </div>
+    </header>
+
+    <!-- Main Video Grid Stage -->
+    <main class="stage-container" id="video-stage">
+      <!-- Waiting Empty State Overlay -->
+      <div id="waiting-overlay" class="waiting-card">
+        <div class="waiting-icon">
+          <span class="material-symbols-outlined icon-hero">group</span>
+        </div>
+        <h2>Waiting for peer to join</h2>
+        <p class="waiting-desc">Share this meeting code and passcode to begin video calling or screen sharing.</p>
+        <div class="share-box">
+          <div class="share-info-row">
+            <span class="share-label">Meeting code:</span>
+            <code id="waiting-code-display" class="share-value">...</code>
+          </div>
+          <div class="share-info-row">
+            <span class="share-label">Passcode:</span>
+            <span id="waiting-passcode-display" class="share-value font-mono">••••</span>
+          </div>
+          <button id="btn-copy-waiting-invite" class="btn-copy-invite" type="button">
+            <span class="material-symbols-outlined icon-inline">content_copy</span>
+            Copy Joining Info
+          </button>
+        </div>
+      </div>
+
+      <!-- Video Layout (Equal Grid or Spotlight with Thumbnail) -->
+      <div class="grid-layout" id="participants-grid">
+        <!-- Remote Participant Tile -->
+        <div class="video-tile remote-tile hidden" id="remote-tile" tabindex="0" role="region" aria-label="Remote participant video">
+          <video id="remote-video" autoplay playsinline></video>
+          <div class="tile-avatar-fallback hidden" id="remote-avatar-fallback">
+            <span id="remote-avatar-letter">G</span>
+          </div>
+
+          <!-- Pin Button (Top-Right) -->
+          <button class="tile-pin-btn" id="pin-remote-btn" title="Pin peer feed to main screen" aria-label="Pin peer feed" type="button">
+            <span class="material-symbols-outlined">push_pin</span>
+          </button>
+
+          <div class="tile-overlay-bottom">
+            <div class="participant-info">
+              <span class="participant-name" id="remote-name-label">Guest</span>
+              <span class="tile-role-badge">Remote</span>
+            </div>
+            <span class="tile-mic-status hidden" id="remote-mic-status" title="Microphone muted">
+              <span class="material-symbols-outlined">mic_off</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Local Participant Tile (Self) -->
+        <div class="video-tile local-tile" id="local-tile" tabindex="0" role="region" aria-label="Local participant video">
+          <video id="local-video" autoplay playsinline muted></video>
+          <div class="tile-avatar-fallback hidden" id="local-avatar-fallback">
+            <span id="local-avatar-letter">Y</span>
+          </div>
+
+          <!-- Pin Button (Top-Right) -->
+          <button class="tile-pin-btn" id="pin-local-btn" title="Pin your own feed to main screen" aria-label="Pin your feed" type="button">
+            <span class="material-symbols-outlined">push_pin</span>
+          </button>
+
+          <div class="tile-overlay-bottom">
+            <div class="participant-info">
+              <span class="participant-name" id="local-name-label">You</span>
+              <span class="tile-role-badge">You</span>
+            </div>
+            <span class="tile-mic-status hidden" id="local-mic-status" title="Microphone muted">
+              <span class="material-symbols-outlined">mic_off</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Google Meet Style Bottom Control Bar -->
+    <footer class="meeting-controls-bar">
+      <!-- Left info chunk -->
+      <div class="controls-left">
+        <span class="meeting-code-bottom" id="bottom-room-code">vibe-room</span>
+      </div>
+
+      <!-- Center Media Action Buttons -->
+      <div class="controls-center" role="toolbar" aria-label="Call controls">
+        <!-- Microphone Toggle -->
+        <button id="ctrl-mic" class="control-btn" title="Turn off microphone" aria-label="Toggle microphone" type="button">
+          <span class="material-symbols-outlined">mic</span>
+        </button>
+
+        <!-- Camera Toggle -->
+        <button id="ctrl-cam" class="control-btn" title="Turn off camera" aria-label="Toggle camera" type="button">
+          <span class="material-symbols-outlined">videocam</span>
+        </button>
+
+        <!-- Screenshare Toggle -->
+        <button id="ctrl-screen" class="control-btn" title="Present screen (Screenshare)" aria-label="Present screen" type="button">
+          <span class="material-symbols-outlined">present_to_all</span>
+        </button>
+
+        <!-- Leave Call Button -->
+        <button id="ctrl-leave" class="control-btn btn-leave" title="Leave call" aria-label="Leave call" type="button">
+          <span class="material-symbols-outlined">call_end</span>
+        </button>
+      </div>
+
+      <!-- Right Utility Actions -->
+      <div class="controls-right">
+        <!-- Meeting Info Drawer Button -->
+        <button id="ctrl-info" class="control-btn secondary" title="Meeting details" aria-label="Meeting details" type="button">
+          <span class="material-symbols-outlined">info</span>
+        </button>
+
+        <!-- In-Call Chat Drawer Button -->
+        <button id="ctrl-chat" class="control-btn secondary" title="In-call messages" aria-label="Chat messages" type="button">
+          <span class="material-symbols-outlined">chat</span>
+          <span id="chat-unread-badge" class="badge-counter hidden">0</span>
+        </button>
+      </div>
+    </footer>
+
+    <!-- Side Drawer: Meeting Info & Chat -->
+    <aside id="side-drawer" class="side-drawer hidden" aria-label="Side panel">
+      <!-- Drawer Header -->
+      <div class="drawer-header">
+        <h3 id="drawer-title">In-call messages</h3>
+        <button id="btn-close-drawer" class="btn-close-drawer" aria-label="Close panel" type="button">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Tab 1 Body: Meeting Details -->
+      <div id="drawer-panel-info" class="drawer-panel hidden">
+        <div class="info-section">
+          <h4>Joining Details</h4>
+          <p class="info-description">Share these credentials with the guest. Both the code and passcode are required for entry.</p>
+          <div class="info-data-card">
+            <div class="info-data-row">
+              <span class="info-sublabel">Meeting code:</span>
+              <strong id="drawer-room-code" class="info-code-text">vibe-room</strong>
+            </div>
+            <div class="info-data-row">
+              <span class="info-sublabel">Passcode:</span>
+              <strong id="drawer-passcode-display" class="info-passcode-text">••••</strong>
+            </div>
+            <button id="btn-copy-drawer-link" class="btn-copy-full" type="button">
+              <span class="material-symbols-outlined icon-inline">content_copy</span>
+              Copy Joining Details
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2 Body: Chat Messages -->
+      <div id="drawer-panel-chat" class="drawer-panel">
+        <div class="chat-messages-scroll" id="chat-messages-container">
+          <div class="chat-empty-hint" id="chat-empty-hint">
+            Messages are shared directly with participants in this call.
+          </div>
+        </div>
+        <form id="chat-form" class="chat-input-form">
+          <input type="text" id="chat-input-field" placeholder="Send message..." maxlength="280" autocomplete="off" required>
+          <button type="submit" id="chat-send-btn" aria-label="Send message">
+            <span class="material-symbols-outlined">send</span>
+          </button>
+        </form>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Screen 3: Call Ended View -->
+  <div id="ended-screen" class="ended-container hidden">
+    <div class="ended-card">
+      <div class="ended-icon">
+        <span class="material-symbols-outlined icon-hero">call_end</span>
+      </div>
+      <h2>You left the meeting</h2>
+      <p id="ended-duration-text">Call ended</p>
+      <div class="ended-actions">
+        <button id="btn-rejoin" class="btn-primary" type="button">
+          <span class="material-symbols-outlined icon-inline">replay</span>
+          Rejoin Meeting
+        </button>
+        <button id="btn-return-lobby" class="btn-secondary" type="button">
+          <span class="material-symbols-outlined icon-inline">home</span>
+          Return to Portal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript App Module -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>

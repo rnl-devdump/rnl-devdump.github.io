@@ -117,15 +117,151 @@
 
     function injectHtml() {
       document.title = "Service Offline | Kiruu Ecosystem";
+
+      // Ensure viewport meta tag exists for mobile devices
+      if (!document.querySelector('meta[name="viewport"]')) {
+        const meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, initial-scale=1.0';
+        document.head.appendChild(meta);
+      }
+
       document.body.innerHTML = `
-        <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #0b0f19; color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 24px; text-align: center; box-sizing: border-box; margin: 0;">
-          <div style="max-width: 480px; width: 100%; border: 1px solid #1f2937; background: #111827; padding: 36px 28px; border-radius: 14px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.4);">
-            <div style="font-size: 38px; margin-bottom: 16px; line-height: 1;">⚠️</div>
-            <h1 style="font-size: 22px; font-weight: 700; margin: 0 0 10px 0; color: #ffffff; letter-spacing: -0.02em;">Service Temporarily Offline</h1>
-            <p style="font-size: 14px; color: #9ca3af; margin: 0 0 24px 0; line-height: 1.6; word-break: break-word;">${message || "This service is currently undergoing scheduled maintenance."}</p>
-            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-              <a href="/" style="display: inline-block; font-size: 13px; font-weight: 600; color: #ffffff; background-color: #3b82f6; text-decoration: none; padding: 10px 20px; border-radius: 8px; transition: background-color 0.2s ease;">Return to Kiruu Portal</a>
-              <button id="admin-bypass-btn" style="display: inline-block; font-size: 13px; font-weight: 500; color: #9ca3af; background: transparent; border: 1px solid #374151; padding: 10px 16px; border-radius: 8px; cursor: pointer;">Admin Bypass</button>
+        <style>
+          *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          html, body {
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-font-smoothing: antialiased;
+          }
+          .ks-container {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(16px, 4vw, 32px);
+            box-sizing: border-box;
+          }
+          .ks-card {
+            max-width: 480px;
+            width: 100%;
+            border: 1px solid #1f2937;
+            background: #111827;
+            padding: clamp(24px, 6vw, 36px) clamp(18px, 5vw, 30px);
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            box-sizing: border-box;
+          }
+          .ks-icon {
+            font-size: clamp(34px, 8vw, 42px);
+            margin-bottom: 16px;
+            line-height: 1;
+            display: inline-block;
+          }
+          .ks-title {
+            font-size: clamp(20px, 4.5vw, 24px);
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            line-height: 1.25;
+          }
+          .ks-desc {
+            font-size: clamp(13.5px, 2.5vw, 15px);
+            color: #9ca3af;
+            margin: 0 0 clamp(20px, 4vw, 28px) 0;
+            line-height: 1.6;
+            word-break: break-word;
+          }
+          .ks-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+          }
+          .ks-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #3b82f6;
+            text-decoration: none;
+            padding: 12px 20px;
+            min-height: 44px;
+            border-radius: 8px;
+            transition: background-color 0.2s ease, transform 0.15s ease;
+            box-sizing: border-box;
+          }
+          .ks-btn-primary:hover {
+            background-color: #2563eb;
+          }
+          .ks-btn-primary:active {
+            transform: scale(0.98);
+          }
+          .ks-btn-primary:focus-visible {
+            outline: 2px solid #60a5fa;
+            outline-offset: 2px;
+          }
+          .ks-btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9ca3af;
+            background: transparent;
+            border: 1px solid #374151;
+            padding: 12px 18px;
+            min-height: 44px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+            box-sizing: border-box;
+          }
+          .ks-btn-secondary:hover {
+            color: #ffffff;
+            border-color: #6b7280;
+          }
+          .ks-btn-secondary:active {
+            transform: scale(0.98);
+          }
+          .ks-btn-secondary:focus-visible {
+            outline: 2px solid #9ca3af;
+            outline-offset: 2px;
+          }
+          @media (max-width: 480px) {
+            .ks-actions {
+              flex-direction: column;
+              width: 100%;
+            }
+            .ks-btn-primary, .ks-btn-secondary {
+              width: 100%;
+            }
+          }
+        </style>
+        <div class="ks-container">
+          <div class="ks-card">
+            <div class="ks-icon">⚠️</div>
+            <h1 class="ks-title">Service Temporarily Offline</h1>
+            <p class="ks-desc">${message || "This service is currently undergoing scheduled maintenance."}</p>
+            <div class="ks-actions">
+              <a href="/" class="ks-btn-primary">Return to Kiruu Portal</a>
+              <button id="admin-bypass-btn" class="ks-btn-secondary" type="button">Admin Bypass</button>
             </div>
           </div>
         </div>

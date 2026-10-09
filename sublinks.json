@@ -64,6 +64,13 @@
       "category": "Game",
       "enabled": true,
       "message": "Chess game is temporarily unavailable."
+    },
+    "vibe": {
+      "name": "Vibe Video & Screen Share",
+      "path": "/vibe",
+      "category": "Media",
+      "enabled": true,
+      "message": "Vibe video calling is temporarily offline."
     }
   }
 }
