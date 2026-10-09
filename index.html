@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn-uicons.flaticon.com; font-src 'self' https://fonts.gstatic.com https://cdn-uicons.flaticon.com data:; img-src 'self' data: https:; connect-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn-uicons.flaticon.com; font-src 'self' https://fonts.gstatic.com https://cdn-uicons.flaticon.com data:; img-src 'self' data: https:; connect-src 'self' https://firestore.googleapis.com https://*.firebaseio.com;">
     <title>Kiruu: Applications &amp; Ecosystem</title>
     <meta name="description" content="Explore all web apps, AI assistants, media hubs, and tools hosted on kiruu.xyz.">
     <link rel="icon" type="image/png" href="logo.png">
@@ -17,6 +17,24 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Admin Announcement Banner (Top message with 5s auto-fade) -->
+    <aside id="adminAnnouncementBanner" class="admin-announcement-banner admin-banner-info" role="status" aria-live="polite" aria-atomic="true" style="display: none;">
+        <div class="admin-banner-inner">
+            <div class="admin-banner-content">
+                <span class="admin-banner-badge" id="adminBannerBadge">NOTICE</span>
+                <p class="admin-banner-message" id="adminBannerMessage"></p>
+            </div>
+            <div class="admin-banner-controls">
+                <div class="admin-banner-timer" title="Auto-fades in 5 seconds" aria-hidden="true">
+                    <div class="admin-banner-progress" id="adminBannerProgress"></div>
+                </div>
+                <button type="button" class="admin-banner-close" id="adminBannerClose" aria-label="Dismiss announcement" title="Dismiss">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+        </div>
+    </aside>
+
     <div class="page-container">
         <!-- Header -->
         <header>
@@ -552,6 +570,186 @@
                 });
             }
 
+        })();
+
+        // Admin Announcement System (5-second auto-fade with pause on hover)
+        (function initAdminAnnouncement() {
+            var banner = document.getElementById("adminAnnouncementBanner");
+            var messageEl = document.getElementById("adminBannerMessage");
+            var badgeEl = document.getElementById("adminBannerBadge");
+            var closeBtn = document.getElementById("adminBannerClose");
+            var progressBar = document.getElementById("adminBannerProgress");
+            if (!banner || !messageEl) return;
+
+            var FIRESTORE_URL = "https://firestore.googleapis.com/v1/projects/pangasinan-dataset/databases/(default)/documents/validations/system_status?key=AIzaSyBPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c";
+            var SUBLINKS_URL = "sublinks.json";
+
+            var fadeTimer = null;
+            var remainingMs = 5000;
+            var startTime = 0;
+            var isPaused = false;
+            var isDismissed = false;
+            var isShown = false;
+
+            function renderBanner(announcement) {
+                if (isDismissed) return;
+                if (!announcement || !announcement.enabled || !announcement.message || !announcement.message.trim()) {
+                    banner.classList.remove("visible");
+                    banner.style.display = "none";
+                    return;
+                }
+
+                messageEl.textContent = announcement.message.trim();
+
+                var variant = (announcement.variant || "info").toLowerCase();
+                banner.className = "admin-announcement-banner admin-banner-" + variant;
+
+                if (badgeEl) {
+                    var badgeMap = {
+                        "info": "NOTICE",
+                        "warning": "MAINTENANCE",
+                        "alert": "URGENT ALERT",
+                        "success": "UPDATE"
+                    };
+                    badgeEl.textContent = badgeMap[variant] || "NOTICE";
+                }
+
+                if (isShown) return;
+                isShown = true;
+                banner.style.display = "block";
+
+                // Coordinate with welcome overlay if still showing
+                var welcomeOverlay = document.getElementById("welcomeOverlay");
+                var delayMs = 150;
+                if (welcomeOverlay && !welcomeOverlay.classList.contains("fade-out")) {
+                    delayMs = 1400; // Let welcome overlay begin fading first
+                }
+
+                setTimeout(function() {
+                    if (isDismissed) return;
+                    banner.classList.add("visible");
+                    startCountdown(5000);
+                }, delayMs);
+            }
+
+            function startCountdown(durationMs) {
+                clearTimeout(fadeTimer);
+                remainingMs = durationMs;
+                startTime = Date.now();
+
+                if (progressBar) {
+                    progressBar.style.transition = "none";
+                    progressBar.style.width = "100%";
+                    void progressBar.offsetWidth; // Trigger reflow
+                    progressBar.style.transition = "width " + (durationMs / 1000) + "s linear";
+                    progressBar.style.width = "0%";
+                }
+
+                fadeTimer = setTimeout(function() {
+                    dismissBanner();
+                }, durationMs);
+            }
+
+            function pauseCountdown() {
+                if (isPaused || isDismissed) return;
+                isPaused = true;
+                clearTimeout(fadeTimer);
+                var elapsed = Date.now() - startTime;
+                remainingMs = Math.max(400, remainingMs - elapsed);
+
+                if (progressBar) {
+                    var computed = window.getComputedStyle(progressBar).width;
+                    progressBar.style.transition = "none";
+                    progressBar.style.width = computed;
+                }
+            }
+
+            function resumeCountdown() {
+                if (!isPaused || isDismissed) return;
+                isPaused = false;
+                startTime = Date.now();
+
+                if (progressBar) {
+                    progressBar.style.transition = "width " + (remainingMs / 1000) + "s linear";
+                    progressBar.style.width = "0%";
+                }
+
+                fadeTimer = setTimeout(function() {
+                    dismissBanner();
+                }, remainingMs);
+            }
+
+            function dismissBanner() {
+                isDismissed = true;
+                clearTimeout(fadeTimer);
+                banner.classList.remove("visible");
+                banner.classList.add("fade-out");
+                setTimeout(function() {
+                    banner.style.display = "none";
+                }, 600);
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    dismissBanner();
+                });
+            }
+
+            banner.addEventListener("mouseenter", pauseCountdown);
+            banner.addEventListener("mouseleave", resumeCountdown);
+
+            // 1. Instant cache check (zero latency)
+            try {
+                var cached = localStorage.getItem("kiruu_sublinks_status") || localStorage.getItem("kiruu_services_status");
+                if (cached) {
+                    var parsed = JSON.parse(cached);
+                    if (parsed.adminAnnouncement) {
+                        renderBanner(parsed.adminAnnouncement);
+                    }
+                }
+            } catch (e) {}
+
+            // 2. Fetch live status from Cloud Firestore
+            fetch(FIRESTORE_URL, { cache: "no-store" })
+                .then(function(res) {
+                    if (!res.ok) throw new Error("Firestore HTTP error " + res.status);
+                    return res.json();
+                })
+                .then(function(doc) {
+                    if (doc && doc.fields && doc.fields.configJson && doc.fields.configJson.stringValue) {
+                        var cloudData = JSON.parse(doc.fields.configJson.stringValue);
+                        try {
+                            localStorage.setItem("kiruu_sublinks_status", JSON.stringify(cloudData));
+                            localStorage.setItem("kiruu_services_status", JSON.stringify(cloudData));
+                        } catch (e) {}
+                        if (cloudData.adminAnnouncement) {
+                            renderBanner(cloudData.adminAnnouncement);
+                        }
+                    }
+                })
+                .catch(function() {
+                    // 3. Fallback to sublinks.json
+                    fetch(SUBLINKS_URL, { cache: "no-store" })
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            if (data && data.adminAnnouncement) {
+                                renderBanner(data.adminAnnouncement);
+                            }
+                        })
+                        .catch(function() {});
+                });
+
+            // Diagnostic helper for console testing
+            window.kiruuShowAdminMessage = function(msg, variant) {
+                isDismissed = false;
+                isShown = false;
+                renderBanner({
+                    enabled: true,
+                    message: msg || "Testing admin announcement message.",
+                    variant: variant || "info"
+                });
+            };
         })();
     </script>
 </body>

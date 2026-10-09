@@ -107,6 +107,19 @@ export default function DashboardApp() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
 
+  // Admin announcement banner state (top 5s fade message on main page)
+  const [adminBanner, setAdminBanner] = useState({
+    enabled: false,
+    message: '',
+    variant: 'info', // 'info' | 'warning' | 'alert' | 'success'
+    updatedAt: ''
+  });
+  const [adminBannerMsgInput, setAdminBannerMsgInput] = useState('');
+  const [adminBannerVariant, setAdminBannerVariant] = useState('info');
+  const [adminBannerDeploying, setAdminBannerDeploying] = useState(false);
+  const [previewActive, setPreviewActive] = useState(false);
+  const [previewFaded, setPreviewFaded] = useState(false);
+
   // Dynamic service registration form state
   const [showAddForm, setShowAddForm] = useState(false);
   const [newServiceKey, setNewServiceKey] = useState('');
@@ -155,6 +168,17 @@ export default function DashboardApp() {
         if (typeof parsed.masterSwitch === 'boolean') {
           setMasterSwitch(parsed.masterSwitch);
         }
+        if (parsed.adminAnnouncement) {
+          const ann = parsed.adminAnnouncement;
+          setAdminBanner({
+            enabled: Boolean(ann.enabled),
+            message: ann.message || '',
+            variant: ann.variant || 'info',
+            updatedAt: ann.updatedAt || ''
+          });
+          setAdminBannerMsgInput(ann.message || '');
+          setAdminBannerVariant(ann.variant || 'info');
+        }
       }
     } catch (e) {}
 
@@ -193,6 +217,17 @@ export default function DashboardApp() {
                 if (typeof cloudData.masterSwitch === 'boolean') {
                   setMasterSwitch(cloudData.masterSwitch);
                 }
+                if (cloudData.adminAnnouncement) {
+                  const ann = cloudData.adminAnnouncement;
+                  setAdminBanner({
+                    enabled: Boolean(ann.enabled),
+                    message: ann.message || '',
+                    variant: ann.variant || 'info',
+                    updatedAt: ann.updatedAt || ''
+                  });
+                  setAdminBannerMsgInput(ann.message || '');
+                  setAdminBannerVariant(ann.variant || 'info');
+                }
                 setRtdbStatus('connected');
                 try {
                   localStorage.setItem('kiruu_sublinks_status', JSON.stringify(cloudData));
@@ -223,6 +258,17 @@ export default function DashboardApp() {
           const remoteServices = cloudData.services || cloudData.sublinks;
           if (remoteServices) setSublinks(prev => ({ ...prev, ...remoteServices }));
           if (typeof cloudData.masterSwitch === 'boolean') setMasterSwitch(cloudData.masterSwitch);
+          if (cloudData.adminAnnouncement) {
+            const ann = cloudData.adminAnnouncement;
+            setAdminBanner({
+              enabled: Boolean(ann.enabled),
+              message: ann.message || '',
+              variant: ann.variant || 'info',
+              updatedAt: ann.updatedAt || ''
+            });
+            setAdminBannerMsgInput(ann.message || '');
+            setAdminBannerVariant(ann.variant || 'info');
+          }
           setRtdbStatus('connected');
         }
       })
@@ -389,10 +435,12 @@ export default function DashboardApp() {
     });
   }
 
-  async function saveStateLocally(mSwitch, sublinkMap, updatedKey = null, isDelete = false) {
+  async function saveStateLocally(mSwitch, sublinkMap, updatedKey = null, isDelete = false, customAdminBanner = null) {
+    const currentAdminBanner = customAdminBanner !== null ? customAdminBanner : adminBanner;
     const payload = {
       updatedAt: new Date().toISOString(),
       masterSwitch: mSwitch,
+      adminAnnouncement: currentAdminBanner,
       sublinks: sublinkMap,
       services: sublinkMap
     };
@@ -479,6 +527,8 @@ export default function DashboardApp() {
           if (typeof mSwitch === 'boolean') {
             await set(ref(rtdb, 'masterSwitch'), mSwitch);
           }
+          // Also persist adminAnnouncement to RTDB
+          await set(ref(rtdb, 'adminAnnouncement'), currentAdminBanner);
         })();
 
         await Promise.race([
@@ -489,6 +539,38 @@ export default function DashboardApp() {
     }
 
     setTimeout(() => setSaveSuccessMsg(''), 3000);
+  }
+
+  async function deployAdminBanner(override = {}) {
+    setAdminBannerDeploying(true);
+    const updated = {
+      ...adminBanner,
+      message: (override.message !== undefined ? override.message : adminBannerMsgInput).trim(),
+      variant: override.variant !== undefined ? override.variant : adminBannerVariant,
+      enabled: override.enabled !== undefined ? override.enabled : adminBanner.enabled,
+      updatedAt: new Date().toISOString()
+    };
+    setAdminBanner(updated);
+    if (override.message !== undefined) setAdminBannerMsgInput(override.message);
+    if (override.variant !== undefined) setAdminBannerVariant(override.variant);
+    try {
+      await saveStateLocally(masterSwitch, sublinks, null, false, updated);
+      setSaveSuccessMsg(updated.enabled ? 'Admin announcement deployed live to main page!' : 'Admin announcement deactivated.');
+    } finally {
+      setAdminBannerDeploying(false);
+    }
+  }
+
+  function triggerAdminBannerPreview() {
+    setPreviewActive(true);
+    setPreviewFaded(false);
+    setTimeout(() => {
+      setPreviewFaded(true);
+      setTimeout(() => {
+        setPreviewActive(false);
+        setPreviewFaded(false);
+      }, 700);
+    }, 5000);
   }
 
   function registerNewService(e) {
@@ -550,11 +632,11 @@ export default function DashboardApp() {
     setTimeout(() => setSaveSuccessMsg(''), 3000);
   }
 
-
   function downloadConfigJSON() {
     const payload = {
       updatedAt: new Date().toISOString(),
       masterSwitch,
+      adminAnnouncement: adminBanner,
       sublinks
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -574,6 +656,7 @@ export default function DashboardApp() {
     const payload = {
       updatedAt: new Date().toISOString(),
       masterSwitch,
+      adminAnnouncement: adminBanner,
       sublinks
     };
     navigator.clipboard.writeText(JSON.stringify(payload, null, 2))
@@ -660,36 +743,30 @@ export default function DashboardApp() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#07090e] text-white flex items-center justify-center p-4 sm:p-6 font-sans relative overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-
-        <div className="max-w-md w-full bg-[#0d121c]/90 border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl backdrop-blur-2xl relative z-10">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-blue-600/20 border border-cyan-500/40 flex items-center justify-center shadow-lg shadow-cyan-500/10">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 font-sans relative z-10">
+        <div className="max-w-md w-full bg-white/95 border-2 border-[#111111] rounded-2xl p-8 sm:p-10 shadow-[6px_6px_0px_#111111] backdrop-blur-md relative z-10">
+          <div className="text-center mb-6">
+            <a href="/" title="Return to Homepage">
+              <img src="/logo.png" alt="The Kiruu" className="h-16 w-auto mx-auto mb-3 cursor-pointer hover:scale-105 transition-transform" />
+            </a>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#dcfce7] border border-[#166534] text-[#14532d] text-xs font-bold uppercase tracking-wider mb-2">
+              <span className="w-2 h-2 rounded-full bg-[#16a34a]" />
+              Console Gate
             </div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2">
-              <span className="w-2 h-2 rounded-full bg-cyan-400" />
-              Restricted Console Access
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">KIRUUCONSOLE</h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-2">
-              Enter master credentials to access sublink kill switches and system analytics.
+            <h1 className="text-3xl font-extrabold tracking-tight text-[#111827] font-['Vandelvira',Georgia,serif]">KIRUU CONSOLE</h1>
+            <p className="text-xs sm:text-sm text-[#475569] mt-1 font-medium">
+              Enter credentials to manage sublinks, kill switches &amp; telemetry.
             </p>
           </div>
 
-          <div className="flex p-1 rounded-xl bg-white/5 border border-white/10 mb-6">
+          <div className="flex p-1 rounded-xl bg-slate-100 border-2 border-[#111111] mb-6">
             <button
               type="button"
               onClick={() => { setAuthMode('password'); setAuthError(''); }}
               className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition ${
                 authMode === 'password'
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-md shadow-cyan-500/20'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-[#fee6e3] text-[#111827] shadow-[2px_2px_0px_#111111] border border-[#111111]'
+                  : 'text-[#64748b] hover:text-[#111827]'
               }`}
             >
               Master Password
@@ -699,8 +776,8 @@ export default function DashboardApp() {
               onClick={() => { setAuthMode('firebase'); setAuthError(''); }}
               className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition ${
                 authMode === 'firebase'
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-md shadow-cyan-500/20'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-[#fee6e3] text-[#111827] shadow-[2px_2px_0px_#111111] border border-[#111111]'
+                  : 'text-[#64748b] hover:text-[#111827]'
               }`}
             >
               Firebase Auth
@@ -710,7 +787,7 @@ export default function DashboardApp() {
           {authMode === 'password' ? (
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-2">
                   Console Master Password
                 </label>
                 <div className="relative">
@@ -720,12 +797,12 @@ export default function DashboardApp() {
                     onChange={(e) => setPasswordInput(e.target.value)}
                     placeholder="Enter console password..."
                     autoFocus
-                    className="w-full bg-[#080b12] border border-white/15 rounded-xl px-4 py-3.5 pr-11 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
+                    className="w-full bg-white border-2 border-[#111111] rounded-xl px-4 py-3.5 pr-11 text-sm text-[#111827] placeholder:text-slate-400 focus:outline-none focus:shadow-[3px_3px_0px_#111111] transition shadow-[2px_2px_0px_#111111]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-black transition"
                   >
                     {showPassword ? (
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
@@ -737,7 +814,7 @@ export default function DashboardApp() {
               </div>
 
               {authError && (
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-rose-50 border-2 border-rose-600 text-rose-950 text-xs font-semibold flex items-center gap-2 shadow-[2px_2px_0px_rgba(225,29,72,0.2)]">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                   <span>{authError}</span>
                 </div>
@@ -746,7 +823,7 @@ export default function DashboardApp() {
               <button
                 type="submit"
                 disabled={isVerifying}
-                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-cyan-500/25 transition active:scale-[0.98] disabled:opacity-50"
+                className="w-full py-3.5 px-4 rounded-xl bg-[#fee6e3] hover:bg-[#ffdeda] border-2 border-[#111111] text-[#111827] font-extrabold text-sm tracking-wide shadow-[4px_4px_0px_#111111] hover:shadow-[5px_5px_0px_#111111] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#111111] transition-all disabled:opacity-50"
               >
                 {isVerifying ? "Verifying Credentials..." : "Authenticate & Open Console"}
               </button>
@@ -754,7 +831,7 @@ export default function DashboardApp() {
           ) : (
             <form onSubmit={handleFirebaseAuthLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-1.5">
                   Admin Email
                 </label>
                 <input
@@ -764,12 +841,12 @@ export default function DashboardApp() {
                   placeholder="admin@kiruu.xyz"
                   required
                   autoFocus
-                  className="w-full bg-[#080b12] border border-white/15 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+                  className="w-full bg-white border-2 border-[#111111] rounded-xl px-4 py-3 text-sm text-[#111827] placeholder:text-slate-400 focus:outline-none focus:shadow-[3px_3px_0px_#111111] transition shadow-[2px_2px_0px_#111111]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-[#111827] uppercase tracking-wider mb-1.5">
                   Firebase Password
                 </label>
                 <input
@@ -778,12 +855,12 @@ export default function DashboardApp() {
                   onChange={(e) => setFbPasswordInput(e.target.value)}
                   placeholder="Password..."
                   required
-                  className="w-full bg-[#080b12] border border-white/15 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+                  className="w-full bg-white border-2 border-[#111111] rounded-xl px-4 py-3 text-sm text-[#111827] placeholder:text-slate-400 focus:outline-none focus:shadow-[3px_3px_0px_#111111] transition shadow-[2px_2px_0px_#111111]"
                 />
               </div>
 
               {authError && (
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-rose-50 border-2 border-rose-600 text-rose-950 text-xs font-semibold flex items-center gap-2 shadow-[2px_2px_0px_rgba(225,29,72,0.2)]">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                   <span>{authError}</span>
                 </div>
@@ -792,15 +869,15 @@ export default function DashboardApp() {
               <button
                 type="submit"
                 disabled={isVerifying}
-                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-cyan-500/25 transition active:scale-[0.98] disabled:opacity-50"
+                className="w-full py-3.5 px-4 rounded-xl bg-[#fee6e3] hover:bg-[#ffdeda] border-2 border-[#111111] text-[#111827] font-extrabold text-sm tracking-wide shadow-[4px_4px_0px_#111111] hover:shadow-[5px_5px_0px_#111111] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0px_#111111] transition-all disabled:opacity-50"
               >
                 {isVerifying ? "Verifying Firebase Auth..." : "Log In with Firebase"}
               </button>
             </form>
           )}
 
-          <div className="mt-8 pt-6 border-t border-white/10 text-center">
-            <a href="/" className="text-xs text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5">
+          <div className="mt-8 pt-6 border-t-2 border-dashed border-[#111111]/20 text-center">
+            <a href="/" className="inline-flex items-center gap-1.5 text-xs font-bold text-[#111827] hover:underline bg-white border-1.5 border-[#111111] px-3 py-1.5 rounded-lg shadow-[2px_2px_0px_#111111]">
               <span>← Return to Public Homepage</span>
             </a>
           </div>
@@ -810,56 +887,54 @@ export default function DashboardApp() {
   }
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-white p-4 sm:p-8 font-sans">
+    <div className="min-h-screen text-[#111827] p-4 sm:p-8 font-sans relative z-10">
       {saveSuccessMsg && (
-        <div className="fixed bottom-6 right-6 z-50 bg-emerald-500/90 text-black font-semibold text-xs px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md flex items-center gap-2">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#dcfce7] border-2 border-[#166534] text-[#14532d] font-bold text-xs px-4 py-3 rounded-xl shadow-[4px_4px_0px_#111111] flex items-center gap-2">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
           {saveSuccessMsg}
         </div>
       )}
 
-      <header className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-white/10 pb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-          </div>
+      <header className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-white/95 backdrop-blur-md border-2 border-[#111111] rounded-2xl p-5 sm:p-6 shadow-[5px_5px_0px_#111111]">
+        <div className="flex items-center gap-3.5">
+          <a href="/" title="The Kiruu Homepage">
+            <img src="/logo.png" alt="The Kiruu" className="h-12 w-auto cursor-pointer hover:scale-105 transition-transform" />
+          </a>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">KIRUUCONSOLE</h1>
-              <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold tracking-wider uppercase border border-cyan-500/30">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-['Vandelvira',Georgia,serif] text-[#111827]">KIRUU CONSOLE</h1>
+              <span className="px-2.5 py-0.5 rounded-full bg-[#fee6e3] text-[#111827] text-[10px] font-black tracking-wider uppercase border border-[#111111]">
                 v4.0
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-400">Sublink kill switches, master control & live system telemetry</p>
+            <p className="text-xs sm:text-sm text-[#475569] font-medium">Sublink kill switches, master control &amp; live system telemetry</p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs">
-            <span className={`w-2 h-2 rounded-full ${rtdbStatus === 'connected' ? 'bg-cyan-400' : 'bg-amber-400'}`} />
-            <span className="font-semibold text-slate-300">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border-2 border-[#111111] text-xs shadow-[2px_2px_0px_#111111]">
+            <span className={`w-2.5 h-2.5 rounded-full ${rtdbStatus === 'connected' ? 'bg-emerald-600' : 'bg-amber-600'}`} />
+            <span className="font-bold text-[#111827]">
               {rtdbStatus === 'connected' ? 'CLOUD: LIVE' : 'CLOUD: SYNCING'}
             </span>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs">
-            <span className={`w-2 h-2 rounded-full ${masterSwitch ? 'bg-emerald-400' : 'bg-rose-500'}`} />
-            <span className="font-semibold text-slate-300">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border-2 border-[#111111] text-xs shadow-[2px_2px_0px_#111111]">
+            <span className={`w-2.5 h-2.5 rounded-full ${masterSwitch ? 'bg-emerald-600' : 'bg-rose-600'}`} />
+            <span className="font-bold text-[#111827]">
               {masterSwitch ? 'ALL SYSTEMS ONLINE' : 'GLOBAL KILL SWITCH ACTIVE'}
             </span>
           </div>
 
           {currentUser && (
-            <span className="text-xs text-slate-400 font-mono bg-white/5 px-2.5 py-1 rounded-lg border border-white/10 hidden sm:inline-block">
+            <span className="text-xs text-[#111827] font-mono font-semibold bg-slate-100 px-2.5 py-1 rounded-lg border-1.5 border-[#111111] hidden sm:inline-block">
               {currentUser.email}
             </span>
           )}
 
           <button
             onClick={handleLogout}
-            className="px-3.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-semibold transition flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-rose-50 border-2 border-[#991b1b] text-[#991b1b] text-xs font-bold shadow-[2px_2px_0px_#991b1b] hover:shadow-[3px_3px_0px_#991b1b] active:translate-x-[1px] active:translate-y-[1px] transition flex items-center gap-1.5"
             title="Lock Console and End Session"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -869,13 +944,13 @@ export default function DashboardApp() {
       </header>
 
       <main className="max-w-7xl mx-auto space-y-8">
-        <div className="flex gap-2 p-1.5 rounded-2xl bg-white/5 border border-white/10 max-w-fit">
+        <div className="flex gap-2.5 flex-wrap">
           <button
             onClick={() => setActiveTab('sublinks')}
-            className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 ${
+            className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 border-2 border-[#111111] ${
               activeTab === 'sublinks'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black shadow-lg shadow-cyan-500/20'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-[#fee6e3] text-[#111827] shadow-[3px_3px_0px_#111111]'
+                : 'bg-white text-[#475569] shadow-[2px_2px_0px_#111111] hover:bg-slate-50'
             }`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
@@ -884,42 +959,42 @@ export default function DashboardApp() {
 
           <button
             onClick={() => setActiveTab('analytics')}
-            className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 ${
+            className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition flex items-center gap-2 border-2 border-[#111111] ${
               activeTab === 'analytics'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black shadow-lg shadow-cyan-500/20'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-[#fee6e3] text-[#111827] shadow-[3px_3px_0px_#111111]'
+                : 'bg-white text-[#475569] shadow-[2px_2px_0px_#111111] hover:bg-slate-50'
             }`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-            Telemetry & Analytics
+            Telemetry &amp; Analytics
           </button>
         </div>
 
         {activeTab === 'sublinks' && (
           <div className="space-y-6">
-            <div className={`p-6 sm:p-8 rounded-3xl border transition-all duration-300 ${
+            <div className={`p-6 sm:p-8 rounded-2xl border-2 transition-all duration-300 ${
               masterSwitch 
-                ? 'bg-gradient-to-r from-cyan-950/40 via-blue-950/20 to-[#0d121c] border-cyan-500/30 shadow-xl' 
-                : 'bg-gradient-to-r from-rose-950/50 via-red-950/30 to-[#0d121c] border-rose-500/50 shadow-2xl shadow-rose-950/40'
+                ? 'bg-white/95 border-[#111111] shadow-[6px_6px_0px_#111111]' 
+                : 'bg-rose-50/95 border-[#991b1b] shadow-[6px_6px_0px_#991b1b]'
             }`}>
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase border ${
                       masterSwitch 
-                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' 
-                        : 'bg-rose-500/30 border-rose-500/60 text-rose-300'
+                        ? 'bg-emerald-100 border-emerald-700 text-emerald-900' 
+                        : 'bg-rose-200 border-rose-800 text-rose-950'
                     }`}>
                       {masterSwitch ? "STATUS: NORMAL OPERATION" : "EMERGENCY: ALL SUBLINKS OFFLINE"}
                     </span>
-                    <span className="text-xs text-slate-400 font-mono">
+                    <span className="text-xs text-[#475569] font-mono font-semibold">
                       rnl-devdump.github.io / kiruu.xyz
                     </span>
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-white">
+                  <h2 className="text-xl sm:text-2xl font-bold font-['Vandelvira',Georgia,serif] text-[#111827]">
                     Master Kill Switch
                   </h2>
-                  <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
+                  <p className="text-xs sm:text-sm text-[#334155] font-medium max-w-2xl">
                     {masterSwitch 
                       ? "All sublinks follow their individual toggle configurations below. Engaging the master switch will immediately deactivate every sublink globally." 
                       : "The master kill switch is ENGAGED. Every visitor attempting to open any sublink will receive the service offline notice."}
@@ -929,10 +1004,10 @@ export default function DashboardApp() {
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     onClick={toggleMasterSwitch}
-                    className={`px-6 py-3.5 rounded-2xl font-black text-xs sm:text-sm tracking-wide uppercase transition active:scale-95 shadow-xl flex items-center gap-2 ${
+                    className={`px-6 py-3.5 rounded-xl font-extrabold text-xs sm:text-sm tracking-wide uppercase transition border-2 border-[#111111] flex items-center gap-2 ${
                       masterSwitch
-                        ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30'
-                        : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/30'
+                        ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-[4px_4px_0px_#111111] hover:shadow-[5px_5px_0px_#111111] active:translate-x-[2px] active:translate-y-[2px]'
+                        : 'bg-emerald-400 hover:bg-emerald-300 text-[#111827] shadow-[4px_4px_0px_#111111] hover:shadow-[5px_5px_0px_#111111] active:translate-x-[2px] active:translate-y-[2px]'
                     }`}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
@@ -942,14 +1017,14 @@ export default function DashboardApp() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setAllSublinks(true)}
-                      className="px-3.5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-300 transition"
+                      className="px-3.5 py-3 rounded-xl bg-white hover:bg-slate-50 border-2 border-[#111111] text-xs font-bold text-[#111827] shadow-[2px_2px_0px_#111111] transition"
                       title="Turn ON all sublinks"
                     >
                       Turn All On
                     </button>
                     <button
                       onClick={() => setAllSublinks(false)}
-                      className="px-3.5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-rose-300 transition"
+                      className="px-3.5 py-3 rounded-xl bg-rose-50 hover:bg-rose-100 border-2 border-[#991b1b] text-xs font-bold text-rose-900 shadow-[2px_2px_0px_#991b1b] transition"
                       title="Turn OFF all sublinks"
                     >
                       Turn All Off
@@ -959,22 +1034,286 @@ export default function DashboardApp() {
               </div>
             </div>
 
+            {/* Main Page Admin Announcement Banner (Top 5s Auto-Fade) */}
+            <div className={`p-6 sm:p-8 rounded-3xl border transition-all duration-300 ${
+              adminBanner.enabled && adminBanner.message
+                ? 'bg-gradient-to-r from-amber-950/40 via-orange-950/20 to-[#0d121c] border-amber-500/30 shadow-xl'
+                : 'bg-[#0d121c] border-white/10 shadow-xl'
+            } space-y-6`}>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-3">
+                    <span className={`px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase border flex items-center gap-2 ${
+                      adminBanner.enabled && adminBanner.message
+                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                        : 'bg-slate-800/80 border-slate-700 text-slate-400'
+                    }`}>
+                      <span className={`w-2 h-2 rounded-full ${adminBanner.enabled && adminBanner.message ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`} />
+                      {adminBanner.enabled && adminBanner.message ? "BROADCAST ACTIVE (5s AUTO-FADE)" : "BROADCAST MUTED"}
+                    </span>
+                    <span className="text-xs text-slate-400 font-mono">
+                      kiruu.xyz (index.html)
+                    </span>
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2.5">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="text-amber-400">
+                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    Main Page Admin Announcement
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
+                    Configure and deploy an admin banner pinned to the top of the main portal. When users land on the page, the message is displayed and automatically fades out after 5 seconds of visibility.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 self-start md:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => deployAdminBanner({ enabled: !adminBanner.enabled })}
+                    disabled={adminBannerDeploying}
+                    className={`px-5 py-3 rounded-2xl font-black text-xs sm:text-sm tracking-wide uppercase transition active:scale-95 shadow-lg flex items-center gap-2 ${
+                      adminBanner.enabled
+                        ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30'
+                        : 'bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-300 hover:to-orange-300 text-slate-950 shadow-amber-500/20'
+                    }`}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      {adminBanner.enabled ? (
+                        <circle cx="12" cy="12" r="10" />
+                      ) : (
+                        <polygon points="5 3 19 12 5 21 5 3" />
+                      )}
+                    </svg>
+                    {adminBanner.enabled ? "Mute / Turn Off" : "Enable Broadcast"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Message Input & Tone Controls */}
+              <div className="space-y-4 pt-2 border-t border-white/5">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                      Announcement Message Text
+                    </label>
+                    <span className="text-[11px] font-mono text-slate-500">
+                      {adminBannerMsgInput.length} chars
+                    </span>
+                  </div>
+                  <textarea
+                    rows={2}
+                    value={adminBannerMsgInput}
+                    onChange={(e) => setAdminBannerMsgInput(e.target.value)}
+                    placeholder="Enter broadcast message here (e.g. Scheduled maintenance on AI translation engine tonight at 10:00 PM UTC. Other apps remain unaffected.)"
+                    className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-sm focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400 placeholder:text-slate-600 transition"
+                  />
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  {/* Variant Selection */}
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      Banner Tone &amp; Palette
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { key: 'info', label: 'Notice (Peach)', bg: 'bg-[#fee6e3] text-slate-900 border-amber-300' },
+                        { key: 'warning', label: 'Maintenance (Amber)', bg: 'bg-[#fef3c7] text-amber-950 border-amber-400' },
+                        { key: 'alert', label: 'Urgent Alert (Rose)', bg: 'bg-[#ffe4e6] text-rose-950 border-rose-400' },
+                        { key: 'success', label: 'Update (Emerald)', bg: 'bg-[#d1fae5] text-emerald-950 border-emerald-400' },
+                      ].map(v => (
+                        <button
+                          key={v.key}
+                          type="button"
+                          onClick={() => setAdminBannerVariant(v.key)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+                            adminBannerVariant === v.key
+                              ? `${v.bg} shadow-md scale-105 border-2`
+                              : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          <span className="w-2 h-2 rounded-full border border-black/20" style={{
+                            backgroundColor: v.key === 'info' ? '#f43f5e' : v.key === 'warning' ? '#f59e0b' : v.key === 'alert' ? '#e11d48' : '#10b981'
+                          }} />
+                          {v.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Quick Preset Buttons */}
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                      Quick Presets
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAdminBannerMsgInput("Scheduled maintenance on TAWIR & Dataset Annotator tonight from 10:00 PM to 11:30 PM UTC.");
+                          setAdminBannerVariant("warning");
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-slate-300 font-medium transition"
+                      >
+                        Maintenance
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAdminBannerMsgInput("New release: Vibe Video calling & Chess WebAssembly are now fully live!");
+                          setAdminBannerVariant("success");
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-slate-300 font-medium transition"
+                      >
+                        New Release
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAdminBannerMsgInput("Notice: Network telemetry monitoring active. All services operating normally.");
+                          setAdminBannerVariant("info");
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-slate-300 font-medium transition"
+                      >
+                        Notice
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/5">
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => deployAdminBanner({ enabled: true })}
+                      disabled={adminBannerDeploying || !adminBannerMsgInput.trim()}
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50 text-slate-950 font-black text-xs uppercase tracking-wider transition shadow-lg shadow-cyan-500/20 flex items-center gap-2"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M22 2L11 13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
+                      </svg>
+                      {adminBannerDeploying ? "Deploying to Cloud..." : "Deploy & Broadcast Now"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={triggerAdminBannerPreview}
+                      className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-slate-200 transition flex items-center gap-1.5"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10" /><polygon points="10 8 16 12 10 16 10 8" />
+                      </svg>
+                      {previewActive ? "Replaying 5s Fade..." : "Test 5s Fade Preview"}
+                    </button>
+                  </div>
+
+                  {adminBanner.updatedAt && (
+                    <span className="text-[11px] text-slate-500 font-mono">
+                      Last deployed: {new Date(adminBanner.updatedAt).toLocaleTimeString()}
+                    </span>
+                  )}
+                </div>
+
+                {/* Live Preview Neo-Brutalist Box */}
+                <div className="pt-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                      Live Main Page Banner Preview
+                    </span>
+                    <span className="text-[11px] text-slate-500">
+                      Visual preview of top banner on index.html
+                    </span>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-2xl bg-[#090d15] border border-white/5 relative overflow-hidden flex flex-col items-center justify-center min-h-[96px]">
+                    <div
+                      style={{
+                        backgroundColor:
+                          adminBannerVariant === 'warning' ? '#fef3c7' :
+                          adminBannerVariant === 'alert' ? '#ffe4e6' :
+                          adminBannerVariant === 'success' ? '#d1fae5' : '#fee6e3',
+                        color: '#111827',
+                        border: '2px solid #111111',
+                        borderRadius: '14px',
+                        boxShadow: '4px 4px 0 #111111',
+                        transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+                      }}
+                      className={`w-full max-w-3xl p-3 sm:px-4 flex items-center justify-between gap-3 text-slate-900 ${
+                        previewFaded ? 'opacity-0 -translate-y-4 pointer-events-none' : 'opacity-100 translate-y-0'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          style={{
+                            backgroundColor:
+                              adminBannerVariant === 'warning' ? '#b45309' :
+                              adminBannerVariant === 'alert' ? '#e11d48' :
+                              adminBannerVariant === 'success' ? '#059669' : '#111111',
+                            color: '#ffffff',
+                            border: '1.5px solid #111111'
+                          }}
+                          className="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider shrink-0"
+                        >
+                          {adminBannerVariant === 'warning' ? 'MAINTENANCE' :
+                           adminBannerVariant === 'alert' ? 'URGENT ALERT' :
+                           adminBannerVariant === 'success' ? 'UPDATE' : 'NOTICE'}
+                        </span>
+                        <p className="text-xs sm:text-sm font-semibold truncate text-[#111827]">
+                          {adminBannerMsgInput.trim() || "Your admin message will appear here in high contrast..."}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="w-10 sm:w-12 h-1.5 rounded-full bg-black/15 overflow-hidden border border-black/20">
+                          <div
+                            style={{
+                              transition: previewActive ? 'width 5s linear' : 'none',
+                              width: previewActive ? '0%' : '100%'
+                            }}
+                            className="h-full bg-[#111111] rounded-full"
+                          />
+                        </div>
+                        <div
+                          style={{
+                            boxShadow: '2px 2px 0 #111111',
+                            border: '1.5px solid #111111'
+                          }}
+                          className="w-6 h-6 rounded-md bg-white flex items-center justify-center text-xs font-bold text-slate-900"
+                        >
+                          &times;
+                        </div>
+                      </div>
+                    </div>
+
+                    {previewFaded && (
+                      <span className="text-[11px] text-amber-300 font-mono mt-2 animate-pulse">
+                        [Banner faded out after 5 seconds of visibility]
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Dynamic Service Registration Panel */}
-            <div className="p-6 rounded-3xl bg-[#0d121c] border border-white/10 shadow-xl space-y-4">
+            <div className="p-6 rounded-2xl bg-white/95 border-2 border-[#111111] shadow-[5px_5px_0px_#111111] space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                  <h3 className="text-base font-bold text-[#111827] flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-600" />
                     Register New App / Service Key
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Dynamically create arbitrary killswitch flags across RTDB &amp; Firestore. Drop into your app: <code className="text-cyan-300 font-mono text-[11px]">&lt;script src="/killswitch.js" data-service="key"&gt;&lt;/script&gt;</code>
+                  <p className="text-xs text-[#475569] mt-0.5 font-medium">
+                    Dynamically create arbitrary killswitch flags across RTDB &amp; Firestore. Drop into your app: <code className="text-[#1e40af] bg-slate-100 px-1 py-0.5 rounded border border-slate-300 font-mono text-[11px]">&lt;script src="/killswitch.js" data-service="key"&gt;&lt;/script&gt;</code>
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowAddForm(!showAddForm)}
-                  className="px-4 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition flex items-center gap-1.5 self-start sm:self-auto"
+                  className="px-4 py-2 rounded-xl bg-[#fee6e3] hover:bg-[#ffdeda] border-2 border-[#111111] text-[#111827] text-xs font-bold shadow-[2px_2px_0px_#111111] transition flex items-center gap-1.5 self-start sm:self-auto"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                   {showAddForm ? "Close Form" : "+ Add Service"}
@@ -982,10 +1321,10 @@ export default function DashboardApp() {
               </div>
 
               {showAddForm && (
-                <form onSubmit={registerNewService} className="pt-4 border-t border-white/5 space-y-4">
+                <form onSubmit={registerNewService} className="pt-4 border-t-2 border-dashed border-[#111111]/20 space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                      <label className="block text-[10px] uppercase font-bold text-[#475569] mb-1">
                         Service Key Slug *
                       </label>
                       <input
@@ -998,12 +1337,12 @@ export default function DashboardApp() {
                           if (!newServicePath) setNewServicePath(`/${k}`);
                         }}
                         placeholder="e.g. tawir-quiz"
-                        className="w-full bg-[#080b12] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 font-mono"
+                        className="w-full bg-white border-2 border-[#111111] rounded-xl px-3.5 py-2 text-xs text-[#111827] placeholder:text-slate-400 focus:outline-none focus:shadow-[2px_2px_0px_#111111] font-mono shadow-[1px_1px_0px_#111111]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                      <label className="block text-[10px] uppercase font-bold text-[#475569] mb-1">
                         Display Name *
                       </label>
                       <input
@@ -1012,18 +1351,18 @@ export default function DashboardApp() {
                         value={newServiceName}
                         onChange={(e) => setNewServiceName(e.target.value)}
                         placeholder="e.g. TAWIR Quiz Game"
-                        className="w-full bg-[#080b12] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400"
+                        className="w-full bg-white border-2 border-[#111111] rounded-xl px-3.5 py-2 text-xs text-[#111827] placeholder:text-slate-400 focus:outline-none focus:shadow-[2px_2px_0px_#111111] shadow-[1px_1px_0px_#111111]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                      <label className="block text-[10px] uppercase font-bold text-[#475569] mb-1">
                         Category
                       </label>
                       <select
                         value={newServiceCategory}
                         onChange={(e) => setNewServiceCategory(e.target.value)}
-                        className="w-full bg-[#080b12] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                        className="w-full bg-white border-2 border-[#111111] rounded-xl px-3.5 py-2 text-xs text-[#111827] focus:outline-none focus:shadow-[2px_2px_0px_#111111] shadow-[1px_1px_0px_#111111]"
                       >
                         <option value="AI Assistant">AI Assistant</option>
                         <option value="Media">Media</option>
@@ -1038,7 +1377,7 @@ export default function DashboardApp() {
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                      <label className="block text-[10px] uppercase font-bold text-[#475569] mb-1">
                         Path Route
                       </label>
                       <input
@@ -1046,13 +1385,13 @@ export default function DashboardApp() {
                         value={newServicePath}
                         onChange={(e) => setNewServicePath(e.target.value)}
                         placeholder="e.g. /tawir-quiz"
-                        className="w-full bg-[#080b12] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 font-mono"
+                        className="w-full bg-white border-2 border-[#111111] rounded-xl px-3.5 py-2 text-xs text-[#111827] placeholder:text-slate-400 focus:outline-none focus:shadow-[2px_2px_0px_#111111] font-mono shadow-[1px_1px_0px_#111111]"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                    <label className="block text-[10px] uppercase font-bold text-[#475569] mb-1">
                       Maintenance Notice (Offline Message)
                     </label>
                     <input
@@ -1060,7 +1399,7 @@ export default function DashboardApp() {
                       value={newServiceMsg}
                       onChange={(e) => setNewServiceMsg(e.target.value)}
                       placeholder="e.g. This application is offline for scheduled maintenance."
-                      className="w-full bg-[#080b12] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400"
+                      className="w-full bg-white border-2 border-[#111111] rounded-xl px-3.5 py-2 text-xs text-[#111827] placeholder:text-slate-400 focus:outline-none focus:shadow-[2px_2px_0px_#111111] shadow-[1px_1px_0px_#111111]"
                     />
                   </div>
 
@@ -1068,13 +1407,13 @@ export default function DashboardApp() {
                     <button
                       type="button"
                       onClick={() => setShowAddForm(false)}
-                      className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-400 transition"
+                      className="px-4 py-2 rounded-xl bg-white border-2 border-[#111111] text-xs font-bold text-[#475569] hover:bg-slate-50 transition shadow-[2px_2px_0px_#111111]"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-lg shadow-emerald-500/20"
+                      className="px-5 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-[#111827] border-2 border-[#111111] text-xs font-extrabold transition shadow-[3px_3px_0px_#111111]"
                     >
                       Save &amp; Register Service
                     </button>
@@ -1084,27 +1423,27 @@ export default function DashboardApp() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-5 rounded-2xl bg-[#0d121c] border border-white/10">
-                <span className="text-xs text-slate-400 font-medium">Total Registered Sublinks</span>
-                <p className="text-2xl font-black text-white mt-1">{totalSublinks}</p>
+              <div className="p-5 rounded-2xl bg-white/95 border-2 border-[#111111] shadow-[4px_4px_0px_#111111]">
+                <span className="text-xs text-[#475569] font-bold uppercase tracking-wider">Total Sublinks</span>
+                <p className="text-2xl font-black text-[#111827] font-mono mt-1">{totalSublinks}</p>
               </div>
-              <div className="p-5 rounded-2xl bg-[#0d121c] border border-emerald-500/20">
-                <span className="text-xs text-emerald-400 font-medium">Services Active</span>
-                <p className="text-2xl font-black text-emerald-400 mt-1">{activeCount}</p>
+              <div className="p-5 rounded-2xl bg-white/95 border-2 border-emerald-700 shadow-[4px_4px_0px_#047857]">
+                <span className="text-xs text-emerald-800 font-bold uppercase tracking-wider">Services Active</span>
+                <p className="text-2xl font-black text-emerald-800 font-mono mt-1">{activeCount}</p>
               </div>
-              <div className="p-5 rounded-2xl bg-[#0d121c] border border-rose-500/20">
-                <span className="text-xs text-rose-400 font-medium">Services Disabled</span>
-                <p className="text-2xl font-black text-rose-400 mt-1">{disabledCount}</p>
+              <div className="p-5 rounded-2xl bg-white/95 border-2 border-rose-700 shadow-[4px_4px_0px_#be123c]">
+                <span className="text-xs text-rose-800 font-bold uppercase tracking-wider">Services Disabled</span>
+                <p className="text-2xl font-black text-rose-800 font-mono mt-1">{disabledCount}</p>
               </div>
-              <div className="p-5 rounded-2xl bg-[#0d121c] border border-cyan-500/20">
-                <span className="text-xs text-cyan-400 font-medium">Network Guard Status</span>
-                <p className="text-lg font-black text-cyan-400 mt-2 truncate">
+              <div className="p-5 rounded-2xl bg-white/95 border-2 border-[#111111] shadow-[4px_4px_0px_#111111]">
+                <span className="text-xs text-[#475569] font-bold uppercase tracking-wider">Network Guard</span>
+                <p className="text-base font-black text-[#111827] font-mono mt-2 truncate">
                   {masterSwitch ? (disabledCount === 0 ? "100% ONLINE" : "PARTIAL OFFLINE") : "KILL SWITCH ON"}
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-[#0d121c] border border-white/10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-white/95 border-2 border-[#111111] shadow-[4px_4px_0px_#111111]">
               <div className="flex flex-1 flex-wrap items-center gap-3">
                 <div className="relative min-w-[240px] flex-1 max-w-md">
                   <input
@@ -1112,10 +1451,10 @@ export default function DashboardApp() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search sublink by name, slug or category..."
-                    className="w-full bg-[#080b12] border border-white/15 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                    className="w-full bg-white border-2 border-[#111111] rounded-xl px-4 py-2.5 text-xs text-[#111827] placeholder:text-slate-400 focus:outline-none focus:shadow-[3px_3px_0px_#111111] shadow-[2px_2px_0px_#111111]"
                   />
                   {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">✕</button>
+                    <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-black font-bold text-xs">✕</button>
                   )}
                 </div>
 
@@ -1124,10 +1463,10 @@ export default function DashboardApp() {
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border border-[#111111] ${
                         selectedCategory === cat
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                          : 'bg-white/5 text-slate-400 hover:text-white border border-transparent'
+                          ? 'bg-[#fee6e3] text-[#111827] shadow-[2px_2px_0px_#111111]'
+                          : 'bg-white text-[#475569] hover:bg-slate-50'
                       }`}
                     >
                       {cat}
@@ -1137,19 +1476,15 @@ export default function DashboardApp() {
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex items-center gap-1 p-1 rounded-lg bg-white/5 border border-white/10">
+                <div className="flex items-center gap-1 p-1 rounded-xl bg-white border-2 border-[#111111] shadow-[2px_2px_0px_#111111]">
                   {['ALL', 'ONLINE', 'OFFLINE'].map(f => (
                     <button
                       key={f}
                       onClick={() => setStatusFilter(f)}
                       className={`px-3 py-1 rounded-md text-[11px] font-bold transition ${
                         statusFilter === f
-                          ? f === 'ONLINE'
-                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                            : f === 'OFFLINE'
-                              ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                              : 'bg-white/10 text-white border border-white/20'
-                          : 'text-slate-500 hover:text-slate-300'
+                          ? 'bg-[#fee6e3] text-[#111827] border border-[#111111] shadow-[1px_1px_0px_#111111]'
+                          : 'text-[#64748b] hover:text-[#111827]'
                       }`}
                     >
                       {f === 'ALL' ? 'All' : f === 'ONLINE' ? '● Live' : '● Turned Off'}
@@ -1159,7 +1494,7 @@ export default function DashboardApp() {
 
                 <button
                   onClick={downloadConfigJSON}
-                  className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 transition flex items-center gap-1.5"
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border-2 border-[#111111] text-xs font-bold text-[#111827] shadow-[2px_2px_0px_#111111] transition flex items-center gap-1.5"
                   title="Download sublinks.json to commit to GitHub Pages"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -1168,7 +1503,7 @@ export default function DashboardApp() {
 
                 <button
                   onClick={copyConfigJSON}
-                  className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 transition flex items-center gap-1.5"
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border-2 border-[#111111] text-xs font-bold text-[#111827] shadow-[2px_2px_0px_#111111] transition flex items-center gap-1.5"
                   title="Copy full JSON configuration to clipboard"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -1184,23 +1519,23 @@ export default function DashboardApp() {
                 return (
                   <div
                     key={key}
-                    className={`rounded-3xl p-5 border transition-all duration-200 flex flex-col justify-between ${
+                    className={`rounded-2xl p-5 border-2 transition-all duration-200 flex flex-col justify-between ${
                       isOnline
-                        ? 'bg-[#0d121c] border-white/10 hover:border-cyan-500/30 shadow-lg'
-                        : 'bg-[#150e12] border-rose-500/30 shadow-lg shadow-rose-950/20'
+                        ? 'bg-white/95 border-[#111111] shadow-[4px_4px_0px_#111111] hover:shadow-[6px_6px_0px_#111111]'
+                        : 'bg-rose-50/90 border-[#991b1b] shadow-[4px_4px_0px_#991b1b]'
                     }`}
                   >
                     <div>
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold tracking-wider uppercase text-slate-300">
+                          <span className="px-2.5 py-0.5 rounded-full bg-slate-100 border border-[#111111] text-[10px] font-black tracking-wider uppercase text-[#111827]">
                             {item.category}
                           </span>
                           <a
                             href={item.path + '/'}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs font-mono text-cyan-400 hover:underline flex items-center gap-1"
+                            className="text-xs font-mono font-bold text-[#1e40af] hover:underline flex items-center gap-1"
                             title="Open sublink in new tab"
                           >
                             {item.path}
@@ -1211,13 +1546,13 @@ export default function DashboardApp() {
                         <button
                           type="button"
                           onClick={() => toggleSublink(key)}
-                          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            item.enabled ? 'bg-cyan-500' : 'bg-slate-700'
+                          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-[#111111] transition-colors duration-200 ease-in-out focus:outline-none shadow-[2px_2px_0px_#111111] ${
+                            item.enabled ? 'bg-emerald-400' : 'bg-slate-300'
                           }`}
                           title={item.enabled ? 'Click to turn off' : 'Click to turn on'}
                         >
                           <span
-                            className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-slate-950 shadow-lg ring-0 transition duration-200 ease-in-out ${
+                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-[#111111] shadow transition duration-200 ease-in-out mt-[2px] ml-[2px] ${
                               item.enabled ? 'translate-x-5' : 'translate-x-0'
                             }`}
                           />
@@ -1226,37 +1561,37 @@ export default function DashboardApp() {
 
                       <div className="mb-4">
                         <div className="flex items-center gap-2 mb-1.5">
-                          <h3 className="text-base font-bold text-white">{item.name}</h3>
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-black tracking-wide uppercase border ${
+                          <h3 className="text-lg font-bold font-['Vandelvira',Georgia,serif] text-[#111827]">{item.name}</h3>
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold tracking-wide uppercase border ${
                             isOnline
-                              ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400'
-                              : 'bg-rose-500/15 border-rose-500/40 text-rose-400'
+                              ? 'bg-emerald-100 border-emerald-700 text-emerald-900'
+                              : 'bg-rose-100 border-rose-700 text-rose-900'
                           }`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${
-                              isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'
+                              isOnline ? 'bg-emerald-600' : 'bg-rose-600'
                             }`} />
                             {isOnline ? 'Live' : 'Turned Off'}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
+                        <p className="text-xs text-[#334155] leading-relaxed line-clamp-2 font-medium">
                           {item.description}
                         </p>
                       </div>
 
-                      <div className="mb-4 flex items-center justify-between text-xs pt-3 border-t border-white/5">
-                        <span className="text-slate-400 font-medium">Status reason:</span>
-                        <span className={`font-bold px-2 py-0.5 rounded-md ${
+                      <div className="mb-4 flex items-center justify-between text-xs pt-3 border-t border-slate-200">
+                        <span className="text-[#475569] font-medium">Status reason:</span>
+                        <span className={`font-bold px-2 py-0.5 rounded-md border ${
                           isOnline 
-                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                            : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                            ? 'bg-emerald-50 text-emerald-900 border-emerald-300' 
+                            : 'bg-rose-50 text-rose-900 border-rose-300'
                         }`}>
                           {isOnline ? 'Enabled' : (!masterSwitch ? 'Master kill switch' : 'Manually disabled')}
                         </span>
                       </div>
                     </div>
 
-                    <div className="mt-2 pt-3 border-t border-white/5">
-                      <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1.5">
+                    <div className="mt-2 pt-3 border-t border-slate-200">
+                      <label className="block text-[10px] uppercase font-bold text-[#475569] mb-1.5">
                         Offline Visitor Message
                       </label>
                       <input
@@ -1264,13 +1599,13 @@ export default function DashboardApp() {
                         value={item.message || ''}
                         onChange={(e) => updateSublinkMessage(key, e.target.value)}
                         placeholder="Notice shown when offline..."
-                        className="w-full bg-[#080b12] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-cyan-400"
+                        className="w-full bg-[#f8fafc] border border-[#111111] rounded-lg px-3 py-1.5 text-xs text-[#111827] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-black"
                       />
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-[11px]">
+                    <div className="mt-3 pt-2.5 border-t border-slate-200 flex items-center justify-between text-[11px]">
                       <div className="flex items-center gap-1.5 font-mono text-slate-500 truncate max-w-[200px]">
-                        <span className="bg-white/5 px-1.5 py-0.5 rounded text-slate-400">/{key}</span>
+                        <span className="bg-slate-100 border border-slate-300 px-1.5 py-0.5 rounded text-[#111827]">/{key}</span>
                         <span className="text-[10px] text-slate-500">data-service="{key}"</span>
                       </div>
 
@@ -1278,7 +1613,7 @@ export default function DashboardApp() {
                         <button
                           type="button"
                           onClick={() => deleteService(key)}
-                          className="text-rose-400 hover:text-rose-300 font-semibold text-xs px-2 py-0.5 rounded hover:bg-rose-500/10 transition"
+                          className="text-rose-700 hover:text-rose-900 font-bold text-xs px-2 py-0.5 rounded border border-rose-300 bg-rose-50 hover:bg-rose-100 transition"
                           title="Remove this dynamic service"
                         >
                           Delete
@@ -1299,47 +1634,39 @@ export default function DashboardApp() {
                 title="Total Visits Logged" 
                 value={stats.totalVisits} 
                 icon={<UsersIcon />} 
-                color="from-indigo-500/20 to-indigo-600/10" 
-                border="border-indigo-500/30" 
               />
               <StatCard 
                 title="Visits Today" 
                 value={stats.visitsToday} 
                 icon={<ZapIcon />} 
-                color="from-emerald-500/20 to-emerald-600/10" 
-                border="border-emerald-500/30" 
               />
               <StatCard 
                 title="Total Kiruu AI Queries" 
                 value={stats.totalAiQueries} 
                 icon={<SparklesIcon />} 
-                color="from-purple-500/20 to-purple-600/10" 
-                border="border-purple-500/30" 
               />
               <StatCard 
                 title="AI Queries Today" 
                 value={stats.aiToday} 
                 icon={<FlameIcon />} 
-                color="from-amber-500/20 to-amber-600/10" 
-                border="border-amber-500/30" 
               />
             </div>
 
-            <section className="bg-[#0d121c] rounded-2xl p-6 border border-white/10 shadow-xl">
+            <section className="bg-white/95 rounded-2xl p-6 border-2 border-[#111111] shadow-[5px_5px_0px_#111111]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
                 <div className="flex items-center gap-2">
-                  <FlameIcon className="w-5 h-5 text-amber-400" />
-                  <h2 className="text-lg font-bold">Activity Heatmap</h2>
-                  <span className="text-xs font-normal text-slate-400">(Peak Usage Hours & Days)</span>
+                  <FlameIcon className="w-5 h-5 text-amber-600" />
+                  <h2 className="text-lg font-bold font-['Vandelvira',Georgia,serif] text-[#111827]">Activity Heatmap</h2>
+                  <span className="text-xs font-semibold text-[#475569]">(Peak Usage Hours &amp; Days)</span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-400">
+                <div className="flex items-center gap-2 text-xs text-[#475569] font-bold">
                   <span>Less</span>
-                  <div className="flex gap-1">
-                    <span className="w-3 h-3 rounded bg-white/5" />
-                    <span className="w-3 h-3 rounded bg-indigo-900/60" />
-                    <span className="w-3 h-3 rounded bg-indigo-600/80" />
-                    <span className="w-3 h-3 rounded bg-purple-500" />
-                    <span className="w-3 h-3 rounded bg-emerald-400" />
+                  <div className="flex gap-1 items-center">
+                    <span className="w-3.5 h-3.5 rounded bg-slate-100 border border-slate-300" />
+                    <span className="w-3.5 h-3.5 rounded bg-emerald-100 border border-emerald-300" />
+                    <span className="w-3.5 h-3.5 rounded bg-emerald-300 border border-emerald-500" />
+                    <span className="w-3.5 h-3.5 rounded bg-emerald-500 border border-emerald-700" />
+                    <span className="w-3.5 h-3.5 rounded bg-emerald-700 border border-emerald-950" />
                   </div>
                   <span>More</span>
                 </div>
@@ -1347,8 +1674,8 @@ export default function DashboardApp() {
 
               <div className="overflow-x-auto">
                 <div className="min-w-[650px]">
-                  <div className="grid grid-cols-25 gap-1 mb-2 text-[10px] text-slate-400 text-center">
-                    <div className="text-left font-medium">Day / Hr</div>
+                  <div className="grid grid-cols-25 gap-1 mb-2 text-[10px] text-[#475569] font-bold text-center">
+                    <div className="text-left font-bold text-[#111827]">Day / Hr</div>
                     {HOURS.map(h => (
                       <div key={h}>{h < 10 ? `0${h}` : h}</div>
                     ))}
@@ -1356,17 +1683,17 @@ export default function DashboardApp() {
 
                   {DAYS.map((dayName, dayIdx) => (
                     <div key={dayName} className="grid grid-cols-25 gap-1 mb-1 items-center">
-                      <div className="text-xs font-semibold text-slate-300 text-left">{dayName}</div>
+                      <div className="text-xs font-bold text-[#111827] text-left">{dayName}</div>
                       {HOURS.map(hour => {
                         const count = stats.heatmap[dayIdx][hour];
                         const ratio = count / stats.maxCellCount;
 
-                        let bg = 'bg-white/5';
+                        let bg = 'bg-slate-100 border border-slate-200 text-transparent';
                         if (count > 0) {
-                          if (ratio > 0.75) bg = 'bg-emerald-400 text-black font-bold';
-                          else if (ratio > 0.4) bg = 'bg-purple-500';
-                          else if (ratio > 0.15) bg = 'bg-indigo-600';
-                          else bg = 'bg-indigo-900/60';
+                          if (ratio > 0.75) bg = 'bg-emerald-700 border border-emerald-950 text-white font-black';
+                          else if (ratio > 0.4) bg = 'bg-emerald-500 border border-emerald-700 text-white font-bold';
+                          else if (ratio > 0.15) bg = 'bg-emerald-300 border border-emerald-500 text-emerald-950 font-bold';
+                          else bg = 'bg-emerald-100 border border-emerald-300 text-emerald-900 font-semibold';
                         }
 
                         return (
@@ -1386,9 +1713,9 @@ export default function DashboardApp() {
             </section>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-[#0d121c] rounded-2xl p-6 border border-white/10 shadow-xl">
-                <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
-                  <DesktopIcon className="w-4 h-4 text-cyan-400" />
+              <div className="bg-white/95 rounded-2xl p-6 border-2 border-[#111111] shadow-[4px_4px_0px_#111111]">
+                <h3 className="text-sm font-bold text-[#111827] mb-4 flex items-center gap-2">
+                  <DesktopIcon className="w-4 h-4 text-indigo-600" />
                   Device Breakdown
                 </h3>
                 <div className="space-y-3">
@@ -1397,14 +1724,14 @@ export default function DashboardApp() {
                     return (
                       <div key={dev} className="space-y-1">
                         <div className="flex justify-between text-xs">
-                          <span className="flex items-center gap-2 text-slate-300">
-                            <DeviceIcon deviceType={dev} className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="flex items-center gap-2 text-[#111827] font-semibold">
+                            <DeviceIcon deviceType={dev} className="w-3.5 h-3.5 text-slate-500" />
                             {dev}
                           </span>
-                          <span className="font-semibold">{count} ({pct}%)</span>
+                          <span className="font-extrabold text-[#111827]">{count} ({pct}%)</span>
                         </div>
-                        <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-cyan-400 rounded-full" style={{ width: `${pct}%` }} />
+                        <div className="h-2 bg-slate-100 border border-slate-300 rounded-full overflow-hidden">
+                          <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${pct}%` }} />
                         </div>
                       </div>
                     );
@@ -1412,9 +1739,9 @@ export default function DashboardApp() {
                 </div>
               </div>
 
-              <div className="bg-[#0d121c] rounded-2xl p-6 border border-white/10 shadow-xl">
-                <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
-                  <svg className="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="9" y1="4" x2="9" y2="20"/></svg>
+              <div className="bg-white/95 rounded-2xl p-6 border-2 border-[#111111] shadow-[4px_4px_0px_#111111]">
+                <h3 className="text-sm font-bold text-[#111827] mb-4 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="9" y1="4" x2="9" y2="20"/></svg>
                   Operating Systems
                 </h3>
                 <div className="space-y-3">
@@ -1423,14 +1750,14 @@ export default function DashboardApp() {
                     return (
                       <div key={os} className="space-y-1">
                         <div className="flex justify-between text-xs">
-                          <span className="flex items-center gap-2 text-slate-300">
+                          <span className="flex items-center gap-2 text-[#111827] font-semibold">
                             <OsLogo os={os} className="w-3.5 h-3.5" />
                             {os || 'Unknown'}
                           </span>
-                          <span className="font-semibold">{count} ({pct}%)</span>
+                          <span className="font-extrabold text-[#111827]">{count} ({pct}%)</span>
                         </div>
-                        <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-purple-400 rounded-full" style={{ width: `${pct}%` }} />
+                        <div className="h-2 bg-slate-100 border border-slate-300 rounded-full overflow-hidden">
+                          <div className="h-full bg-purple-600 rounded-full" style={{ width: `${pct}%` }} />
                         </div>
                       </div>
                     );
@@ -1438,9 +1765,9 @@ export default function DashboardApp() {
                 </div>
               </div>
 
-              <div className="bg-[#0d121c] rounded-2xl p-6 border border-white/10 shadow-xl">
-                <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
-                  <GlobeIcon className="w-4 h-4 text-emerald-400" />
+              <div className="bg-white/95 rounded-2xl p-6 border-2 border-[#111111] shadow-[4px_4px_0px_#111111]">
+                <h3 className="text-sm font-bold text-[#111827] mb-4 flex items-center gap-2">
+                  <GlobeIcon className="w-4 h-4 text-emerald-600" />
                   Top Browsers
                 </h3>
                 <div className="space-y-3">
@@ -1449,14 +1776,14 @@ export default function DashboardApp() {
                     return (
                       <div key={b} className="space-y-1">
                         <div className="flex justify-between text-xs">
-                          <span className="flex items-center gap-2 text-slate-300">
+                          <span className="flex items-center gap-2 text-[#111827] font-semibold">
                             <BrowserLogo browser={b} className="w-3.5 h-3.5" />
                             {b || 'Unknown'}
                           </span>
-                          <span className="font-semibold">{count} ({pct}%)</span>
+                          <span className="font-extrabold text-[#111827]">{count} ({pct}%)</span>
                         </div>
-                        <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${pct}%` }} />
+                        <div className="h-2 bg-slate-100 border border-slate-300 rounded-full overflow-hidden">
+                          <div className="h-full bg-emerald-600 rounded-full" style={{ width: `${pct}%` }} />
                         </div>
                       </div>
                     );
@@ -1471,14 +1798,14 @@ export default function DashboardApp() {
   );
 }
 
-function StatCard({ title, value, icon, color, border }) {
+function StatCard({ title, value, icon }) {
   return (
-    <div className={`rounded-2xl p-5 bg-gradient-to-br ${color} ${border} border shadow-lg backdrop-blur-md relative overflow-hidden`}>
+    <div className="rounded-2xl p-5 bg-white/95 border-2 border-[#111111] shadow-[4px_4px_0px_#111111] relative overflow-hidden">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-300">{title}</span>
-        <div className="p-2 rounded-xl bg-white/10 text-white">{icon}</div>
+        <span className="text-xs font-bold text-[#475569] uppercase tracking-wider">{title}</span>
+        <div className="p-2 rounded-xl bg-[#fee6e3] border border-[#111111] text-[#111827]">{icon}</div>
       </div>
-      <p className="text-3xl font-black text-white mt-3 tracking-tight">{value}</p>
+      <p className="text-3xl font-black text-[#111827] font-mono mt-3 tracking-tight">{value}</p>
     </div>
   );
 }

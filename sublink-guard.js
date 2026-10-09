@@ -18,6 +18,29 @@
   function renderOfflineUI(customNotice) {
     window.stop && window.stop();
 
+    // 1. Immediately neutralize Flutter Web bootstrap, service worker, and engine loader
+    try {
+      window._flutter = {
+        loader: {
+          load: function() { return new Promise(function() {}); },
+          loadEntrypoint: function() { return new Promise(function() {}); },
+          didCreateEngineInitializer: function() {}
+        },
+        buildConfig: null
+      };
+      Object.defineProperty(window, '_flutter', {
+        configurable: false,
+        writable: false,
+        value: window._flutter
+      });
+    } catch (e) {}
+
+    // 2. Remove base tag to avoid corrupting asset URL paths
+    try {
+      const baseEl = document.querySelector('base');
+      if (baseEl) baseEl.remove();
+    } catch (e) {}
+
     function inject() {
       document.title = "Service Offline | TheKiruu";
       
@@ -29,6 +52,15 @@
         document.head.appendChild(meta);
       }
 
+      // Neutralize conflicting styles and scripts from host application
+      try {
+        document.querySelectorAll('style:not(#kiruu-guard-styles), link[rel="stylesheet"]').forEach(el => el.remove());
+        document.querySelectorAll('script:not([src*="dotlottie"]):not([src*="sublink-guard"])').forEach(s => {
+          s.type = 'text/plain';
+          s.remove();
+        });
+      } catch (e) {}
+
       // Inject DotLottie module if not already loaded
       if (!document.querySelector('script[src*="dotlottie"]')) {
         const script = document.createElement('script');
@@ -37,14 +69,36 @@
         document.head.appendChild(script);
       }
 
+      const origin = window.location.origin;
+      const logoUrl = origin + '/logo.png';
+      const bgUrl = origin + '/bg.jpg';
+      const fontUrl = origin + '/fonts/Vandelvira-Regular.ttf';
+
+      // Enforce host background reset
+      try {
+        document.documentElement.style.cssText = "background-color: #dceef9 !important; background: #dceef9 !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; overflow: hidden !important;";
+        document.body.style.cssText = "background-color: #dceef9 !important; background: #dceef9 !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; overflow: hidden !important;";
+      } catch (e) {}
+
       document.body.innerHTML = `
-        <style>
+        <style id="kiruu-guard-styles">
           @font-face {
             font-family: 'Vandelvira';
-            src: url('/fonts/Vandelvira-Regular.ttf') format('truetype');
+            src: url('${fontUrl}') format('truetype');
             font-weight: normal;
             font-style: normal;
             font-display: swap;
+          }
+
+          :root {
+            --font-display: 'Vandelvira', Georgia, serif;
+            --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --color-ink: #111827;
+            --color-subtext: #475569;
+            --color-bg-base: #dceef9;
+            --color-peach: #fee6e3;
+            --color-peach-hover: #ffdeda;
+            --color-border: #111111;
           }
 
           *, *::before, *::after {
@@ -53,19 +107,24 @@
             box-sizing: border-box;
           }
 
-          html, body {
-            width: 100%;
-            min-height: 100vh;
-            min-height: 100dvh;
-            font-family: 'Vandelvira', Georgia, -apple-system, sans-serif;
-            color: #1A1A19;
-            background-color: #dceef9;
-            overflow-x: hidden;
-            overflow-y: auto;
+          #kiruu-offline-root {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            background-color: var(--color-bg-base) !important;
+            color: var(--color-ink) !important;
+            font-family: var(--font-ui) !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            z-index: 2147483647 !important;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            margin: 0;
-            padding: 0;
           }
 
           #kiruu-bg-layer {
@@ -74,7 +133,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #e3ffe7 0%, #d9e7ff 45%, rgba(0, 0, 0, 0.45) 100%), url('/bg.jpg');
+            background: linear-gradient(90deg, #e3ffe7 0%, #d9e7ff 45%, rgba(0, 0, 0, 0.42) 100%), url('${bgUrl}');
             background-size: cover;
             background-position: center;
             z-index: 0;
@@ -85,12 +144,14 @@
             position: relative;
             z-index: 10;
             width: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
             min-height: 100vh;
             min-height: 100dvh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: clamp(20px, 4vw, 40px);
+            padding: clamp(20px, 4vw, 44px) clamp(16px, 4vw, 36px);
             box-sizing: border-box;
           }
 
@@ -99,12 +160,12 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            margin-bottom: 20px;
+            margin-bottom: clamp(16px, 3vw, 28px);
             z-index: 10;
           }
 
           .kiruu-logo {
-            height: clamp(52px, 8vw, 84px);
+            height: clamp(48px, 7vw, 76px);
             width: auto;
             max-width: 220px;
             object-fit: contain;
@@ -125,29 +186,65 @@
 
           main.kiruu-main {
             width: 100%;
-            max-width: 650px;
             margin: auto 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: clamp(32px, 5vw, 64px);
             padding: clamp(12px, 2.5vw, 24px) 0;
-            text-align: left;
             position: relative;
             z-index: 10;
           }
 
+          .kiruu-content-col {
+            flex: 1 1 540px;
+            max-width: 620px;
+            text-align: left;
+          }
+
+          .kiruu-status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 14px;
+            background-color: var(--color-peach);
+            border: 2px solid var(--color-border);
+            border-radius: 20px;
+            font-family: var(--font-ui);
+            font-size: 13px;
+            font-weight: 700;
+            color: #111;
+            box-shadow: 2.5px 2.5px 0 var(--color-border);
+            margin-bottom: 12px;
+            user-select: none;
+          }
+
+          .kiruu-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #e11d48;
+            border: 1px solid #9f1239;
+            display: inline-block;
+          }
+
           .kiruu-subtitle {
-            font-size: clamp(1.15rem, 2.4vw, 1.35rem);
+            font-family: var(--font-display);
+            font-size: clamp(1.15rem, 2.2vw, 1.35rem);
             font-weight: 600;
-            margin-bottom: 8px;
-            color: #1A1A19;
-            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            color: #334155;
+            letter-spacing: -0.01em;
           }
 
           .kiruu-title {
-            font-size: clamp(2.6rem, 7vw, 4.25rem);
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 6.5vw, 4.25rem);
             font-weight: 700;
             line-height: 1.05;
-            margin: 8px 0 16px 0;
-            color: #1A1A19;
-            letter-spacing: -0.01em;
+            margin: 6px 0 16px 0;
+            color: var(--color-ink);
+            letter-spacing: -0.02em;
             display: flex;
             flex-direction: column;
           }
@@ -156,14 +253,25 @@
             display: block;
           }
 
+          .kiruu-notice-box {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(8px);
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            box-shadow: 3.5px 3.5px 0 var(--color-border);
+            padding: clamp(12px, 2vw, 16px) clamp(14px, 2.5vw, 20px);
+            margin-bottom: clamp(20px, 3.5vw, 28px);
+            max-width: 540px;
+          }
+
           .kiruu-notice {
-            font-size: clamp(1.05rem, 2.3vw, 1.35rem);
-            font-weight: 600;
-            margin: 0 0 clamp(24px, 4vw, 32px) 0;
-            color: #2a2a28;
-            line-height: 1.45;
-            max-width: 580px;
+            font-family: var(--font-ui);
+            font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+            font-weight: 500;
+            color: #1f2937;
+            line-height: 1.5;
             word-break: break-word;
+            margin: 0;
           }
 
           .kiruu-actions-wrap {
@@ -171,26 +279,27 @@
             align-items: center;
             gap: 16px;
             flex-wrap: wrap;
+            margin-bottom: clamp(16px, 2.5vw, 22px);
           }
 
           .button-rn {
             align-items: center;
-            background-color: #fee6e3;
-            border: 2px solid #111;
+            background-color: var(--color-peach);
+            border: 2px solid var(--color-border);
             border-radius: 10px;
             color: #111;
             cursor: pointer;
             display: inline-flex;
-            font-family: 'Vandelvira', Georgia, serif;
+            font-family: var(--font-display);
             font-weight: 700;
-            font-size: clamp(15.5px, 2.2vw, 17.5px);
+            font-size: clamp(15px, 2vw, 17px);
             min-height: 48px;
             height: 48px;
             justify-content: center;
-            padding: 0 clamp(22px, 3.5vw, 32px);
+            padding: 0 clamp(20px, 3vw, 28px);
             position: relative;
             text-decoration: none;
-            box-shadow: 4px 4px 0 #111;
+            box-shadow: 4px 4px 0 var(--color-border);
             transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
             white-space: nowrap;
             user-select: none;
@@ -200,23 +309,22 @@
 
           .button-rn:hover {
             transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 #111;
-            background-color: #ffdeda;
+            box-shadow: 6px 6px 0 var(--color-border);
+            background-color: var(--color-peach-hover);
           }
 
           .button-rn:active {
             transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0 #111;
+            box-shadow: 2px 2px 0 var(--color-border);
             background-color: #ffd2cc;
           }
 
           .button-rn:focus-visible {
-            outline: 3px solid #111;
+            outline: 3px solid var(--color-border);
             outline-offset: 3px;
           }
 
           .kiruu-admin-links {
-            margin-top: clamp(20px, 3.5vw, 28px);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -225,8 +333,8 @@
 
           .kiruu-admin-links a, 
           .kiruu-admin-links button {
-            font-family: 'Vandelvira', Georgia, serif;
-            font-size: 15px;
+            font-family: var(--font-ui);
+            font-size: 14px;
             font-weight: 600;
             color: #374151;
             background: none;
@@ -240,18 +348,19 @@
             align-items: center;
             padding: 6px 8px;
             border-radius: 6px;
-            transition: color 0.15s ease;
+            transition: color 0.15s ease, background-color 0.15s ease;
             -webkit-tap-highlight-color: transparent;
           }
 
           .kiruu-admin-links a:hover, 
           .kiruu-admin-links button:hover {
             color: #111;
+            background-color: rgba(255, 255, 255, 0.45);
           }
 
           .kiruu-admin-links a:focus-visible, 
           .kiruu-admin-links button:focus-visible {
-            outline: 2px solid #111;
+            outline: 2px solid var(--color-border);
             outline-offset: 2px;
           }
 
@@ -262,14 +371,20 @@
             padding: 0 4px;
           }
 
+          .kiruu-visual-col {
+            flex: 0 1 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
           .kiruu-lottie-wrap {
-            position: fixed;
-            bottom: clamp(20px, 3.5vw, 36px);
-            right: clamp(20px, 3.5vw, 36px);
-            width: clamp(200px, 22vw, 270px);
-            height: clamp(200px, 22vw, 270px);
-            z-index: 5;
-            pointer-events: none;
+            width: clamp(240px, 28vw, 360px);
+            height: clamp(240px, 28vw, 360px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(4px 4px 0 rgba(17, 17, 17, 0.12));
           }
 
           .kiruu-lottie {
@@ -277,39 +392,84 @@
             height: 100%;
           }
 
-          @media (max-width: 768px) {
+          /* Reflow for Tablet & Mobile portrait */
+          @media (max-width: 860px) {
             #kiruu-bg-layer {
-              background: linear-gradient(180deg, rgba(227, 255, 231, 0.94) 0%, rgba(217, 231, 255, 0.94) 50%, rgba(240, 245, 255, 0.92) 100%), url('/bg.jpg');
+              background: linear-gradient(180deg, rgba(227, 255, 231, 0.94) 0%, rgba(217, 231, 255, 0.94) 50%, rgba(240, 245, 255, 0.92) 100%), url('${bgUrl}');
               background-size: cover;
             }
 
             .kiruu-viewport-container {
               padding: clamp(16px, 4vw, 24px) clamp(14px, 4vw, 20px);
               justify-content: flex-start;
-              min-height: 100vh;
-              min-height: 100dvh;
             }
 
             header.kiruu-header {
-              margin-bottom: 12px;
+              justify-content: center;
+              margin-bottom: 8px;
             }
 
             .kiruu-logo {
-              height: 48px;
+              height: clamp(44px, 10vw, 56px);
             }
 
             main.kiruu-main {
+              flex-direction: column-reverse;
+              align-items: center;
+              text-align: center;
+              gap: 16px;
+              margin: auto 0;
+              padding: 8px 0 16px 0;
+            }
+
+            .kiruu-content-col {
               max-width: 100%;
-              margin: 0;
-              padding: 4px 0 16px 0;
+              width: 100%;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              text-align: center;
+            }
+
+            .kiruu-status-chip {
+              margin-bottom: 8px;
+            }
+
+            .kiruu-subtitle {
+              text-align: center;
+              margin-bottom: 4px;
+            }
+
+            .kiruu-title {
+              align-items: center;
+              text-align: center;
+              margin: 4px 0 12px 0;
+            }
+
+            .kiruu-notice-box {
+              width: 100%;
+              max-width: 460px;
+              margin-left: auto;
+              margin-right: auto;
+              margin-bottom: 18px;
+              text-align: center;
+            }
+
+            .kiruu-visual-col {
+              flex: 0 0 auto;
+              width: 100%;
+              justify-content: center;
             }
 
             .kiruu-lottie-wrap {
-              position: static;
-              width: clamp(120px, 32vw, 150px);
-              height: clamp(120px, 32vw, 150px);
-              margin: 0 0 14px 0;
-              align-self: flex-start;
+              width: clamp(130px, 34vw, 175px);
+              height: clamp(130px, 34vw, 175px);
+            }
+
+            .kiruu-actions-wrap {
+              width: 100%;
+              justify-content: center;
+              margin-bottom: 16px;
             }
 
             .button-rn {
@@ -318,14 +478,14 @@
             }
 
             .kiruu-admin-links {
-              justify-content: flex-start;
-              margin-top: 20px;
+              justify-content: center;
             }
           }
 
+          /* Small mobile adjustments */
           @media (max-width: 380px) {
             .kiruu-viewport-container {
-              padding: 16px 12px 20px 12px;
+              padding: 14px 12px 18px 12px;
             }
 
             .kiruu-logo {
@@ -333,18 +493,16 @@
             }
 
             .kiruu-lottie-wrap {
-              width: 110px;
-              height: 110px;
-              margin-bottom: 10px;
+              width: 120px;
+              height: 120px;
             }
 
             .kiruu-title {
-              font-size: 2.2rem;
+              font-size: 2.15rem;
             }
 
             .kiruu-notice {
-              font-size: 1rem;
-              margin-bottom: 20px;
+              font-size: 0.95rem;
             }
 
             .button-rn {
@@ -355,82 +513,165 @@
             }
           }
 
-          @media (max-height: 500px) and (orientation: landscape) {
+          /* Landscape mobile adjustments */
+          @media (max-height: 520px) and (orientation: landscape) {
             .kiruu-viewport-container {
-              padding: 14px 20px;
+              padding: 12px 20px;
             }
 
             header.kiruu-header {
-              margin-bottom: 8px;
+              margin-bottom: 6px;
+              justify-content: flex-start;
             }
 
             .kiruu-logo {
-              height: 38px;
+              height: 36px;
             }
 
-            .kiruu-lottie-wrap {
+            main.kiruu-main {
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              gap: 20px;
+              margin: auto 0;
+              padding: 2px 0;
+              text-align: left;
+            }
+
+            .kiruu-content-col {
+              align-items: flex-start;
+              text-align: left;
+              max-width: 60%;
+            }
+
+            .kiruu-status-chip {
               display: none;
             }
 
+            .kiruu-subtitle {
+              text-align: left;
+              font-size: 1rem;
+              margin-bottom: 2px;
+            }
+
             .kiruu-title {
-              font-size: 2rem;
-              margin: 4px 0 8px 0;
+              align-items: flex-start;
+              text-align: left;
+              font-size: 1.85rem;
+              margin: 2px 0 6px 0;
+            }
+
+            .kiruu-notice-box {
+              margin-left: 0;
+              margin-right: 0;
+              margin-bottom: 8px;
+              padding: 6px 10px;
+              max-width: 100%;
+              text-align: left;
             }
 
             .kiruu-notice {
-              font-size: 0.95rem;
-              margin-bottom: 14px;
+              font-size: 0.85rem;
+            }
+
+            .kiruu-actions-wrap {
+              justify-content: flex-start;
+              margin-bottom: 6px;
             }
 
             .button-rn {
               width: auto;
-              min-height: 44px;
-              height: 44px;
+              min-height: 42px;
+              height: 42px;
+              font-size: 14px;
+              padding: 0 16px;
+            }
+
+            .kiruu-admin-links {
+              justify-content: flex-start;
+            }
+
+            .kiruu-visual-col {
+              max-width: 35%;
+            }
+
+            .kiruu-lottie-wrap {
+              width: 120px;
+              height: 120px;
             }
           }
         </style>
 
-        <div id="kiruu-bg-layer" aria-hidden="true"></div>
+        <div id="kiruu-offline-root">
+          <div id="kiruu-bg-layer" aria-hidden="true"></div>
 
-        <div class="kiruu-viewport-container">
-          <header class="kiruu-header">
-            <img src="/logo.png" alt="The Kiruu" class="kiruu-logo" id="kiruu-logo-trigger" role="button" tabindex="0" title="TheKiruu" aria-label="The Kiruu logo">
-          </header>
+          <div class="kiruu-viewport-container">
+            <header class="kiruu-header">
+              <img src="${logoUrl}" alt="The Kiruu" class="kiruu-logo" id="kiruu-logo-trigger" role="button" tabindex="0" title="TheKiruu" aria-label="The Kiruu logo">
+            </header>
 
-          <main class="kiruu-main">
-            <div class="kiruu-lottie-wrap">
-              <dotlottie-player
-                src="https://lottie.host/08baa036-4ce6-4674-a6a1-3fdab92aa5c4/v73OLDfSlm.json"
-                background="transparent"
-                speed="1"
-                class="kiruu-lottie"
-                loop
-                autoplay
-                aria-label="Maintenance in progress animation"
-              ></dotlottie-player>
-            </div>
+            <main class="kiruu-main">
+              <div class="kiruu-content-col">
+                <div class="kiruu-status-chip" role="status" aria-live="polite">
+                  <span class="kiruu-status-dot" aria-hidden="true"></span>
+                  <span>Service Offline</span>
+                </div>
 
-            <p class="kiruu-subtitle">We'll be right back!</p>
-            <h1 class="kiruu-title">
-              <span class="kiruu-title-line">Service</span>
-              <span class="kiruu-title-line">Offline</span>
-            </h1>
-            <p class="kiruu-notice" id="kiruu-notice-text"></p>
+                <p class="kiruu-subtitle">We'll be right back!</p>
+                <h1 class="kiruu-title">
+                  <span class="kiruu-title-line">Service</span>
+                  <span class="kiruu-title-line">Offline</span>
+                </h1>
 
-            <div class="kiruu-actions-wrap">
-              <a href="/" class="button-rn" role="button">
-                Return to Homepage
-              </a>
-            </div>
+                <div class="kiruu-notice-box">
+                  <p class="kiruu-notice" id="kiruu-notice-text"></p>
+                </div>
 
-            <div class="kiruu-admin-links">
-              <a href="/dashboard/">Console Login</a>
-              <span class="kiruu-admin-divider" aria-hidden="true">•</span>
-              <button id="admin-bypass-trigger" type="button">Admin Unlock</button>
-            </div>
-          </main>
+                <div class="kiruu-actions-wrap">
+                  <a href="/" class="button-rn" role="button">
+                    Return to Homepage
+                  </a>
+                </div>
+
+                <div class="kiruu-admin-links">
+                  <a href="/dashboard/">Console Login</a>
+                  <span class="kiruu-admin-divider" aria-hidden="true">•</span>
+                  <button id="admin-bypass-trigger" type="button">Admin Unlock</button>
+                </div>
+              </div>
+
+              <div class="kiruu-visual-col">
+                <div class="kiruu-lottie-wrap">
+                  <dotlottie-player
+                    src="https://lottie.host/08baa036-4ce6-4674-a6a1-3fdab92aa5c4/v73OLDfSlm.json"
+                    background="transparent"
+                    speed="1"
+                    class="kiruu-lottie"
+                    loop
+                    autoplay
+                    aria-label="Maintenance in progress animation"
+                  ></dotlottie-player>
+                </div>
+              </div>
+            </main>
+          </div>
         </div>
       `;
+
+      // Prevent host frameworks from dynamically appending canvas, views, or foreign DOM nodes
+      try {
+        const observer = new MutationObserver((mutations) => {
+          for (const m of mutations) {
+            for (const node of m.addedNodes) {
+              if (node.nodeType === 1 && node.id !== 'kiruu-offline-root' && !node.closest('#kiruu-offline-root') && node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE') {
+                node.remove();
+              }
+            }
+          }
+        });
+        observer.observe(document.body, { childList: true });
+        observer.observe(document.documentElement, { childList: true });
+      } catch (e) {}
 
       const noticeEl = document.getElementById("kiruu-notice-text");
       if (noticeEl) {

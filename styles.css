@@ -773,3 +773,182 @@ input:focus-visible,
   outline-offset: 3px !important;
 }
 
+/* Admin Announcement Banner (5-Second Auto-Fade) */
+.admin-announcement-banner {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translate(-50%, -18px);
+  width: min(1040px, calc(100% - 32px));
+  z-index: 2500;
+  background-color: var(--bg-peach, #fee6e3);
+  border: 2px solid var(--border-dark, #111111);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--border-dark, #111111);
+  padding: 10px 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.admin-announcement-banner.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.admin-announcement-banner.fade-out {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -22px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+}
+
+.admin-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-banner-badge {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border-dark, #111111);
+  background-color: var(--border-dark, #111111);
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.admin-banner-message {
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.4;
+  margin: 0;
+  word-break: break-word;
+}
+
+.admin-banner-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.admin-banner-timer {
+  width: 44px;
+  height: 5px;
+  background-color: rgba(17, 17, 17, 0.14);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(17, 17, 17, 0.18);
+}
+
+.admin-banner-progress {
+  height: 100%;
+  width: 100%;
+  background-color: var(--border-dark, #111111);
+  border-radius: 999px;
+  transform-origin: left;
+}
+
+.admin-banner-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #ffffff;
+  border: 1.5px solid var(--border-dark, #111111);
+  border-radius: 8px;
+  color: #111111;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--border-dark, #111111);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  padding: 0;
+}
+
+.admin-banner-close:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--border-dark, #111111);
+  background-color: #f8fafc;
+}
+
+.admin-banner-close:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--border-dark, #111111);
+}
+
+/* Variant Palettes */
+.admin-announcement-banner.admin-banner-info {
+  background-color: #fee6e3;
+}
+.admin-announcement-banner.admin-banner-info .admin-banner-badge {
+  background-color: #111111;
+  color: #ffffff;
+}
+
+.admin-announcement-banner.admin-banner-warning {
+  background-color: #fef3c7;
+}
+.admin-announcement-banner.admin-banner-warning .admin-banner-badge {
+  background-color: #b45309;
+  border-color: #78350f;
+  color: #ffffff;
+}
+
+.admin-announcement-banner.admin-banner-alert {
+  background-color: #ffe4e6;
+}
+.admin-announcement-banner.admin-banner-alert .admin-banner-badge {
+  background-color: #e11d48;
+  border-color: #9f1239;
+  color: #ffffff;
+}
+
+.admin-announcement-banner.admin-banner-success {
+  background-color: #d1fae5;
+}
+.admin-announcement-banner.admin-banner-success .admin-banner-badge {
+  background-color: #059669;
+  border-color: #047857;
+  color: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .admin-announcement-banner {
+    top: 10px;
+    width: calc(100% - 20px);
+    padding: 10px 12px;
+  }
+  .admin-banner-inner {
+    gap: 10px;
+  }
+  .admin-banner-message {
+    font-size: 12.5px;
+  }
+  .admin-banner-close {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+

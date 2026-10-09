@@ -1,6 +1,12 @@
 {
-  "updatedAt": "2026-10-01T04:10:00.000Z",
+  "updatedAt": "2026-10-09T18:20:00.000Z",
   "masterSwitch": true,
+  "adminAnnouncement": {
+    "enabled": false,
+    "message": "",
+    "variant": "info",
+    "updatedAt": "2026-10-09T18:20:00.000Z"
+  },
   "sublinks": {
     "tawir": {
       "name": "TAWIR (v3 Assistant)",

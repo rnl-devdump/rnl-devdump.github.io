@@ -118,6 +118,16 @@
   function renderMaintenance(message) {
     if (window.stop) window.stop();
 
+    try {
+      window._flutter = { loader: { load: () => new Promise(() => {}) } };
+      Object.defineProperty(window, '_flutter', { configurable: false, writable: false, value: window._flutter });
+    } catch (e) {}
+
+    try {
+      const baseEl = document.querySelector('base');
+      if (baseEl) baseEl.remove();
+    } catch (e) {}
+
     function injectHtml() {
       document.title = "Service Offline | Kiruu Ecosystem";
 
@@ -136,16 +146,19 @@
             padding: 0;
             box-sizing: border-box;
           }
-          html, body {
-            width: 100%;
-            min-height: 100vh;
-            min-height: 100dvh;
-            background-color: #0b0f19;
-            color: #f3f4f6;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            overflow-x: hidden;
-            overflow-y: auto;
+          #ks-overlay-root {
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            background-color: #0b0f19 !important;
+            color: #f3f4f6 !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
             -webkit-font-smoothing: antialiased;
+            z-index: 2147483647 !important;
           }
           .ks-container {
             min-height: 100vh;
@@ -257,14 +270,16 @@
             }
           }
         </style>
-        <div class="ks-container">
-          <div class="ks-card">
-            <div class="ks-icon">⚠️</div>
-            <h1 class="ks-title">Service Temporarily Offline</h1>
-            <p class="ks-desc" id="ks-desc-text"></p>
-            <div class="ks-actions">
-              <a href="/" class="ks-btn-primary">Return to Kiruu Portal</a>
-              <button id="admin-bypass-btn" class="ks-btn-secondary" type="button">Admin Bypass</button>
+        <div id="ks-overlay-root">
+          <div class="ks-container">
+            <div class="ks-card">
+              <div class="ks-icon">⚠️</div>
+              <h1 class="ks-title">Service Temporarily Offline</h1>
+              <p class="ks-desc" id="ks-desc-text"></p>
+              <div class="ks-actions">
+                <a href="/" class="ks-btn-primary">Return to Kiruu Portal</a>
+                <button id="admin-bypass-btn" class="ks-btn-secondary" type="button">Admin Bypass</button>
+              </div>
             </div>
           </div>
         </div>
