@@ -78,7 +78,7 @@
       <section class="lobby-action-col" aria-label="Meeting configuration">
         <div class="action-card">
           <h1 class="lobby-title">Video Call &amp; Screen Share</h1>
-          <p class="lobby-subtitle">Set a passcode for your meeting. Both host and guest require the passcode to enter.</p>
+          <p class="lobby-subtitle">Start an instant meeting or enter a room code. The host will admit participants.</p>
 
           <!-- User Name Input -->
           <div class="input-group">
@@ -98,8 +98,6 @@
 
           <!-- Tab Panel 1: Create Meeting -->
           <div id="panel-create" class="tab-panel active" role="tabpanel">
-            <!-- Removed passcode input -->
-
             <div class="input-group">
               <label for="custom-room-id">
                 Meeting Code
@@ -127,28 +125,26 @@
               <input type="text" id="join-room-id" placeholder="e.g. vibe-829-104" required>
             </div>
 
-            <!-- Removed passcode input -->
-
             <button id="btn-join-meeting" class="btn-primary full-width" type="button">
               <span class="material-symbols-outlined">login</span>
               Ask to Join
             </button>
+
+            <!-- Waiting for Admission Box -->
+            <div id="join-waiting-box" class="join-waiting-box hidden" role="status" aria-live="polite">
+              <div class="join-waiting-spinner" aria-hidden="true"></div>
+              <div class="join-waiting-content">
+                <span class="join-waiting-title">Waiting for host to admit you...</span>
+                <span class="join-waiting-sub">The meeting host was notified. You will enter automatically once admitted.</span>
+              </div>
+              <button id="btn-cancel-join" class="btn-cancel-join" type="button">Cancel Request</button>
+            </div>
           </div>
 
           <!-- Error notice box -->
           <div id="lobby-error-notice" class="error-notice-box hidden" role="alert">
             <span class="material-symbols-outlined">error</span>
             <span id="lobby-error-message"></span>
-          </div>
-        </div>
-
-        <!-- Admission Prompt (Hidden by default, shown to Host) -->
-        <div id="admission-modal" class="action-card hidden" style="margin-top: 20px; border-color: var(--accent-cyan);">
-          <h2 class="lobby-title" style="font-size: 18px;">Someone wants to join</h2>
-          <p class="lobby-subtitle" id="admission-guest-name">Guest Name</p>
-          <div style="display: flex; gap: 10px;">
-            <button id="btn-admit-guest" class="btn-primary" style="flex: 1;">Admit</button>
-            <button id="btn-deny-guest" class="btn-secondary" style="flex: 1; background: var(--color-danger); color: white; border: none;">Deny</button>
           </div>
         </div>
 
@@ -191,18 +187,15 @@
           <span class="material-symbols-outlined icon-hero">group</span>
         </div>
         <h2>Waiting for peer to join</h2>
-        <p class="waiting-desc">Share this meeting code and passcode to begin video calling or screen sharing.</p>
+        <p class="waiting-desc">Share this meeting code with your guest. When they ask to join, you will be prompted to admit them.</p>
         <div class="share-box">
           <div class="share-info-row">
             <span class="share-label">Meeting code:</span>
             <code id="waiting-code-display" class="share-value">...</code>
           </div>
-          <div class="share-info-row">
-            <!-- Removed passcode display -->
-          </div>
           <button id="btn-copy-waiting-invite" class="btn-copy-invite" type="button">
             <span class="material-symbols-outlined icon-inline">content_copy</span>
-            Copy Joining Info
+            Copy Meeting Link
           </button>
         </div>
       </div>
@@ -316,18 +309,15 @@
       <div id="drawer-panel-info" class="drawer-panel hidden">
         <div class="info-section">
           <h4>Joining Details</h4>
-          <p class="info-description">Share these credentials with the guest. Both the code and passcode are required for entry.</p>
+          <p class="info-description">Share this meeting code with your guest. You can admit them when they ask to join.</p>
           <div class="info-data-card">
             <div class="info-data-row">
               <span class="info-sublabel">Meeting code:</span>
               <strong id="drawer-room-code" class="info-code-text">vibe-room</strong>
             </div>
-            <div class="info-data-row">
-              <!-- Removed passcode display -->
-            </div>
             <button id="btn-copy-drawer-link" class="btn-copy-full" type="button">
               <span class="material-symbols-outlined icon-inline">content_copy</span>
-              Copy Joining Details
+              Copy Meeting Link
             </button>
           </div>
         </div>
@@ -366,6 +356,31 @@
         <button id="btn-return-lobby" class="btn-secondary" type="button">
           <span class="material-symbols-outlined icon-inline">home</span>
           Return to Portal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admission Request Modal (Google Meet style knock dialog) -->
+  <div id="admission-modal" class="admission-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="admission-title">
+    <div class="admission-card">
+      <div class="admission-card-header">
+        <div class="admission-avatar" id="admission-guest-avatar" aria-hidden="true">G</div>
+        <div class="admission-info">
+          <span class="admission-badge">Knock Notification</span>
+          <h2 id="admission-title" class="admission-title">Someone wants to join this call</h2>
+          <p class="admission-guest-name" id="admission-guest-name">Guest Name</p>
+        </div>
+      </div>
+      <p class="admission-note">Admit them to allow two-way audio, video, and screen sharing.</p>
+      <div class="admission-card-actions">
+        <button id="btn-deny-guest" class="btn-deny" type="button">
+          <span class="material-symbols-outlined icon-inline">close</span>
+          Deny
+        </button>
+        <button id="btn-admit-guest" class="btn-admit" type="button">
+          <span class="material-symbols-outlined icon-inline">check</span>
+          Admit
         </button>
       </div>
     </div>

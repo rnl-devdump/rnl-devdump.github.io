@@ -89,7 +89,10 @@ const elements = {
   tabBtnJoin: document.getElementById("tab-btn-join"),
   panelCreate: document.getElementById("panel-create"),
   panelJoin: document.getElementById("panel-join"),
+  joinWaitingBox: document.getElementById("join-waiting-box"),
+  btnCancelJoin: document.getElementById("btn-cancel-join"),
   admissionModal: document.getElementById("admission-modal"),
+  admissionGuestAvatar: document.getElementById("admission-guest-avatar"),
   admissionGuestName: document.getElementById("admission-guest-name"),
   btnAdmitGuest: document.getElementById("btn-admit-guest"),
   btnDenyGuest: document.getElementById("btn-deny-guest"),
@@ -167,9 +170,40 @@ const elements = {
 // ============================================================
 
 /**
- * SHA-256 Passcode Hasher using Web Crypto API
+ * Soft 2-tone melodic chime for knock/admission alerts using Web Audio API
  */
-// Removed hashPasscode
+function playKnockChime() {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const now = ctx.currentTime;
+
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = "sine";
+    osc1.frequency.setValueAtTime(523.25, now); // C5
+    gain1.gain.setValueAtTime(0.18, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.35);
+
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(659.25, now + 0.12); // E5
+    gain2.gain.setValueAtTime(0.22, now + 0.12);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(now + 0.12);
+    osc2.stop(now + 0.55);
+  } catch (e) {
+    console.debug("Audio knock chime suppressed by policy:", e);
+  }
+}
 
 /**
  * Generate readable room code
@@ -581,6 +615,20 @@ function handlePeerDataMessage(data) {
     case "peer-screen":
       showToast(data.presenting ? `${data.ownerName || "Peer"} started screen sharing` : `${data.ownerName || "Peer"} stopped screen sharing`);
       break;
+
+    case "peer-leave":
+      if (state.role === "host") {
+        showToast(`${state.peerName || "Guest"} left the call`);
+        state.peerName = "";
+        elements.remoteTile.classList.add("hidden");
+        elements.waitingOverlay.classList.remove("hidden");
+        setConnectionStatus("connecting", "Waiting for peer");
+        setPinnedTile(null);
+      } else {
+        showToast("The host ended the call");
+        leaveCall();
+      }
+      break;
   }
 }
 
@@ -691,6 +739,13 @@ async function startMeetingAsHost() {
 
     state.isRoomDocCreated = true;
 
+    // Reflect room parameter in address bar
+    try {
+      window.history.replaceState({}, "", `${window.location.pathname}?room=${roomId}`);
+    } catch (e) {
+      console.debug("URL update skipped:", e);
+    }
+
     // Transition to meeting UI
     enterMeetingUI();
 
@@ -736,10 +791,26 @@ async function startMeetingAsHost() {
 
       // Admission logic
       if (data.pendingGuest && !data.guestName) {
+        if (elements.admissionModal.classList.contains("hidden")) {
+          playKnockChime();
+        }
         elements.admissionGuestName.textContent = data.pendingGuest;
+        if (elements.admissionGuestAvatar) {
+          elements.admissionGuestAvatar.textContent = data.pendingGuest.charAt(0).toUpperCase();
+        }
         elements.admissionModal.classList.remove("hidden");
       } else {
         elements.admissionModal.classList.add("hidden");
+      }
+
+      // Peer left logic (Host side)
+      if (data.guestLeft && state.peerName) {
+        showToast(`${state.peerName || "Guest"} left the call`);
+        state.peerName = "";
+        elements.remoteTile.classList.add("hidden");
+        elements.waitingOverlay.classList.remove("hidden");
+        setConnectionStatus("connecting", "Waiting for peer");
+        setPinnedTile(null);
       }
     });
   } catch (err) {
@@ -801,19 +872,30 @@ async function joinMeetingAsGuest() {
       return;
     }
 
-    elements.btnJoinMeeting.textContent = "Asking to join...";
+    // Show waiting box in UI
+    elements.btnJoinMeeting.classList.add("hidden");
+    elements.joinWaitingBox.classList.remove("hidden");
+
     await updateDoc(roomRef, {
-      pendingGuest: userName
+      pendingGuest: userName,
+      deniedGuest: null
     });
 
-    elements.btnJoinMeeting.textContent = "Waiting for host to admit...";
+    // Reflect room in address bar
+    try {
+      window.history.replaceState({}, "", `${window.location.pathname}?room=${roomId}`);
+    } catch (e) {
+      console.debug("URL update skipped:", e);
+    }
 
     state.roomUnsubscribe = onSnapshot(roomRef, async snapshot => {
       if (!snapshot.exists()) return;
       const data = snapshot.data();
 
       if (data.deniedGuest === userName) {
-        showLobbyError("Host denied your request to join.");
+        showLobbyError("The host declined your request to join.");
+        elements.joinWaitingBox.classList.add("hidden");
+        elements.btnJoinMeeting.classList.remove("hidden");
         elements.btnJoinMeeting.disabled = false;
         elements.btnJoinMeeting.textContent = "Ask to Join";
         if (state.roomUnsubscribe) {
@@ -824,7 +906,9 @@ async function joinMeetingAsGuest() {
       }
 
       if (data.guestName === userName && !state.isRoomDocCreated) {
-        // Admitted
+        // Admitted by host!
+        elements.joinWaitingBox.classList.add("hidden");
+        elements.btnJoinMeeting.classList.remove("hidden");
         state.role = "guest";
         state.roomId = roomId;
         state.userName = userName;
@@ -883,6 +967,12 @@ async function joinMeetingAsGuest() {
 
         if (Array.isArray(data.chatMessages)) {
           syncFirestoreChat(data.chatMessages);
+        }
+
+        // Host left logic (Guest side)
+        if (data.hostLeft || data.status === "ended") {
+          showToast("The host ended the call");
+          leaveCall();
         }
       }
     });
@@ -1233,10 +1323,10 @@ function escapeHtml(string) {
 function copyJoiningDetails() {
   const currentOrigin = window.location.origin;
   const inviteUrl = `${currentOrigin}/vibe/?room=${state.roomId}`;
-  const inviteText = `Join my Vibe meeting:\nLink: ${inviteUrl}\nMeeting code: ${state.roomId}\nPasscode: ${state.passcode}`;
+  const inviteText = `Join my Vibe meeting:\nLink: ${inviteUrl}\nMeeting code: ${state.roomId}`;
 
   navigator.clipboard.writeText(inviteText).then(() => {
-    showToast("Joining details copied to clipboard!");
+    showToast("Meeting link copied to clipboard!");
   }).catch(() => {
     showToast("Could not copy automatically. Check permissions.");
   });
@@ -1248,6 +1338,14 @@ function copyJoiningDetails() {
 
 function leaveCall() {
   clearInterval(state.timerInterval);
+
+  // Notify peer and Firestore before teardown
+  sendDataMessage({ type: "peer-leave", role: state.role });
+  if (state.role === "host") {
+    updateRoomDocumentStatus({ hostLeft: true, status: "ended" });
+  } else if (state.role === "guest") {
+    updateRoomDocumentStatus({ guestLeft: true, guestName: null, status: "waiting" });
+  }
 
   if (state.screenStream) {
     state.screenStream.getTracks().forEach(t => t.stop());
@@ -1324,34 +1422,60 @@ function setupEventListeners() {
     showLobbyError(null);
   });
 
+  // Cancel Join Request while waiting in lobby
+  elements.btnCancelJoin.addEventListener("click", async () => {
+    elements.joinWaitingBox.classList.add("hidden");
+    elements.btnJoinMeeting.classList.remove("hidden");
+    elements.btnJoinMeeting.disabled = false;
+    elements.btnJoinMeeting.textContent = "Ask to Join";
+
+    if (state.roomUnsubscribe) {
+      state.roomUnsubscribe();
+      state.roomUnsubscribe = null;
+    }
+
+    const roomId = (elements.joinRoomId.value || "").trim().toLowerCase();
+    if (roomId) {
+      try {
+        const roomRef = doc(db, "validations", `vibe_room_${roomId}`);
+        await updateDoc(roomRef, { pendingGuest: null });
+      } catch (e) {
+        console.debug("Cancel request update skipped:", e);
+      }
+    }
+  });
+
   // Admit / Deny Guests
   elements.btnAdmitGuest.addEventListener("click", async () => {
     if (!state.roomId) return;
+    const guestName = elements.admissionGuestName.textContent;
     elements.admissionModal.classList.add("hidden");
     try {
       const roomRef = doc(db, "validations", `vibe_room_${state.roomId}`);
-      const guestName = elements.admissionGuestName.textContent;
       await updateDoc(roomRef, {
         guestName: guestName,
         pendingGuest: null
       });
+      showToast(`Admitted ${guestName} to the call`);
     } catch (e) {
-      console.error(e);
+      console.error("Admit guest failed:", e);
+      showToast("Failed to admit guest. Check connection.");
     }
   });
 
   elements.btnDenyGuest.addEventListener("click", async () => {
     if (!state.roomId) return;
+    const guestName = elements.admissionGuestName.textContent;
     elements.admissionModal.classList.add("hidden");
     try {
       const roomRef = doc(db, "validations", `vibe_room_${state.roomId}`);
-      const guestName = elements.admissionGuestName.textContent;
       await updateDoc(roomRef, {
         deniedGuest: guestName,
         pendingGuest: null
       });
+      showToast(`Denied entry for ${guestName}`);
     } catch (e) {
-      console.error(e);
+      console.error("Deny guest failed:", e);
     }
   });
 
@@ -1447,12 +1571,26 @@ function setupEventListeners() {
   });
 
   // Global Keyboard Shortcuts (Escape closes drawer or unpins)
+  // Keyboard Accessibility: Escape key handling
   window.addEventListener("keydown", e => {
     if (e.key === "Escape") {
-      if (state.activeDrawer) {
+      if (!elements.admissionModal.classList.contains("hidden")) {
+        elements.btnDenyGuest.click();
+      } else if (state.activeDrawer) {
         closeDrawer();
       } else if (state.pinnedTile) {
         setPinnedTile(null);
+      }
+    }
+  });
+
+  // Teardown notification when window / tab is closed
+  window.addEventListener("beforeunload", () => {
+    if (state.roomId) {
+      if (state.role === "host") {
+        updateRoomDocumentStatus({ hostLeft: true, status: "ended" });
+      } else if (state.role === "guest") {
+        updateRoomDocumentStatus({ guestLeft: true, guestName: null, status: "waiting" });
       }
     }
   });
