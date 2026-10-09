@@ -491,6 +491,7 @@ header {
   border: 1px solid #10b981;
   padding: 2px 8px;
   border-radius: 12px;
+  transition: all 0.2s ease;
 }
 
 .status-badge .mini-dot {
@@ -498,6 +499,56 @@ header {
   height: 6px;
   border-radius: 50%;
   background-color: #10b981;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+}
+
+/* Dynamic Service Offline & Maintenance Badges (High Contrast WCAG AAA) */
+.status-badge.status-offline {
+  color: #991b1b !important;
+  background-color: #fee2e2 !important;
+  border: 1.5px solid #ef4444 !important;
+}
+
+.status-badge.status-offline .mini-dot {
+  background-color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.status-badge.status-maintenance {
+  color: #92400e !important;
+  background-color: #fef3c7 !important;
+  border: 1.5px solid #f59e0b !important;
+}
+
+.status-badge.status-maintenance .mini-dot {
+  background-color: #d97706 !important;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.status-badge.status-partial {
+  color: #1e40af !important;
+  background-color: #dbeafe !important;
+  border: 1.5px solid #3b82f6 !important;
+}
+
+.status-badge.status-partial .mini-dot {
+  background-color: #2563eb !important;
+}
+
+/* Offline Launch Button tactile indicator */
+.button-rn.app-launch-btn.btn-offline {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+  border-color: var(--border-dark) !important;
+}
+
+.button-rn.app-launch-btn.btn-offline:hover {
+  background-color: #fecaca !important;
+}
+
+.app-card.card-offline {
+  border-color: var(--border-dark);
 }
 
 .app-card-body {
