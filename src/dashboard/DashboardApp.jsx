@@ -403,7 +403,7 @@ export default function DashboardApp() {
       console.error(e);
     }
 
-    // 1. Immediately broadcast to Cloud Firestore (Live source of truth across all devices)
+    // 1. Broadcast to Cloud Firestore (Live source of truth across all devices)
     try {
       setSaveSuccessMsg('Syncing to Cloud Firestore...');
 
@@ -411,25 +411,12 @@ export default function DashboardApp() {
         await setDoc(doc(db, 'validations', 'system_status'), {
           configJson: JSON.stringify(payload)
         }, { merge: true });
+        setSaveSuccessMsg('Status updated live across ALL devices!');
+      } else {
+        throw new Error('Firestore SDK unavailable, attempting REST fallback');
       }
-
-      // REST fallback write to guarantee persistence
-      const cloudPayload = {
-        fields: {
-          configJson: {
-            stringValue: JSON.stringify(payload)
-          }
-        }
-      };
-      await fetch(FIRESTORE_SYNC_URL, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cloudPayload)
-      });
-
-      setSaveSuccessMsg('Status updated live across ALL devices!');
     } catch (err) {
-      console.warn("Cloud Firestore sync warning:", err);
+      console.warn("Cloud Firestore SDK write warning:", err);
       try {
         const cloudPayload = {
           fields: {
@@ -438,11 +425,12 @@ export default function DashboardApp() {
             }
           }
         };
-        await fetch(FIRESTORE_SYNC_URL, {
+        const res = await fetch(FIRESTORE_SYNC_URL, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(cloudPayload)
         });
+        if (!res.ok) throw new Error(`REST PATCH failed with status ${res.status}`);
         setSaveSuccessMsg('Status updated live across ALL devices!');
       } catch (restErr) {
         console.warn("Firestore REST write error:", restErr);

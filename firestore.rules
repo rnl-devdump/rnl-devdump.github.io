@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        request.auth.token.email.matches('.*@kiruu\\.xyz$') ||
+        request.auth.token.email in ['admin@kiruu.xyz', 'iamk1ruu@gmail.com']
+      );
+    }
+
+    // 1. System status & Killswitch: Anyone can read status, only authenticated admins can write
+    match /validations/system_status {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 2. Forum posts: Anyone can read, validated creation allowed, updates/deletions restricted to admin
+    match /forum_posts/{postId} {
+      allow read: if true;
+      allow create: if request.resource.data.title is string
+                    && request.resource.data.title.size() > 0
+                    && request.resource.data.title.size() <= 200
+                    && request.resource.data.content is string
+                    && request.resource.data.content.size() > 0
+                    && request.resource.data.content.size() <= 10000;
+      allow update, delete: if isAdmin();
+    }
+
+    // 3. Telemetry logs (device_logs and ai_usage_logs): Public write with length caps, Admin read-only
+    match /device_logs/{logId} {
+      allow create: if request.resource.data.page is string;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /ai_usage_logs/{logId} {
+      allow create: if request.resource.data.prompt is string
+                    && request.resource.data.prompt.size() <= 250;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // 4. WebRTC Signaling Rooms (Faerie & Vibe)
+    match /rooms/{roomId} {
+      allow read, write: if true;
+      match /callerCandidates/{candidateId} {
+        allow read, write: if true;
+      }
+      match /calleeCandidates/{candidateId} {
+        allow read, write: if true;
+      }
+    }
+
+    // 5. Watch Parties (Movie & Anime)
+    match /watchParties/{partyId} {
+      allow read, write: if true;
+    }
+
+    // 6. Dataset and Translations
+    match /translations/{transId} {
+      allow read: if true;
+      allow write: if isAuthenticated() || isAdmin();
+    }
+
+    match /validations/{valId}/validated_translations/{entryId} {
+      allow read: if true;
+      allow write: if isAuthenticated() || isAdmin();
+    }
+
+    // Default deny for unmatched collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

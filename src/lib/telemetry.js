@@ -42,12 +42,21 @@ export function getDeviceInfo() {
   };
 }
 
+function scrubPii(text) {
+  if (typeof text !== "string") return "";
+  return text
+    .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[REDACTED_EMAIL]")
+    .replace(/\b(?:\+?\d{1,3}[- ]?)?\(?\d{2,4}\)?[- ]?\d{3,4}[- ]?\d{3,4}\b/g, "[REDACTED_PHONE]")
+    .trim()
+    .slice(0, 160);
+}
+
 export async function trackVisitEvent(page = 'movie') {
   try {
     const info = getDeviceInfo();
     await addDoc(collection(db, 'device_logs'), {
       ...info,
-      page,
+      page: String(page || 'unknown').slice(0, 32),
       createdAt: serverTimestamp(),
     });
   } catch (err) {
@@ -57,15 +66,17 @@ export async function trackVisitEvent(page = 'movie') {
 
 export async function trackAiEvent(promptText, engine = 'Gemini') {
   try {
+    const safePrompt = scrubPii(promptText);
     const info = getDeviceInfo();
     await addDoc(collection(db, 'ai_usage_logs'), {
       ...info,
-      prompt: promptText,
-      engine,
-      promptLength: promptText.length,
+      prompt: safePrompt,
+      engine: String(engine || 'Unknown').slice(0, 32),
+      promptLength: typeof promptText === "string" ? promptText.length : 0,
       createdAt: serverTimestamp(),
     });
   } catch (err) {
     console.warn("Failed to log AI telemetry:", err);
   }
 }
+
