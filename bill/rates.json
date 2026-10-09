@@ -1,53 +1,251 @@
 {
-    "billing_month": "May 01, 2026 - May 31, 2026",
+    "updated_at": "2026-10-01T04:14:45.494928Z",
+    "billing_month": "Sep 01, 2026 - Sep 30, 2026",
+    "billperiod_id": 5451,
+    "status": "Active - Lock for Billing",
+    "source": "https://cmbis.cenpelco.com/public/rates/billrates.jsp",
+    "available_periods": [
+        {
+            "id": 5451,
+            "name": "September 2026"
+        },
+        {
+            "id": 5393,
+            "name": "August 2026"
+        },
+        {
+            "id": 5371,
+            "name": "July 2026"
+        },
+        {
+            "id": 5352,
+            "name": "June 2026"
+        },
+        {
+            "id": 5330,
+            "name": "May 2026"
+        },
+        {
+            "id": 5310,
+            "name": "April 2026"
+        },
+        {
+            "id": 5270,
+            "name": "March 2026"
+        },
+        {
+            "id": 5269,
+            "name": "February 2026"
+        },
+        {
+            "id": 5249,
+            "name": "January 2026"
+        },
+        {
+            "id": 5229,
+            "name": "December 2025"
+        },
+        {
+            "id": 5210,
+            "name": "November 2025"
+        },
+        {
+            "id": 5190,
+            "name": "October 2025"
+        },
+        {
+            "id": 5151,
+            "name": "September 2025"
+        },
+        {
+            "id": 5150,
+            "name": "August 2025"
+        },
+        {
+            "id": 5129,
+            "name": "July 2025"
+        },
+        {
+            "id": 5109,
+            "name": "June 2025"
+        },
+        {
+            "id": 5090,
+            "name": "May 2025"
+        },
+        {
+            "id": 5069,
+            "name": "April 2025"
+        },
+        {
+            "id": 5049,
+            "name": "March 2025"
+        },
+        {
+            "id": 5029,
+            "name": "February 2025"
+        },
+        {
+            "id": 5010,
+            "name": "January 2025"
+        },
+        {
+            "id": 5009,
+            "name": "December 2024"
+        },
+        {
+            "id": 4970,
+            "name": "November 2024"
+        },
+        {
+            "id": 4949,
+            "name": "October 2024"
+        },
+        {
+            "id": 4929,
+            "name": "September 2024"
+        },
+        {
+            "id": 4909,
+            "name": "August 2024"
+        },
+        {
+            "id": 4883,
+            "name": "July 2024"
+        },
+        {
+            "id": 4863,
+            "name": "June 2024"
+        },
+        {
+            "id": 4843,
+            "name": "May 2024"
+        },
+        {
+            "id": 4823,
+            "name": "April 2024"
+        },
+        {
+            "id": 4803,
+            "name": "March 2024"
+        },
+        {
+            "id": 4783,
+            "name": "February 2024"
+        },
+        {
+            "id": 4761,
+            "name": "January 2024"
+        },
+        {
+            "id": 4720,
+            "name": "December 2023"
+        },
+        {
+            "id": 4700,
+            "name": "November 2023"
+        },
+        {
+            "id": 4679,
+            "name": "October 2023"
+        },
+        {
+            "id": 4658,
+            "name": "September 2023"
+        },
+        {
+            "id": 4638,
+            "name": "August 2023"
+        },
+        {
+            "id": 4617,
+            "name": "July 2023"
+        },
+        {
+            "id": 4597,
+            "name": "June 2023"
+        },
+        {
+            "id": 4577,
+            "name": "May 2023"
+        },
+        {
+            "id": 4556,
+            "name": "April 2023"
+        },
+        {
+            "id": 4536,
+            "name": "March 2023"
+        },
+        {
+            "id": 4516,
+            "name": "February 2023"
+        },
+        {
+            "id": 4494,
+            "name": "January 2023"
+        },
+        {
+            "id": 4474,
+            "name": "December 2022"
+        },
+        {
+            "id": 4453,
+            "name": "November 2022"
+        },
+        {
+            "id": 4433,
+            "name": "October 2022"
+        }
+    ],
     "generation_breakdown": [
         {
             "source": "WESM",
-            "pct_kwh": "56.97%",
-            "kwh_purchased": 41652509.5246,
-            "pct_cost": "58.59%",
-            "basic_cost": 247904966.01,
+            "pct_kwh": "38.99%",
+            "kwh_purchased": 23885575.49,
+            "pct_cost": "42.39%",
+            "basic_cost": 173027327.92,
             "other_adjust": 0.0,
-            "discounts": 69866.22,
-            "total_cost": 247835099.79,
+            "discounts": 29686.28,
+            "total_cost": 172997641.64,
             "oga": 0.0,
-            "avg_cost": 5.950064056611725
+            "avg_cost": 7.242766317789901
         },
         {
             "source": "TLI",
-            "pct_kwh": "25.44%",
+            "pct_kwh": "30.36%",
             "kwh_purchased": 18600000.0,
-            "pct_cost": "24.37%",
-            "basic_cost": 103121901.54,
+            "pct_cost": "29.18%",
+            "basic_cost": 119098622.24,
             "other_adjust": 0.0,
             "discounts": 0.0,
-            "total_cost": 103121901.54,
+            "total_cost": 119098622.24,
             "oga": 0.0,
-            "avg_cost": 5.54418825483871
+            "avg_cost": 6.403151733333333
         },
         {
             "source": "MPCL",
-            "pct_kwh": "17.23%",
-            "kwh_purchased": 12600000.0,
-            "pct_cost": "16.68%",
-            "basic_cost": 70558758.43,
+            "pct_kwh": "30.36%",
+            "kwh_purchased": 18600000.0,
+            "pct_cost": "28.10%",
+            "basic_cost": 114703643.32,
             "other_adjust": 0.0,
             "discounts": 0.0,
-            "total_cost": 70558758.43,
+            "total_cost": 114703643.32,
             "oga": 0.0,
-            "avg_cost": 5.599901462698413
+            "avg_cost": 6.166862544086021
         },
         {
             "source": "Net Metering",
-            "pct_kwh": "0.36%",
-            "kwh_purchased": 263376.0,
-            "pct_cost": "0.36%",
-            "basic_cost": 1507221.84,
+            "pct_kwh": "0.30%",
+            "kwh_purchased": 181769.0,
+            "pct_cost": "0.34%",
+            "basic_cost": 1371010.86,
             "other_adjust": 0.0,
             "discounts": 0.0,
-            "total_cost": 1507221.84,
+            "total_cost": 1371010.86,
             "oga": 0.0,
-            "avg_cost": 5.722700018224896
+            "avg_cost": 7.542600003300893
         }
     ],
     "unbundled_rates": [
@@ -56,24 +254,32 @@
             "group": "Generation Charges",
             "name": "Generation Charge (PhP/kWh)",
             "type": "Rate x Consumption",
-            "rate_val": 5.9117,
-            "raw_rate_str": "\u20b1$5.9117"
+            "rate_val": 6.9244,
+            "raw_rate_str": "\u20b16.9244"
         },
         {
             "category": "Generation & Transmission",
             "group": "Transmission Charges",
             "name": "Transmission Delivery Charge (PhP/kWh)",
             "type": "Rate x Consumption",
-            "rate_val": 1.1981,
-            "raw_rate_str": "\u20b1$1.1981"
+            "rate_val": 0.5587,
+            "raw_rate_str": "\u20b10.5587"
+        },
+        {
+            "category": "Generation & Transmission",
+            "group": "Transmission Charges",
+            "name": "Ancillary Service Charge (PhP/kWh)",
+            "type": "Rate x Consumption",
+            "rate_val": 0.7197,
+            "raw_rate_str": "\u20b10.7197"
         },
         {
             "category": "Generation & Transmission",
             "group": "System Loss Charge",
             "name": "System Loss Charge (PhP/kWh)",
             "type": "Rate x Consumption",
-            "rate_val": 1.0008,
-            "raw_rate_str": "\u20b1$1.0008"
+            "rate_val": 1.1594,
+            "raw_rate_str": "\u20b11.1594"
         },
         {
             "category": "Distribution Revenues",
@@ -81,7 +287,7 @@
             "name": "Distribution Network Charge (PhP/kWh)",
             "type": "Rate x Consumption",
             "rate_val": 0.4613,
-            "raw_rate_str": "\u20b1$0.4613"
+            "raw_rate_str": "\u20b10.4613"
         },
         {
             "category": "Distribution Revenues",
@@ -89,7 +295,7 @@
             "name": "Retail Electric Service Charge (PhP/kWh)",
             "type": "Rate x Consumption",
             "rate_val": 0.5376,
-            "raw_rate_str": "\u20b1$0.5376"
+            "raw_rate_str": "\u20b10.5376"
         },
         {
             "category": "Distribution Revenues",
@@ -97,7 +303,7 @@
             "name": "Metering Charge (Php/kWh)",
             "type": "Rate x Consumption",
             "rate_val": 0.3205,
-            "raw_rate_str": "\u20b1$0.32/mo"
+            "raw_rate_str": "\u20b10.32/mo"
         },
         {
             "category": "Distribution Revenues",
@@ -105,7 +311,7 @@
             "name": "Metering Charge (PhP/meter/mo)",
             "type": "Constant Charge",
             "rate_val": 5.0,
-            "raw_rate_str": "\u20b1$5.00/mo"
+            "raw_rate_str": "\u20b15.00/mo"
         },
         {
             "category": "Distribution Revenues",
@@ -113,7 +319,7 @@
             "name": "RFSC",
             "type": "Rate x Consumption",
             "rate_val": 0.4456,
-            "raw_rate_str": "\u20b1$0.4456"
+            "raw_rate_str": "\u20b10.4456"
         },
         {
             "category": "Government Revenues",
@@ -121,7 +327,7 @@
             "name": "Franchise Tax",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b1$0.0000"
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Government Revenues",
@@ -129,7 +335,7 @@
             "name": "Real Property Tax",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b1$0.0000"
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Government Revenues",
@@ -137,31 +343,39 @@
             "name": "Business Tax",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b1$0.0000"
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Government Revenues",
             "group": "Pass-Through Value-Added Tax",
             "name": "Generation Tax",
             "type": "Rate x Consumption",
-            "rate_val": 0.6401,
-            "raw_rate_str": "\u20b1$0.6401"
+            "rate_val": 0.7196,
+            "raw_rate_str": "\u20b10.7196"
         },
         {
             "category": "Government Revenues",
             "group": "Pass-Through Value-Added Tax",
             "name": "Transmission Tax",
             "type": "Rate x Consumption",
-            "rate_val": 0.1493,
-            "raw_rate_str": "\u20b1$0.1493"
+            "rate_val": 0.0748,
+            "raw_rate_str": "\u20b10.0748"
         },
         {
             "category": "Government Revenues",
             "group": "Pass-Through Value-Added Tax",
             "name": "System Loss Tax",
             "type": "Rate x Consumption",
-            "rate_val": 0.1125,
-            "raw_rate_str": "\u20b1$0.1125"
+            "rate_val": 0.0,
+            "raw_rate_str": "\u20b10.0000"
+        },
+        {
+            "category": "Government Revenues",
+            "group": "Pass-Through Value-Added Tax",
+            "name": "Ancillary Service Tax",
+            "type": "Rate x Consumption",
+            "rate_val": 0.0789,
+            "raw_rate_str": "\u20b10.0789"
         },
         {
             "category": "Government Revenues",
@@ -169,7 +383,7 @@
             "name": "NPC Stranded Debts",
             "type": "Rate x Consumption",
             "rate_val": 0.0428,
-            "raw_rate_str": "\u20b1$0.0428"
+            "raw_rate_str": "\u20b10.0428"
         },
         {
             "category": "Government Revenues",
@@ -177,7 +391,7 @@
             "name": "NPC Stranded Costs",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b1$0.0000"
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Government Revenues",
@@ -185,7 +399,7 @@
             "name": "NPC SPUG",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b1$0.0000"
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Government Revenues",
@@ -193,7 +407,7 @@
             "name": "Missionary Electrification",
             "type": "Rate x Consumption",
             "rate_val": 0.2763,
-            "raw_rate_str": "\u20b1$0.2763"
+            "raw_rate_str": "\u20b10.2763"
         },
         {
             "category": "Government Revenues",
@@ -201,15 +415,15 @@
             "name": "Environmental Charges",
             "type": "Rate x Consumption",
             "rate_val": 0.0025,
-            "raw_rate_str": "\u20b1$0.0025"
+            "raw_rate_str": "\u20b10.0025"
         },
         {
             "category": "Government Revenues",
             "group": "Universal Charges",
             "name": "FIT-ALL",
             "type": "Rate x Consumption",
-            "rate_val": 0.2011,
-            "raw_rate_str": "\u20b1$0.2011"
+            "rate_val": 0.3359,
+            "raw_rate_str": "\u20b10.3359"
         },
         {
             "category": "Government Revenues",
@@ -217,7 +431,7 @@
             "name": "GEA-ALL",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b1$0.0000"
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Government Revenues",
@@ -225,7 +439,7 @@
             "name": "Distribution Tax",
             "type": "Distribution VAT",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b1$0.0000"
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Government Revenues",
@@ -233,7 +447,7 @@
             "name": "Other Tax",
             "type": "Other VAT",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b1$0.0000"
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Others",
@@ -241,7 +455,7 @@
             "name": "Lifeline Rate Subsidy",
             "type": "Rate x Consumption",
             "rate_val": 0.01,
-            "raw_rate_str": "\u20b1$0.0100"
+            "raw_rate_str": "\u20b10.0100"
         },
         {
             "category": "Others",
@@ -249,7 +463,7 @@
             "name": "Lifeline Rate Discount",
             "type": "Lifeline Discount",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b1$0.0000"
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Others",
@@ -257,7 +471,7 @@
             "name": "ICCS Adj",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b1$0.0000"
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Adjustments",
@@ -265,7 +479,7 @@
             "name": "Senior Citizen Subsidy",
             "type": "Rate x Consumption",
             "rate_val": 0.0001,
-            "raw_rate_str": "\u20b1$0.0001"
+            "raw_rate_str": "\u20b10.0001"
         },
         {
             "category": "Adjustments",
@@ -273,7 +487,7 @@
             "name": "Senior Citizen Discount",
             "type": "Senior Discount",
             "rate_val": 0.0,
-            "raw_rate_str": "\u20b1$0.0000"
+            "raw_rate_str": "\u20b10.0000"
         }
     ]
 }

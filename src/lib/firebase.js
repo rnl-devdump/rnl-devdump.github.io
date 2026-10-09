@@ -1,24 +1,46 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { getDatabase } from "firebase/database";
 
 const apiKey = import.meta.env.VITE_FIREBASE_API_KEY || (
   (import.meta.env.VITE_FIREBASE_API_KEY_P1 || 'AIzaSy') +
   (import.meta.env.VITE_FIREBASE_API_KEY_P2 || 'BPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c')
 );
 
-const firebaseConfig = {
+const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || 'pangasinan-dataset';
+const databaseURL = import.meta.env.VITE_FIREBASE_DATABASE_URL || `https://${projectId}-default-rtdb.firebaseio.com`;
+
+export const firebaseConfig = {
   apiKey,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`,
+  databaseURL,
+  projectId,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || `${projectId}.appspot.com`,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+
+let authInstance = null;
+try {
+  authInstance = getAuth(app);
+} catch (e) {
+  console.warn("Firebase Auth initialization skipped:", e);
+}
+export const auth = authInstance;
+
+let rtdbInstance = null;
+try {
+  rtdbInstance = getDatabase(app);
+} catch (e) {
+  console.warn("Firebase RTDB initialization skipped:", e);
+}
+export const rtdb = rtdbInstance;
 
 // Analytics is optional and only runs in browser environments that support it.
 if (typeof window !== "undefined") {
@@ -32,3 +54,4 @@ if (typeof window !== "undefined") {
       // Ignore analytics initialization failures.
     });
 }
+

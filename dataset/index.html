@@ -1,58 +1,560 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="/sublink-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TheKiruu</title>
-
-  <script type="module" crossorigin src="/dataset/assets/index-CA2JB0vT.js"></script>
-  <link rel="stylesheet" crossorigin href="/dataset/assets/index-BKFsl3Ds.css">
+    <title>Kiruu: Applications &amp; Ecosystem</title>
+    <meta name="description" content="Explore all web apps, AI assistants, media hubs, and tools hosted on kiruu.xyz.">
+    <link rel="icon" type="image/png" href="/dataset/assets/logo-DO7RBlZy.png">
+    <!-- Google Fonts for Cursive Signature and UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Flaticon UIcons CDN -->
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-rounded/css/uicons-bold-rounded.css">
+  <link rel="stylesheet" crossorigin href="/dataset/assets/index-DG-C0ncu.css">
 </head>
 <body>
-    <header>
-        <img src="/dataset/assets/logo-DO7RBlZy.png" alt="logo" class="logo">
-    </header>
-    <main>
-        <h3 class="subtitle">We're almost there!</h3>
-        <h1 class="title">Coming</h1>
-        <h1 class="title">Soon</h1>
-        <h3 class="bottom">For now, you can visit my
-            <a href="https://github.com/iamk1ruu" target="_blank" class="button-rn" role="button">
-                <img class="mark" src="/dataset/assets/github-mark-B3LxWxcL.png" alt=""> GitHub Profile
-            </a>
-        </h3>
-    </main>
-    <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
-    <dotlottie-player src="https://lottie.host/08baa036-4ce6-4674-a6a1-3fdab92aa5c4/v73OLDfSlm.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
-    <div id="navModal" class="nav-modal">
-        <div class="nav-content">
-            <input type="text" placeholder="Type here..." class="nav-input">
-            <button onclick="submitForm()">
-                <span class="text">Submit</span>
+    <div class="page-container">
+        <!-- Header -->
+        <header>
+            <div class="brand-section">
+                <a href="/" title="The Kiruu Homepage">
+                    <img src="/dataset/assets/logo-DO7RBlZy.png" alt="the KIRUU" class="logo">
+                </a>
+            </div>
+
+            <div class="header-actions">
+                <div class="search-wrapper">
+                    <i class="fi fi-br-search search-icon-fi" aria-hidden="true"></i>
+                    <input type="text" id="appSearch" class="search-input" placeholder="Search apps, tools, tags..." autocomplete="off">
+                </div>
+
+                <a href="https://github.com/iamk1ruu" target="_blank" rel="noopener noreferrer" class="button-rn" role="button">
+                    <img class="mark" src="/dataset/assets/github-mark-B3LxWxcL.png" alt="GitHub"> GitHub Profile
+                </a>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero-banner">
+            <div class="hero-top-row">
+                <div>
+                    <h3 class="subtitle">Ecosystem &amp; Projects</h3>
+                    <h1 class="title">My Applications</h1>
+                </div>
+                <div class="stats-bar">
+                    <div class="stat-chip">
+                        <span class="status-dot"></span>
+                        <span>10 Apps Online</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span>Domain: <strong>kiruu.xyz</strong></span>
+                    </div>
+                </div>
+            </div>
+            <p class="hero-description">
+                Explore the complete suite of multilingual AI assistants, streaming media hubs, NLP data tools, and utilities built and hosted under the Kiruu ecosystem.
+            </p>
+        </section>
+
+        <!-- Category Filters -->
+        <nav class="filter-bar" aria-label="App Categories">
+            <button class="filter-btn active" data-filter="all">
+                <i class="fi fi-br-apps" aria-hidden="true"></i>
+                <span>All Apps</span>
+                <span class="filter-count">10</span>
             </button>
+            <button class="filter-btn" data-filter="ai">
+                <i class="fi fi-br-brain-circuit" aria-hidden="true"></i>
+                <span>AI &amp; Language</span>
+                <span class="filter-count">2</span>
+            </button>
+            <button class="filter-btn" data-filter="media">
+                <i class="fi fi-br-clapperboard-play" aria-hidden="true"></i>
+                <span>Media &amp; Cinema</span>
+                <span class="filter-count">3</span>
+            </button>
+            <button class="filter-btn" data-filter="data">
+                <i class="fi fi-br-database" aria-hidden="true"></i>
+                <span>Data &amp; Systems</span>
+                <span class="filter-count">2</span>
+            </button>
+            <button class="filter-btn" data-filter="utilities">
+                <i class="fi fi-br-bolt" aria-hidden="true"></i>
+                <span>Utilities &amp; Social</span>
+                <span class="filter-count">3</span>
+            </button>
+        </nav>
+
+        <!-- Main Apps Showcase -->
+        <main id="appsContainer">
+
+            <!-- SECTION 1: AI & Language Assistants -->
+            <section class="category-section" id="section-ai" data-category="ai">
+                <div class="category-header">
+                    <div class="category-title-group">
+                        <div class="category-icon-box">
+                            <i class="fi fi-br-brain-circuit" aria-hidden="true"></i>
+                        </div>
+                        <h2 class="category-title">AI &amp; Language Assistants</h2>
+                    </div>
+                    <span class="category-badge">2 Apps</span>
+                </div>
+
+                <div class="apps-grid">
+                    <!-- TAWIR AI Assistant -->
+                    <article class="app-card" data-tags="tawir v3 v4 ai assistant pangasinan translation language model nlp flutter chat webapp">
+                        <div class="app-card-top">
+                            <div class="app-icon" style="background: #eff6ff;">
+                                <i class="fi fi-br-chatbot" style="color: #2563eb;" aria-hidden="true"></i>
+                            </div>
+                            <div class="app-badges">
+                                <span class="tag-pill ai">AI Assistant</span>
+                                <span class="status-badge"><span class="mini-dot"></span> Active</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <h3 class="app-title">TAWIR AI Assistant</h3>
+                            <span class="app-path">kiruu.xyz/tawir &bull; /tawir-webapp</span>
+                            <p class="app-description">
+                                Pangasinan conversational AI assistant and translation engine. Choose between the classic v3 Flutter assistant or the next-gen v4 web application.
+                            </p>
+                        </div>
+                        <div class="app-card-footer" style="display: flex; gap: 10px;">
+                            <a href="/tawir" class="button-rn app-launch-btn" style="flex: 1; padding: 0 10px;">Launch v3</a>
+                            <a href="/tawir-webapp" class="button-rn app-launch-btn" style="flex: 1; padding: 0 10px; background-color: #dbeafe;">Launch v4</a>
+                        </div>
+                    </article>
+
+                    <!-- TAWIR Conversation Monitor -->
+                    <article class="app-card" data-tags="tawir convo conversation monitor telemetry logs ai debug">
+                        <div class="app-card-top">
+                            <div class="app-icon" style="background: #faf5ff;">
+                                <i class="fi fi-br-comment-alt-dots" style="color: #6d28d9;" aria-hidden="true"></i>
+                            </div>
+                            <div class="app-badges">
+                                <span class="tag-pill ai">AI Monitoring</span>
+                                <span class="status-badge"><span class="mini-dot"></span> Online</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <h3 class="app-title">TAWIR Conversation Monitor</h3>
+                            <span class="app-path">kiruu.xyz/tawir-convo</span>
+                            <p class="app-description">
+                                Real-time dialogue telemetry inspector and session analytics dashboard for tracking model response quality and conversation flows.
+                            </p>
+                        </div>
+                        <div class="app-card-footer">
+                            <a href="/tawir-convo" class="button-rn app-launch-btn">Open Monitor</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- SECTION 2: Media & Entertainment -->
+            <section class="category-section" id="section-media" data-category="media">
+                <div class="category-header">
+                    <div class="category-title-group">
+                        <div class="category-icon-box">
+                            <i class="fi fi-br-clapperboard-play" aria-hidden="true"></i>
+                        </div>
+                        <h2 class="category-title">Media &amp; Entertainment</h2>
+                    </div>
+                    <span class="category-badge">3 Apps</span>
+                </div>
+
+                <div class="apps-grid">
+                    <!-- Anime Hub -->
+                    <article class="app-card" data-tags="anime hub series streaming episodes watchlist media animation">
+                        <div class="app-card-top">
+                            <div class="app-icon" style="background: #fff1f2;">
+                                <i class="fi fi-br-film" style="color: #be123c;" aria-hidden="true"></i>
+                            </div>
+                            <div class="app-badges">
+                                <span class="tag-pill media">Media</span>
+                                <span class="status-badge" style="color: #b45309; background-color: #fef3c7; border-color: #f59e0b;"><span class="mini-dot" style="background-color: #f59e0b;"></span> Under Development</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <h3 class="app-title">Anime Hub</h3>
+                            <span class="app-path">kiruu.xyz/anime</span>
+                            <p class="app-description">
+                                Curated anime portal featuring catalog search, episode browser, streaming player, and personal collection tracker.
+                            </p>
+                        </div>
+                        <div class="app-card-footer">
+                            <a href="/anime" class="button-rn app-launch-btn">Enter Anime Hub</a>
+                        </div>
+                    </article>
+
+                    <!-- Movie Hub -->
+                    <article class="app-card" data-tags="movie hub cinema films streaming player media trailers">
+                        <div class="app-card-top">
+                            <div class="app-icon" style="background: #fff7ed;">
+                                <i class="fi fi-br-clapperboard-play" style="color: #c2410c;" aria-hidden="true"></i>
+                            </div>
+                            <div class="app-badges">
+                                <span class="tag-pill media">Media</span>
+                                <span class="status-badge"><span class="mini-dot"></span> Live</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <h3 class="app-title">Movie Hub</h3>
+                            <span class="app-path">kiruu.xyz/movie</span>
+                            <p class="app-description">
+                                Cinematic entertainment library showcasing movie details, high-definition streaming, trailers, and discovery feeds.
+                            </p>
+                        </div>
+                        <div class="app-card-footer">
+                            <a href="/movie" class="button-rn app-launch-btn">Enter Movie Hub</a>
+                        </div>
+                    </article>
+
+                    <!-- Java Chess Web -->
+                    <article class="app-card" data-tags="chess game java cheerpj webassembly board play">
+                        <div class="app-card-top">
+                            <div class="app-icon" style="background: #f1f5f9;">
+                                <i class="fi fi-br-chess-knight" style="color: #334155;" aria-hidden="true"></i>
+                            </div>
+                            <div class="app-badges">
+                                <span class="tag-pill media">Game</span>
+                                <span class="status-badge"><span class="mini-dot"></span> Online</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <h3 class="app-title">Java Chess (Web)</h3>
+                            <span class="app-path">kiruu.xyz/chess</span>
+                            <p class="app-description">
+                                A classic Java desktop chess game seamlessly ported to the web using WebAssembly and CheerpJ client-side JVM.
+                            </p>
+                        </div>
+                        <div class="app-card-footer">
+                            <a href="/chess" class="button-rn app-launch-btn">Play Chess</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- SECTION 3: Data & Systems -->
+            <section class="category-section" id="section-data" data-category="data">
+                <div class="category-header">
+                    <div class="category-title-group">
+                        <div class="category-icon-box">
+                            <i class="fi fi-br-database" aria-hidden="true"></i>
+                        </div>
+                        <h2 class="category-title">Data &amp; Systems</h2>
+                    </div>
+                    <span class="category-badge">2 Apps</span>
+                </div>
+
+                <div class="apps-grid">
+                    <!-- Dataset Annotator -->
+                    <article class="app-card" data-tags="dataset annotator labeling nlp tokens translation pangasinan machine learning">
+                        <div class="app-card-top">
+                            <div class="app-icon" style="background: #ecfdf5;">
+                                <i class="fi fi-br-database" style="color: #047857;" aria-hidden="true"></i>
+                            </div>
+                            <div class="app-badges">
+                                <span class="tag-pill tool">Data Tool</span>
+                                <span class="status-badge"><span class="mini-dot"></span> Live</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <h3 class="app-title">Dataset Annotator</h3>
+                            <span class="app-path">kiruu.xyz/dataset</span>
+                            <p class="app-description">
+                                NLP dataset annotation platform for sentence-pair alignment, token tagging, and language curation for model fine-tuning.
+                            </p>
+                        </div>
+                        <div class="app-card-footer">
+                            <a href="/dataset" class="button-rn app-launch-btn">Open Annotator</a>
+                        </div>
+                    </article>
+
+                    <!-- Validation Suite -->
+                    <article class="app-card" data-tags="validation suite quality tests corpus accuracy benchmarks">
+                        <div class="app-card-top">
+                            <div class="app-icon" style="background: #f0fdf4;">
+                                <i class="fi fi-br-shield-check" style="color: #15803d;" aria-hidden="true"></i>
+                            </div>
+                            <div class="app-badges">
+                                <span class="tag-pill tool">Quality</span>
+                                <span class="status-badge"><span class="mini-dot"></span> Active</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <h3 class="app-title">Validation Suite</h3>
+                            <span class="app-path">kiruu.xyz/validation</span>
+                            <p class="app-description">
+                                Comprehensive verification suite for checking translation quality, corpus consistency, JSON schema integrity, and FLORES metrics.
+                            </p>
+                        </div>
+                        <div class="app-card-footer">
+                            <a href="/validation" class="button-rn app-launch-btn">Launch Suite</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- SECTION 4: Utilities & Social -->
+            <section class="category-section" id="section-utilities" data-category="utilities">
+                <div class="category-header">
+                    <div class="category-title-group">
+                        <div class="category-icon-box">
+                            <i class="fi fi-br-bolt" aria-hidden="true"></i>
+                        </div>
+                        <h2 class="category-title">Utilities &amp; Social</h2>
+                    </div>
+                    <span class="category-badge">3 Apps</span>
+                </div>
+
+                <div class="apps-grid">
+                    <!-- Utility Rates Tracker -->
+                    <article class="app-card" data-tags="bill utility rates tracker power electricity finance calculator">
+                        <div class="app-card-top">
+                            <div class="app-icon" style="background: #e0f2fe;">
+                                <i class="fi fi-br-bolt" style="color: #b45309;" aria-hidden="true"></i>
+                            </div>
+                            <div class="app-badges">
+                                <span class="tag-pill finance">Finance</span>
+                                <span class="status-badge"><span class="mini-dot"></span> Live</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <h3 class="app-title">Utility Rates Tracker</h3>
+                            <span class="app-path">kiruu.xyz/bill</span>
+                            <p class="app-description">
+                                Electricity and utility tariff monitoring tool with historical kWh rate charts, expense estimation, and bill forecasting.
+                            </p>
+                        </div>
+                        <div class="app-card-footer">
+                            <a href="/bill" class="button-rn app-launch-btn">View Rates</a>
+                        </div>
+                    </article>
+
+                    <!-- Community Forum -->
+                    <article class="app-card" data-tags="community forum social discussions board feedback chat">
+                        <div class="app-card-top">
+                            <div class="app-icon" style="background: #fdf2f8;">
+                                <i class="fi fi-br-users" style="color: #be185d;" aria-hidden="true"></i>
+                            </div>
+                            <div class="app-badges">
+                                <span class="tag-pill social">Social</span>
+                                <span class="status-badge"><span class="mini-dot"></span> Active</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <h3 class="app-title">Community Forum</h3>
+                            <span class="app-path">kiruu.xyz/forum</span>
+                            <p class="app-description">
+                                Public discussion forum and community message board for user feedback, collaboration, discussions, and updates.
+                            </p>
+                        </div>
+                        <div class="app-card-footer">
+                            <a href="/forum" class="button-rn app-launch-btn">Join Forum</a>
+                        </div>
+                    </article>
+
+                    <!-- Admin Dashboard -->
+                    <article class="app-card" data-tags="dashboard analytics admin metrics console system">
+                        <div class="app-card-top">
+                            <div class="app-icon" style="background: #f8fafc;">
+                                <i class="fi fi-br-settings-sliders" style="color: #0e7490;" aria-hidden="true"></i>
+                            </div>
+                            <div class="app-badges">
+                                <span class="tag-pill system">System</span>
+                                <span class="status-badge"><span class="mini-dot"></span> Online</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <h3 class="app-title">Kiruu Analytics Dashboard</h3>
+                            <span class="app-path">kiruu.xyz/dashboard</span>
+                            <p class="app-description">
+                                Operational telemetry and administration console providing usage insights, service status, and configuration management.
+                            </p>
+                        </div>
+                        <div class="app-card-footer">
+                            <a href="/dashboard" class="button-rn app-launch-btn">Open Dashboard</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- No results message for search -->
+            <div id="noResults" class="no-results">
+                <h3 class="no-results-title">No matching applications found</h3>
+                <p>Try searching for a different keyword like "tawir", "media", "tools", or "bill".</p>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-left">
+                <span class="footer-domain">the KIRUU</span>
+                <span class="footer-note">&copy; kiruu.xyz &bull; All applications and research projects</span>
+            </div>
+            <div class="footer-right">
+                <a href="https://github.com/iamk1ruu" target="_blank" rel="noopener noreferrer" class="button-rn btn-sm">
+                    <img class="mark" src="/dataset/assets/github-mark-B3LxWxcL.png" alt="GitHub"> GitHub @iamk1ruu
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Preserved Modal from original -->
+    <div id="navModal" class="nav-modal" role="dialog" aria-hidden="true">
+        <div class="nav-content">
+            <h3 class="app-title" style="margin-bottom: 12px;">Quick Launcher</h3>
+            <p style="margin-bottom: 16px; font-size: 14px; color: #555;">Type an app name or shortcut to navigate instantly.</p>
+            <input type="text" id="modalInput" placeholder="e.g. tawir, anime, movie, dataset..." class="nav-input">
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button type="button" class="button-rn btn-sm" onclick="submitModalSearch()">Go to App</button>
+                <button type="button" class="button-rn btn-sm" style="background-color: #f1f5f9;" onclick="toggleNavModal()">Cancel</button>
+            </div>
         </div>
     </div>
+
+    <!-- Preserved Welcome Overlay (Smooth Fade-out) -->
     <div id="welcomeOverlay" class="welcome-overlay">
         <h1 class="welcome-text">Welcome to TheKiruu!</h1>
     </div>
+
+    <!-- Interactive Logic -->
     <script>
-        function toggleNavModal() {
-            const modal = document.getElementById("navModal");
-            modal.classList.toggle("show");
-        }
-        document.querySelector('.logo').addEventListener('click', toggleNavModal);
-        function submitForm() {
-            alert("Form submitted!");
-            toggleNavModal();
-        }
-    </script>
-    <script>
+        // Welcome overlay dismiss
         window.addEventListener("load", function() {
-            setTimeout(() => {
-                document.getElementById("welcomeOverlay").classList.add("fade-out");
-            }, 2000);
+            setTimeout(function() {
+                var overlay = document.getElementById("welcomeOverlay");
+                if (overlay) overlay.classList.add("fade-out");
+            }, 1200);
         });
+
+        // Search & Filter functionality
+        (function() {
+            var searchInput = document.getElementById("appSearch");
+            var filterBtns = document.querySelectorAll(".filter-btn");
+            var sections = document.querySelectorAll(".category-section");
+            var noResults = document.getElementById("noResults");
+            var activeFilter = "all";
+
+            function filterApps() {
+                var query = (searchInput.value || "").toLowerCase().trim();
+                var visibleCount = 0;
+
+                sections.forEach(function(section) {
+                    var sectionCat = section.getAttribute("data-category");
+                    var sectionMatchCount = 0;
+                    var sectionCards = section.querySelectorAll(".app-card");
+
+                    sectionCards.forEach(function(card) {
+                        var tags = (card.getAttribute("data-tags") || "").toLowerCase();
+                        var title = (card.querySelector(".app-title") ? card.querySelector(".app-title").textContent : "").toLowerCase();
+                        var desc = (card.querySelector(".app-description") ? card.querySelector(".app-description").textContent : "").toLowerCase();
+                        var path = (card.querySelector(".app-path") ? card.querySelector(".app-path").textContent : "").toLowerCase();
+
+                        var matchesText = !query || tags.includes(query) || title.includes(query) || desc.includes(query) || path.includes(query);
+                        var matchesFilter = (activeFilter === "all") || (sectionCat === activeFilter);
+
+                        if (matchesText && matchesFilter) {
+                            card.style.display = "flex";
+                            sectionMatchCount++;
+                            visibleCount++;
+                        } else {
+                            card.style.display = "none";
+                        }
+                    });
+
+                    // Hide section if no cards match
+                    if (sectionMatchCount > 0) {
+                        section.style.display = "block";
+                    } else {
+                        section.style.display = "none";
+                    }
+                });
+
+                if (visibleCount === 0) {
+                    noResults.classList.add("visible");
+                } else {
+                    noResults.classList.remove("visible");
+                }
+            }
+
+            // Real-time search
+            searchInput.addEventListener("input", filterApps);
+
+            // Filter button clicks
+            filterBtns.forEach(function(btn) {
+                btn.addEventListener("click", function() {
+                    filterBtns.forEach(function(b) { b.classList.remove("active"); });
+                    btn.classList.add("active");
+                    activeFilter = btn.getAttribute("data-filter");
+                    filterApps();
+                });
+            });
+
+            // Modal functionality
+            window.toggleNavModal = function() {
+                var modal = document.getElementById("navModal");
+                modal.classList.toggle("show");
+                if (modal.classList.contains("show")) {
+                    var input = document.getElementById("modalInput");
+                    if (input) input.focus();
+                }
+            };
+
+            var logo = document.querySelector(".logo");
+            if (logo) {
+                logo.addEventListener("click", function(e) {
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        window.toggleNavModal();
+                    }
+                });
+            }
+
+            window.submitModalSearch = function() {
+                var val = (document.getElementById("modalInput").value || "").trim().toLowerCase();
+                if (!val) return;
+                var routeMap = {
+                    "tawir": "/tawir",
+                    "tawir-convo": "/tawir-convo",
+                    "anime": "/anime",
+                    "movie": "/movie",
+                    "dataset": "/dataset",
+                    "validation": "/validation",
+                    "bill": "/bill",
+                    "forum": "/forum",
+                    "dashboard": "/dashboard"
+                };
+
+                for (var key in routeMap) {
+                    if (val.includes(key)) {
+                        window.location.href = routeMap[key];
+                        return;
+                    }
+                }
+
+                // If not direct match, filter on page
+                window.toggleNavModal();
+                searchInput.value = val;
+                filterApps();
+                searchInput.scrollIntoView({ behavior: "smooth" });
+            };
+
+            var modalInput = document.getElementById("modalInput");
+            if (modalInput) {
+                modalInput.addEventListener("keydown", function(e) {
+                    if (e.key === "Enter") {
+                        window.submitModalSearch();
+                    } else if (e.key === "Escape") {
+                        window.toggleNavModal();
+                    }
+                });
+            }
+
+        })();
     </script>
 </body>
 </html>

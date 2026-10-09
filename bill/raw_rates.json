@@ -8,9 +8,9 @@
                     {
                         "rates": [
                             {
-                                "id": 68135,
+                                "id": 77701,
                                 "name": "Generation Charge (PhP/kWh)",
-                                "amount": "5.9117",
+                                "amount": "6.9244",
                                 "type": "Rate x Consumption",
                                 "position": 1,
                                 "taxTypeName": ""
@@ -26,11 +26,19 @@
                     {
                         "rates": [
                             {
-                                "id": 68485,
+                                "id": 78145,
                                 "name": "Transmission Delivery Charge (PhP/kWh)",
-                                "amount": "1.1981",
+                                "amount": "0.5587",
                                 "type": "Rate x Consumption",
                                 "position": 4,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 77963,
+                                "name": "Ancillary Service Charge (PhP/kWh)",
+                                "amount": "0.7197",
+                                "type": "Rate x Consumption",
+                                "position": 54,
                                 "taxTypeName": ""
                             }
                         ],
@@ -44,9 +52,9 @@
                     {
                         "rates": [
                             {
-                                "id": 68161,
+                                "id": 77995,
                                 "name": "System Loss Charge (PhP/kWh)",
-                                "amount": "1.0008",
+                                "amount": "1.1594",
                                 "type": "Rate x Consumption",
                                 "position": 5,
                                 "taxTypeName": ""
@@ -70,7 +78,7 @@
                     {
                         "rates": [
                             {
-                                "id": 68452,
+                                "id": 78362,
                                 "name": "Distribution Network Charge (PhP/kWh)",
                                 "amount": "0.4613",
                                 "type": "Rate x Consumption",
@@ -88,7 +96,7 @@
                     {
                         "rates": [
                             {
-                                "id": 68654,
+                                "id": 78346,
                                 "name": "Retail Electric Service Charge (PhP/kWh)",
                                 "amount": "0.5376",
                                 "type": "Rate x Consumption",
@@ -106,7 +114,7 @@
                     {
                         "rates": [
                             {
-                                "id": 68759,
+                                "id": 78057,
                                 "name": "Metering Charge (Php/kWh)",
                                 "amount": "0.3205",
                                 "type": "Rate x Consumption",
@@ -114,7 +122,7 @@
                                 "taxTypeName": "Distribution VAT"
                             },
                             {
-                                "id": 68191,
+                                "id": 77948,
                                 "name": "Metering Charge (PhP/meter/mo)",
                                 "amount": "5.0000",
                                 "type": "Constant Charge",
@@ -132,7 +140,7 @@
                     {
                         "rates": [
                             {
-                                "id": 68660,
+                                "id": 78156,
                                 "name": "RFSC",
                                 "amount": "0.4456",
                                 "type": "Rate x Consumption",
@@ -158,7 +166,7 @@
                     {
                         "rates": [
                             {
-                                "id": 68761,
+                                "id": 77788,
                                 "name": "Franchise Tax",
                                 "amount": "0.0000",
                                 "type": "Rate x Consumption",
@@ -166,7 +174,7 @@
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68512,
+                                "id": 78009,
                                 "name": "Real Property Tax",
                                 "amount": "0.0000",
                                 "type": "Rate x Consumption",
@@ -174,7 +182,7 @@
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68549,
+                                "id": 78334,
                                 "name": "Business Tax",
                                 "amount": "0.0000",
                                 "type": "Rate x Consumption",
@@ -192,27 +200,35 @@
                     {
                         "rates": [
                             {
-                                "id": 68619,
+                                "id": 77829,
                                 "name": "Generation Tax",
-                                "amount": "0.6401",
+                                "amount": "0.7196",
                                 "type": "Rate x Consumption",
                                 "position": 21,
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68481,
+                                "id": 78375,
                                 "name": "Transmission Tax",
-                                "amount": "0.1493",
+                                "amount": "0.0748",
                                 "type": "Rate x Consumption",
                                 "position": 22,
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68281,
+                                "id": 77819,
                                 "name": "System Loss Tax",
-                                "amount": "0.1125",
+                                "amount": "0.0000",
                                 "type": "Rate x Consumption",
                                 "position": 23,
+                                "taxTypeName": ""
+                            },
+                            {
+                                "id": 78224,
+                                "name": "Ancillary Service Tax",
+                                "amount": "0.0789",
+                                "type": "Rate x Consumption",
+                                "position": 55,
                                 "taxTypeName": ""
                             }
                         ],
@@ -226,7 +242,7 @@
                     {
                         "rates": [
                             {
-                                "id": 68301,
+                                "id": 78213,
                                 "name": "NPC Stranded Debts",
                                 "amount": "0.0428",
                                 "type": "Rate x Consumption",
@@ -234,7 +250,7 @@
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68243,
+                                "id": 78062,
                                 "name": "NPC Stranded Costs",
                                 "amount": "0.0000",
                                 "type": "Rate x Consumption",
@@ -242,7 +258,7 @@
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68486,
+                                "id": 78000,
                                 "name": "NPC SPUG",
                                 "amount": "0.0000",
                                 "type": "Rate x Consumption",
@@ -250,7 +266,7 @@
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68504,
+                                "id": 77801,
                                 "name": "Missionary Electrification",
                                 "amount": "0.2763",
                                 "type": "Rate x Consumption",
@@ -258,7 +274,7 @@
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68725,
+                                "id": 78276,
                                 "name": "Environmental Charges",
                                 "amount": "0.0025",
                                 "type": "Rate x Consumption",
@@ -266,15 +282,15 @@
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68187,
+                                "id": 78220,
                                 "name": "FIT-ALL",
-                                "amount": "0.2011",
+                                "amount": "0.3359",
                                 "type": "Rate x Consumption",
                                 "position": 31,
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68697,
+                                "id": 77758,
                                 "name": "GEA-ALL",
                                 "amount": "0.0000",
                                 "type": "Rate x Consumption",
@@ -292,7 +308,7 @@
                     {
                         "rates": [
                             {
-                                "id": 68242,
+                                "id": 77716,
                                 "name": "Distribution Tax",
                                 "amount": "0.0000",
                                 "type": "Distribution VAT",
@@ -300,7 +316,7 @@
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68548,
+                                "id": 78137,
                                 "name": "Other Tax",
                                 "amount": "0.0000",
                                 "type": "Other VAT",
@@ -326,7 +342,7 @@
                     {
                         "rates": [
                             {
-                                "id": 68470,
+                                "id": 78162,
                                 "name": "Lifeline Rate Subsidy",
                                 "amount": "0.0100",
                                 "type": "Rate x Consumption",
@@ -334,7 +350,7 @@
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68648,
+                                "id": 78265,
                                 "name": "Lifeline Rate Discount",
                                 "amount": "0.0000",
                                 "type": "Lifeline Discount",
@@ -352,7 +368,7 @@
                     {
                         "rates": [
                             {
-                                "id": 68325,
+                                "id": 78031,
                                 "name": "ICCS Adj",
                                 "amount": "0.0000",
                                 "type": "Rate x Consumption",
@@ -378,7 +394,7 @@
                     {
                         "rates": [
                             {
-                                "id": 68657,
+                                "id": 78161,
                                 "name": "Senior Citizen Subsidy",
                                 "amount": "0.0001",
                                 "type": "Rate x Consumption",
@@ -386,7 +402,7 @@
                                 "taxTypeName": ""
                             },
                             {
-                                "id": 68747,
+                                "id": 77692,
                                 "name": "Senior Citizen Discount",
                                 "amount": "0.0000",
                                 "type": "Senior Discount",
@@ -408,53 +424,53 @@
         ],
         "breakdown": [
             {
-                "a": "41652509.5246",
-                "b": "247904966.01",
+                "a": "23885575.49",
+                "b": "173027327.92",
                 "c": "0",
-                "d": "69866.22",
-                "costp": "58.59351376",
+                "d": "29686.28",
+                "costp": "42.38781768",
                 "source": "WESM",
-                "percent": "56.96779739"
+                "percent": "38.98581812"
             },
             {
                 "a": "18600000",
-                "b": "103121901.54",
+                "b": "119098622.24",
                 "c": "0",
                 "d": "0",
-                "costp": "24.37335022",
+                "costp": "29.17649336",
                 "source": "TLI",
-                "percent": "25.43906822"
+                "percent": "30.35875009"
             },
             {
-                "a": "12600000",
-                "b": "70558758.43",
+                "a": "18600000",
+                "b": "114703643.32",
                 "c": "0",
                 "d": "0",
-                "costp": "16.67689700",
+                "costp": "28.09982202",
                 "source": "MPCL",
-                "percent": "17.23291718"
+                "percent": "30.35875009"
             },
             {
-                "a": "263376",
-                "b": "1507221.84",
+                "a": "181769",
+                "b": "1371010.86",
                 "c": "0",
                 "d": "0",
-                "costp": "0.35623903",
+                "costp": "0.33586694",
                 "source": "Net Metering",
-                "percent": "0.36021721"
+                "percent": "0.29668170"
             }
         ],
         "billperiod": {
-            "id": 5330,
-            "startDate": "May 01, 2026",
-            "endDate": "May 31, 2026",
-            "pZeroRate": "0.0211",
+            "id": 5451,
+            "startDate": "Sep 01, 2026",
+            "endDate": "Sep 30, 2026",
+            "pZeroRate": "0.0233",
             "canDisconnect": false,
             "statusId": 2,
             "status": "Active - Lock for Billing"
         }
     },
     "response": "Query successful.",
-    "time": 1219090,
+    "time": 7088,
     "status": 0
 }

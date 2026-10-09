@@ -1,4 +1,4 @@
-﻿(function() {
+(function() {
   const currentPath = window.location.pathname.replace(/^\/|\/$/g, '');
   const slug = currentPath.split('/')[0];
 
@@ -270,7 +270,7 @@
     if (!config) return;
 
     const isMasterOff = config.masterSwitch === false;
-    const sublinkConfig = config.sublinks && config.sublinks[slug];
+    const sublinkConfig = (config.services && config.services[slug]) || (config.sublinks && config.sublinks[slug]);
 
     if (isMasterOff || (sublinkConfig && sublinkConfig.enabled === false)) {
       renderOfflineUI();
@@ -278,19 +278,62 @@
   }
 
   try {
-    const cached = localStorage.getItem('kiruu_sublinks_status');
+    const cached = localStorage.getItem('kiruu_services_status') || localStorage.getItem('kiruu_sublinks_status');
     if (cached) {
       checkConfig(JSON.parse(cached));
     }
   } catch (e) {}
 
-  fetch('/sublinks.json?t=' + Date.now(), { cache: 'no-store' })
-    .then(res => res.json())
-    .then(data => {
-      try {
-        localStorage.setItem('kiruu_sublinks_status', JSON.stringify(data));
-      } catch (e) {}
-      checkConfig(data);
+  const RTDB_STATUS_URL = window.__KIRUU_RTDB_URL__
+    ? `${window.__KIRUU_RTDB_URL__}/services/${slug}.json`
+    : `https://pangasinan-dataset-default-rtdb.firebaseio.com/services/${slug}.json`;
+  const FIRESTORE_STATUS_URL = 'https://firestore.googleapis.com/v1/projects/pangasinan-dataset/databases/(default)/documents/validations/system_status?key=AIzaSyBPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c';
+
+  function fetchStaticFallback() {
+    fetch('/sublinks.json?t=' + Date.now(), { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        try {
+          localStorage.setItem('kiruu_sublinks_status', JSON.stringify(data));
+        } catch (e) {}
+        checkConfig(data);
+      })
+      .catch(() => {});
+  }
+
+  function fetchFirestoreFallback() {
+    fetch(FIRESTORE_STATUS_URL, { cache: 'no-store' })
+      .then(res => res.json())
+      .then(doc => {
+        if (doc && doc.fields && doc.fields.configJson && doc.fields.configJson.stringValue) {
+          const cloudData = JSON.parse(doc.fields.configJson.stringValue);
+          try {
+            localStorage.setItem('kiruu_services_status', JSON.stringify(cloudData));
+            localStorage.setItem('kiruu_sublinks_status', JSON.stringify(cloudData));
+          } catch (e) {}
+          checkConfig(cloudData);
+        } else {
+          fetchStaticFallback();
+        }
+      })
+      .catch(fetchStaticFallback);
+  }
+
+  // Attempt RTDB first, then Firestore, then sublinks.json
+  fetch(RTDB_STATUS_URL, { cache: 'no-store' })
+    .then(res => {
+      if (!res.ok) throw new Error("RTDB unavailable");
+      return res.json();
     })
-    .catch(() => {});
+    .then(rtdbItem => {
+      if (rtdbItem && typeof rtdbItem.enabled === "boolean") {
+        if (rtdbItem.enabled === false) {
+          renderOfflineUI();
+        }
+      } else {
+        fetchFirestoreFallback();
+      }
+    })
+    .catch(fetchFirestoreFallback);
 })();
+

@@ -124,7 +124,7 @@ export default function ForumPage() {
                 value={draft.title}
                 onChange={(event) => setDraft((prev) => ({ ...prev, title: event.target.value }))}
                 placeholder="Write a short title..."
-                className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-blue-500"
+                className="min-h-[44px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:outline-none"
               />
             </label>
 
@@ -135,17 +135,17 @@ export default function ForumPage() {
                 onChange={(event) => setDraft((prev) => ({ ...prev, content: event.target.value }))}
                 rows={10}
                 placeholder="Share updates, guides, reminders, or references..."
-                className="min-h-[220px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-emerald-500"
+                className="min-h-[220px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none"
               />
             </label>
 
-            <div className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-blue-100 p-4">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-blue-100 p-4">
               <p className="text-sm text-blue-800">This post is saved to Firestore and visible in the forum feed.</p>
               <button
                 type="button"
                 onClick={handleSavePost}
                 disabled={isSaving}
-                className="rounded-lg bg-blue-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-70"
+                className="flex min-h-[44px] items-center justify-center rounded-lg bg-blue-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-900 focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isSaving ? "Publishing..." : "Publish Post"}
               </button>
@@ -158,7 +158,7 @@ export default function ForumPage() {
               <button
                 type="button"
                 onClick={loadPosts}
-                className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-slate-700"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-slate-700 focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
               >
                 Refresh
               </button>
@@ -173,7 +173,7 @@ export default function ForumPage() {
                 posts.map((post) => (
                   <article
                     key={post.id}
-                    className="rounded-lg border border-slate-200 border-l-4 border-l-violet-300 bg-white p-3"
+                    className="rounded-lg border border-slate-200 bg-white p-3.5 shadow-xs"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-semibold text-slate-900">{post.title}</p>

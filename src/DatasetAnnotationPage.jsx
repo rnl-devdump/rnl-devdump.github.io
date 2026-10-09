@@ -167,7 +167,7 @@ export default function DatasetAnnotationPage() {
         <header className="mb-6">
           <h1 className="text-xl font-semibold text-slate-900">Pangasinan Dataset Annotation Tool</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Do all parallel instructions, then save everyting to Firestore:
+            Annotate parallel English-Pangasinan instructions and commit directly to the training corpus:
           </p>
         </header>
 
@@ -297,7 +297,7 @@ export default function DatasetAnnotationPage() {
                       type="button"
                       onClick={() => deleteEntry(entry.id)}
                       disabled={entries.length === 1}
-                      className="rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-700 transition hover:bg-red-100 focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Delete
                     </button>
@@ -312,7 +312,7 @@ export default function DatasetAnnotationPage() {
                     value={entry.instruction}
                     onChange={(event) => updateEntry(entry.id, "instruction", event.target.value)}
                     rows={2}
-                    className="min-h-[72px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-violet-500"
+                    className="min-h-[72px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-violet-500 focus-visible:ring-2 focus-visible:ring-violet-600"
                   />
                 </div>
 
@@ -322,7 +322,7 @@ export default function DatasetAnnotationPage() {
                     <select
                       value={entry.classification || "Noun"}
                       onChange={(event) => updateEntry(entry.id, "classification", event.target.value)}
-                      className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-violet-500"
+                      className="min-h-[44px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-violet-500 focus-visible:ring-2 focus-visible:ring-violet-600"
                     >
                       {WORD_CLASS_OPTIONS.map((option) => (
                         <option key={option} value={option}>
@@ -341,7 +341,7 @@ export default function DatasetAnnotationPage() {
                       onChange={(event) => updateEntry(entry.id, "input", event.target.value)}
                       rows={4}
                       placeholder="Enter English text..."
-                      className="min-h-[92px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-blue-500"
+                      className="min-h-[92px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-600"
                     />
                   </label>
                   <label className="flex flex-col gap-1.5">
@@ -351,7 +351,7 @@ export default function DatasetAnnotationPage() {
                       onChange={(event) => updateEntry(entry.id, "output", event.target.value)}
                       rows={4}
                       placeholder="Enter Pangasinan translation..."
-                      className="min-h-[92px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-emerald-500"
+                      className="min-h-[92px] w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-600"
                     />
                   </label>
                 </div>
@@ -363,7 +363,7 @@ export default function DatasetAnnotationPage() {
         <button
           type="button"
           onClick={addEntry}
-          className="mt-3 flex w-full items-center justify-center rounded-lg bg-violet-100 px-4 py-2.5 text-sm font-medium text-violet-800 transition hover:bg-violet-200"
+          className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-lg bg-violet-100 px-4 py-2.5 text-sm font-medium text-violet-800 transition hover:bg-violet-200 focus-visible:ring-2 focus-visible:ring-violet-600 focus-visible:outline-none"
         >
           + Add entry
         </button>
@@ -376,7 +376,7 @@ export default function DatasetAnnotationPage() {
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="rounded-lg bg-blue-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex min-h-[44px] items-center justify-center rounded-lg bg-blue-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-900 focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSaving ? "Saving..." : "Save to DB"}
           </button>

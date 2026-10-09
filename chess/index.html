@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess - Web Edition</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0f172a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #f1f5f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        #loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            z-index: 10;
+            background: #0f172a;
+            top: 0; left: 0; right: 0; bottom: 0;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top-color: #38bdf8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { 
+            to { transform: rotate(360deg); }
+        }
+        h2 {
+            margin: 0;
+            font-weight: 500;
+        }
+        p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 18px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-size: 14px;
+            z-index: 20;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .back-btn:focus-visible {
+            outline: 3px solid #38bdf8;
+            outline-offset: 2px;
+        }
+        #cheerpj-display {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+    </style>
+    <script src="https://cjrtnc.leaningtech.com/4.3/loader.js"></script>
+</head>
+<body>
+    <a href="/" class="back-btn">Back to Ecosystem</a>
+    
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <h2>Loading Web JVM...</h2>
+        <p>Initializing CheerpJ to run Java in browser</p>
+    </div>
+
+    <div id="chess-container" style="width: 100vw; height: 100vh; position: relative;"></div>
+
+    <script>
+        async function runChess() {
+            try {
+                // Initialize CheerpJ runtime
+                await cheerpjInit();
+                
+                // Create graphical display for JavaFX / AWT GUI
+                var container = document.getElementById('chess-container');
+                cheerpjCreateDisplay(-1, -1, container);
+                
+                // Hide custom loading screen
+                document.getElementById('loading-screen').style.display = 'none';
+                
+                // Run the Java application JAR
+                await cheerpjRunJar("/app/chess/chess.jar");
+            } catch (err) {
+                console.error("CheerpJ initialization error:", err);
+                var p = document.querySelector("#loading-screen p");
+                if (p) p.textContent = "Error loading Java app: " + (err.message || err);
+            }
+        }
+
+        window.onload = runChess;
+    </script>
+</body>
+</html>

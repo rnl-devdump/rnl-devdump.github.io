@@ -118,7 +118,7 @@ export default function AiAssistantModal({ navigate, isOpen, onClose }) {
             <div>
               <h3 className="font-bold text-white text-base flex items-center gap-2 tracking-wide">
                 キルー AI
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
               </h3>
               <p className="text-xs text-text-lo">
                 {DAILY_LIMIT - dailyCount} / {DAILY_LIMIT} queries left today

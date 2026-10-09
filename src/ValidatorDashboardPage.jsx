@@ -477,7 +477,7 @@ export default function ValidatorDashboardPage() {
                       type="button"
                       onClick={() => decide("accepted")}
                       disabled={!validatorName.trim()}
-                      className="rounded-lg bg-emerald-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-emerald-900"
+                      className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 focus-visible:ring-2 focus-visible:ring-emerald-900 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Approve
                     </button>
@@ -485,7 +485,7 @@ export default function ValidatorDashboardPage() {
                       type="button"
                       onClick={() => decide("rejected")}
                       disabled={!validatorName.trim()}
-                      className="rounded-lg bg-red-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-red-900"
+                      className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-red-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-red-800 focus-visible:ring-2 focus-visible:ring-red-900 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Deny
                     </button>
@@ -497,7 +497,7 @@ export default function ValidatorDashboardPage() {
               )}
 
               <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-blue-100 p-4">
-                <label className="flex items-center gap-2 text-sm text-blue-900">
+                <label className="flex items-center gap-2 text-sm text-blue-900 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={markOriginalsProcessed}
@@ -510,7 +510,7 @@ export default function ValidatorDashboardPage() {
                   type="button"
                   onClick={handleFinalize}
                   disabled={isFinalizing || !validatorName.trim()}
-                  className="rounded-lg bg-blue-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-900 focus-visible:ring-2 focus-visible:ring-blue-900 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {isFinalizing ? "Finalizing..." : "Finalize Validation"}
                 </button>

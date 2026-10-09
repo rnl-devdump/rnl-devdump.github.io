@@ -62,7 +62,7 @@ export default function Header({ navigate, onSearchOpen, currentPage }) {
               }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-200 text-sm text-white hover:text-primary hover:bg-white/10 cursor-pointer border-none bg-transparent font-medium"
             >
-              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-red-500" />
               <span>Watch Together</span>
             </button>
 

@@ -10,12 +10,9 @@ export default function AiAssistantButton({ navigate }) {
       <div className="fixed bottom-6 right-6 z-[10000]">
           <button
           onClick={() => setIsOpen(!isOpen)}
-          className="relative group p-3.5 rounded-full bg-gradient-to-tr from-pink-600 to-rose-500 text-white shadow-xl hover:shadow-pink-500/50 hover:scale-110 transition-all duration-300 border border-white/20 flex items-center justify-center cursor-pointer"
-          title="キルー AI Assistant"
+          className="relative group p-3.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white shadow-xl transition-all duration-200 border border-white/20 flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+          title="キルー Assistant"
         >
-          {/* Animated Glow Ring */}
-          <span className="absolute -inset-1 rounded-full bg-gradient-to-r from-pink-500 to-rose-400 opacity-75 blur animate-pulse group-hover:opacity-100 transition-opacity" />
-
           {/* AI Logo */}
           <div className="relative">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

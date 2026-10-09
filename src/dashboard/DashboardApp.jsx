@@ -1,26 +1,28 @@
 import { useState, useEffect, useMemo } from 'react';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
-import { db } from '../lib/firebase.js';
+import { ref, onValue, set, remove } from 'firebase/database';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { db, rtdb, auth, firebaseConfig } from '../lib/firebase.js';
 
 const PWD_SALT = "kiruu_console_guard_salt_2026_x89a";
 const PWD_HASH = "78c2a001ef868e6e51e2aa5015eb6e88efe412744a62f027ebe1663853acb67f";
 
 const INITIAL_SUBLINKS = {
-  "tawir-webapp": {
-    name: "TAWIR v4 Web App",
-    path: "/tawir-webapp",
-    category: "AI Assistant",
-    description: "Pangasinan Agentic AI with Dual-Model Reasoning & Web Search (Flutter)",
-    enabled: true,
-    message: "TAWIR v4 is currently undergoing maintenance and updates."
-  },
   "tawir": {
-    name: "TAWIR v3 (Legacy)",
+    name: "TAWIR (Pangasinan AI Assistant)",
     path: "/tawir",
     category: "AI Assistant",
-    description: "Legacy Pangasinan conversational model interface (Flutter)",
+    description: "Pangasinan conversational model interface (Flutter)",
     enabled: true,
-    message: "TAWIR v3 is temporarily offline."
+    message: "TAWIR is temporarily offline."
+  },
+  "tawir-convo": {
+    name: "TAWIR Conversation Monitor",
+    path: "/tawir-convo",
+    category: "AI Monitoring",
+    description: "Real-time dialogue telemetry inspector & analytics",
+    enabled: true,
+    message: "TAWIR conversation monitor is currently offline."
   },
   "anime": {
     name: "Anime Hub",
@@ -38,14 +40,6 @@ const INITIAL_SUBLINKS = {
     enabled: true,
     message: "Movie streaming portal is offline."
   },
-  "faerie": {
-    name: "Faerie",
-    path: "/faerie",
-    category: "Storybook",
-    description: "Interactive visual storybook & Pangasinan folk tales",
-    enabled: true,
-    message: "Faerie tales reader is undergoing maintenance."
-  },
   "forum": {
     name: "Community Forum",
     path: "/forum",
@@ -54,30 +48,6 @@ const INITIAL_SUBLINKS = {
     enabled: true,
     message: "The forum is temporarily closed for maintenance."
   },
-  "letter": {
-    name: "Letter Archive",
-    path: "/letter",
-    category: "Document",
-    description: "Digital correspondence and letter preservation archives",
-    enabled: true,
-    message: "Letter archive is temporarily offline."
-  },
-  "letterx": {
-    name: "LetterX Viewer",
-    path: "/letterx",
-    category: "Document",
-    description: "Extended letter visualization and export tool",
-    enabled: true,
-    message: "LetterX viewer is currently disabled."
-  },
-  "letterhelper": {
-    name: "Letter Helper",
-    path: "/letterhelper",
-    category: "Tool",
-    description: "Letter digitization, transcription & annotation assistant",
-    enabled: true,
-    message: "Letter helper utility is temporarily down."
-  },
   "dataset": {
     name: "Dataset Annotator",
     path: "/dataset",
@@ -85,14 +55,6 @@ const INITIAL_SUBLINKS = {
     description: "Parallel sentence annotation pipeline for Salitan Pangasinan",
     enabled: true,
     message: "Dataset annotation portal is undergoing maintenance."
-  },
-  "directory": {
-    name: "Directory Explorer",
-    path: "/directory",
-    category: "System",
-    description: "Public project and portal directory index",
-    enabled: true,
-    message: "Directory explorer is temporarily unavailable."
   },
   "validation": {
     name: "Validation Suite",
@@ -109,6 +71,14 @@ const INITIAL_SUBLINKS = {
     description: "Automated electricity rates and billing analytics",
     enabled: true,
     message: "Utility rates service is temporarily unavailable."
+  },
+  "chess": {
+    name: "Java Chess (Web)",
+    path: "/chess",
+    category: "Game",
+    description: "A classic Java desktop chess game seamlessly ported to the web using WebAssembly and CheerpJ client-side JVM.",
+    enabled: true,
+    message: "Chess game is temporarily unavailable."
   }
 };
 
@@ -119,7 +89,11 @@ export default function DashboardApp() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return sessionStorage.getItem('kiruu_console_session') === 'active';
   });
+  const [authMode, setAuthMode] = useState('password'); // 'password' | 'firebase'
   const [passwordInput, setPasswordInput] = useState('');
+  const [emailInput, setEmailInput] = useState('');
+  const [fbPasswordInput, setFbPasswordInput] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -133,9 +107,91 @@ export default function DashboardApp() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
 
+  // Dynamic service registration form state
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newServiceKey, setNewServiceKey] = useState('');
+  const [newServiceName, setNewServiceName] = useState('');
+  const [newServiceMsg, setNewServiceMsg] = useState('');
+  const [newServiceCategory, setNewServiceCategory] = useState('AI Assistant');
+  const [newServicePath, setNewServicePath] = useState('');
+
+  const [rtdbStatus, setRtdbStatus] = useState('disconnected'); // 'disconnected' | 'connected' | 'fallback'
+
   const [deviceLogs, setDeviceLogs] = useState([]);
   const [aiLogs, setAiLogs] = useState([]);
   const [loadingTelemetry, setLoadingTelemetry] = useState(true);
+
+  const FIRESTORE_SYNC_URL = 'https://firestore.googleapis.com/v1/projects/pangasinan-dataset/databases/(default)/documents/validations/system_status?key=AIzaSyBPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c';
+
+  // Listen for Firebase Auth state changes
+  useEffect(() => {
+    if (!auth) return;
+    try {
+      const unsub = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setCurrentUser(user);
+          setIsAuthenticated(true);
+          sessionStorage.setItem('kiruu_console_session', 'active');
+          sessionStorage.setItem('kiruu_console_bypass', 'true');
+        }
+      });
+      return () => unsub();
+    } catch (e) {
+      console.warn("Auth listener warning:", e);
+    }
+  }, []);
+
+  // Listen to Firebase Realtime Database (/services and /masterSwitch)
+  useEffect(() => {
+    if (!rtdb) return;
+    try {
+      const servicesRef = ref(rtdb, 'services');
+      const unsub = onValue(servicesRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data && typeof data === 'object') {
+          setSublinks(prev => {
+            const merged = { ...prev };
+            Object.entries(data).forEach(([key, val]) => {
+              if (val && typeof val === 'object') {
+                merged[key] = {
+                  ...(merged[key] || {}),
+                  name: val.name || key,
+                  enabled: typeof val.enabled === 'boolean' ? val.enabled : true,
+                  message: val.maintenanceMessage || val.message || (merged[key] && merged[key].message) || "Service temporarily offline.",
+                  maintenanceMessage: val.maintenanceMessage || val.message,
+                  category: val.category || (merged[key] && merged[key].category) || "Custom",
+                  path: val.path || (merged[key] && merged[key].path) || `/${key}`,
+                  description: val.description || (merged[key] && merged[key].description) || "Dynamic service flag",
+                  isDynamic: val.isDynamic !== undefined ? val.isDynamic : true,
+                };
+              }
+            });
+            return merged;
+          });
+          setRtdbStatus('connected');
+        }
+      }, (err) => {
+        console.warn("RTDB listener error (falling back to Firestore):", err);
+        setRtdbStatus('fallback');
+      });
+
+      const masterSwitchRef = ref(rtdb, 'masterSwitch');
+      const unsubMaster = onValue(masterSwitchRef, (snapshot) => {
+        const val = snapshot.val();
+        if (typeof val === 'boolean') {
+          setMasterSwitch(val);
+        }
+      }, () => {});
+
+      return () => {
+        unsub();
+        unsubMaster();
+      };
+    } catch (err) {
+      console.warn("RTDB init warning:", err);
+      setRtdbStatus('fallback');
+    }
+  }, []);
 
   useEffect(() => {
     try {
@@ -153,17 +209,41 @@ export default function DashboardApp() {
       console.warn("Failed loading cached sublinks state", e);
     }
 
-    fetch('/sublinks.json?t=' + Date.now())
+    // Sync from Firestore Cloud so state is identical across all devices
+    fetch(FIRESTORE_SYNC_URL, { cache: 'no-store' })
       .then(res => res.json())
-      .then(data => {
-        if (data.sublinks) {
-          setSublinks(prev => ({ ...prev, ...data.sublinks }));
-        }
-        if (typeof data.masterSwitch === 'boolean') {
-          setMasterSwitch(data.masterSwitch);
+      .then(doc => {
+        if (doc && doc.fields && doc.fields.configJson && doc.fields.configJson.stringValue) {
+          const cloudData = JSON.parse(doc.fields.configJson.stringValue);
+          if (cloudData.sublinks) {
+            setSublinks(prev => ({ ...prev, ...cloudData.sublinks }));
+          }
+          if (typeof cloudData.masterSwitch === 'boolean') {
+            setMasterSwitch(cloudData.masterSwitch);
+          }
+          try {
+            localStorage.setItem('kiruu_sublinks_status', JSON.stringify(cloudData));
+          } catch (e) {}
+        } else {
+          // Static fallback
+          fetch('/sublinks.json?t=' + Date.now())
+            .then(res => res.json())
+            .then(data => {
+              if (data.sublinks) setSublinks(prev => ({ ...prev, ...data.sublinks }));
+              if (typeof data.masterSwitch === 'boolean') setMasterSwitch(data.masterSwitch);
+            })
+            .catch(() => {});
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        fetch('/sublinks.json?t=' + Date.now())
+          .then(res => res.json())
+          .then(data => {
+            if (data.sublinks) setSublinks(prev => ({ ...prev, ...data.sublinks }));
+            if (typeof data.masterSwitch === 'boolean') setMasterSwitch(data.masterSwitch);
+          })
+          .catch(() => {});
+      });
   }, []);
 
   useEffect(() => {
@@ -237,10 +317,39 @@ export default function DashboardApp() {
     }
   }
 
-  function handleLogout() {
+  async function handleFirebaseAuthLogin(e) {
+    if (e) e.preventDefault();
+    if (!emailInput.trim() || !fbPasswordInput.trim()) {
+      setAuthError('Please enter both email and password.');
+      return;
+    }
+    setIsVerifying(true);
+    setAuthError('');
+    try {
+      if (!auth) throw new Error('Firebase Auth not available. Please verify credentials in .env.');
+      const userCred = await signInWithEmailAndPassword(auth, emailInput.trim(), fbPasswordInput);
+      setCurrentUser(userCred.user);
+      sessionStorage.setItem('kiruu_console_session', 'active');
+      sessionStorage.setItem('kiruu_console_bypass', 'true');
+      setIsAuthenticated(true);
+      setEmailInput('');
+      setFbPasswordInput('');
+      setAuthError('');
+    } catch (err) {
+      setAuthError(err.message || 'Firebase authentication failed.');
+    } finally {
+      setIsVerifying(false);
+    }
+  }
+
+  async function handleLogout() {
+    if (auth && currentUser) {
+      try { await signOut(auth); } catch (e) {}
+    }
     sessionStorage.removeItem('kiruu_console_session');
     sessionStorage.removeItem('kiruu_console_bypass');
     setIsAuthenticated(false);
+    setCurrentUser(null);
     setPasswordInput('');
     setAuthError('');
   }
@@ -255,7 +364,7 @@ export default function DashboardApp() {
           enabled: !current.enabled
         }
       };
-      saveStateLocally(masterSwitch, updated);
+      saveStateLocally(masterSwitch, updated, key);
       return updated;
     });
   }
@@ -266,10 +375,11 @@ export default function DashboardApp() {
         ...prev,
         [key]: {
           ...prev[key],
-          message: newMsg
+          message: newMsg,
+          maintenanceMessage: newMsg
         }
       };
-      saveStateLocally(masterSwitch, updated);
+      saveStateLocally(masterSwitch, updated, key);
       return updated;
     });
   }
@@ -294,7 +404,7 @@ export default function DashboardApp() {
     });
   }
 
-  function saveStateLocally(mSwitch, sublinkMap) {
+  async function saveStateLocally(mSwitch, sublinkMap, updatedKey = null, isDelete = false) {
     const payload = {
       updatedAt: new Date().toISOString(),
       masterSwitch: mSwitch,
@@ -302,12 +412,146 @@ export default function DashboardApp() {
     };
     try {
       localStorage.setItem('kiruu_sublinks_status', JSON.stringify(payload));
-      setSaveSuccessMsg('State synchronized locally.');
-      setTimeout(() => setSaveSuccessMsg(''), 2500);
+      localStorage.setItem('kiruu_services_status', JSON.stringify(payload));
     } catch (e) {
       console.error(e);
     }
+
+    // 1. Synchronize to Firebase Realtime Database
+    if (rtdb) {
+      try {
+        if (updatedKey) {
+          if (isDelete) {
+            await remove(ref(rtdb, `services/${updatedKey}`));
+          } else {
+            const item = sublinkMap[updatedKey];
+            if (item) {
+              await set(ref(rtdb, `services/${updatedKey}`), {
+                name: item.name || updatedKey,
+                enabled: Boolean(item.enabled),
+                maintenanceMessage: item.message || item.maintenanceMessage || "This service is currently undergoing scheduled maintenance.",
+                category: item.category || "Custom",
+                path: item.path || `/${updatedKey}`,
+                description: item.description || "",
+                isDynamic: Boolean(item.isDynamic),
+                updatedAt: Date.now()
+              });
+            }
+          }
+        } else {
+          // Push entire services map
+          const rtdbPayload = {};
+          Object.entries(sublinkMap).forEach(([k, item]) => {
+            rtdbPayload[k] = {
+              name: item.name || k,
+              enabled: Boolean(item.enabled),
+              maintenanceMessage: item.message || item.maintenanceMessage || "This service is currently undergoing scheduled maintenance.",
+              category: item.category || "Custom",
+              path: item.path || `/${k}`,
+              description: item.description || "",
+              isDynamic: Boolean(item.isDynamic),
+              updatedAt: Date.now()
+            };
+          });
+          await set(ref(rtdb, 'services'), rtdbPayload);
+        }
+
+        if (typeof mSwitch === 'boolean') {
+          await set(ref(rtdb, 'masterSwitch'), mSwitch);
+        }
+      } catch (rtdbErr) {
+        console.warn("RTDB sync warning:", rtdbErr);
+      }
+    }
+
+    // 2. Broadcast in real-time to Cloud Firestore across all devices
+    try {
+      setSaveSuccessMsg('Syncing to RTDB & Cloud...');
+      const cloudPayload = {
+        fields: {
+          configJson: {
+            stringValue: JSON.stringify(payload)
+          }
+        }
+      };
+
+      const res = await fetch(FIRESTORE_SYNC_URL, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cloudPayload)
+      });
+
+      if (res.ok) {
+        setSaveSuccessMsg('State updated across ALL devices (RTDB + Cloud)!');
+      } else {
+        setSaveSuccessMsg(rtdb ? 'Updated in Realtime Database.' : 'Saved locally.');
+      }
+    } catch (err) {
+      console.warn("Cloud Firestore sync error:", err);
+      setSaveSuccessMsg(rtdb ? 'Updated in Realtime Database.' : 'Saved locally.');
+    }
+    setTimeout(() => setSaveSuccessMsg(''), 3000);
   }
+
+  function registerNewService(e) {
+    if (e) e.preventDefault();
+    const rawKey = newServiceKey.toLowerCase().trim();
+    const key = rawKey.replace(/[^a-z0-9_-]/g, "");
+    if (!key) {
+      alert("Please enter a valid service key slug (letters, numbers, underscores, dashes).");
+      return;
+    }
+    if (!newServiceName.trim()) {
+      alert("Please enter a display name for the service.");
+      return;
+    }
+
+    const cleanPath = (newServicePath.trim() || `/${key}`).startsWith('/')
+      ? (newServicePath.trim() || `/${key}`)
+      : `/${newServicePath.trim()}`;
+
+    const newServiceObj = {
+      name: newServiceName.trim(),
+      path: cleanPath,
+      category: newServiceCategory || "Custom",
+      description: "Dynamically registered service killswitch flag",
+      enabled: true,
+      message: newServiceMsg.trim() || "This service is currently undergoing scheduled maintenance.",
+      maintenanceMessage: newServiceMsg.trim() || "This service is currently undergoing scheduled maintenance.",
+      isDynamic: true
+    };
+
+    setSublinks(prev => {
+      const updated = {
+        ...prev,
+        [key]: newServiceObj
+      };
+      saveStateLocally(masterSwitch, updated, key);
+      return updated;
+    });
+
+    setNewServiceKey('');
+    setNewServiceName('');
+    setNewServiceMsg('');
+    setNewServicePath('');
+    setShowAddForm(false);
+    setSaveSuccessMsg(`Service "/${key}" successfully registered!`);
+    setTimeout(() => setSaveSuccessMsg(''), 4000);
+  }
+
+  function deleteService(key) {
+    if (!window.confirm(`Are you sure you want to remove service "${key}"?`)) return;
+
+    setSublinks(prev => {
+      const updated = { ...prev };
+      delete updated[key];
+      saveStateLocally(masterSwitch, updated, key, true);
+      return updated;
+    });
+    setSaveSuccessMsg(`Service "/${key}" removed.`);
+    setTimeout(() => setSaveSuccessMsg(''), 3000);
+  }
+
 
   function downloadConfigJSON() {
     const payload = {
@@ -431,7 +675,7 @@ export default function DashboardApp() {
               </svg>
             </div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-cyan-400" />
               Restricted Console Access
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">KIRUUCONSOLE</h1>
@@ -440,49 +684,122 @@ export default function DashboardApp() {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                Console Master Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  placeholder="Enter console password..."
-                  autoFocus
-                  className="w-full bg-[#080b12] border border-white/15 rounded-xl px-4 py-3.5 pr-11 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition"
-                >
-                  {showPassword ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {authError && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <span>{authError}</span>
-              </div>
-            )}
-
+          <div className="flex p-1 rounded-xl bg-white/5 border border-white/10 mb-6">
             <button
-              type="submit"
-              disabled={isVerifying}
-              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-cyan-500/25 transition active:scale-[0.98] disabled:opacity-50"
+              type="button"
+              onClick={() => { setAuthMode('password'); setAuthError(''); }}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition ${
+                authMode === 'password'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-md shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-white'
+              }`}
             >
-              {isVerifying ? "Verifying Credentials..." : "Authenticate & Open Console"}
+              Master Password
             </button>
-          </form>
+            <button
+              type="button"
+              onClick={() => { setAuthMode('firebase'); setAuthError(''); }}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition ${
+                authMode === 'firebase'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-md shadow-cyan-500/20'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Firebase Auth
+            </button>
+          </div>
+
+          {authMode === 'password' ? (
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                  Console Master Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    placeholder="Enter console password..."
+                    autoFocus
+                    className="w-full bg-[#080b12] border border-white/15 rounded-xl px-4 py-3.5 pr-11 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition"
+                  >
+                    {showPassword ? (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    ) : (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {authError && (
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  <span>{authError}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isVerifying}
+                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-cyan-500/25 transition active:scale-[0.98] disabled:opacity-50"
+              >
+                {isVerifying ? "Verifying Credentials..." : "Authenticate & Open Console"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleFirebaseAuthLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                  Admin Email
+                </label>
+                <input
+                  type="email"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  placeholder="admin@kiruu.xyz"
+                  required
+                  autoFocus
+                  className="w-full bg-[#080b12] border border-white/15 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                  Firebase Password
+                </label>
+                <input
+                  type="password"
+                  value={fbPasswordInput}
+                  onChange={(e) => setFbPasswordInput(e.target.value)}
+                  placeholder="Password..."
+                  required
+                  className="w-full bg-[#080b12] border border-white/15 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+                />
+              </div>
+
+              {authError && (
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  <span>{authError}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isVerifying}
+                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-cyan-500/25 transition active:scale-[0.98] disabled:opacity-50"
+              >
+                {isVerifying ? "Verifying Firebase Auth..." : "Log In with Firebase"}
+              </button>
+            </form>
+          )}
 
           <div className="mt-8 pt-6 border-t border-white/10 text-center">
             <a href="/" className="text-xs text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5">
@@ -497,7 +814,7 @@ export default function DashboardApp() {
   return (
     <div className="min-h-screen bg-[#07090e] text-white p-4 sm:p-8 font-sans">
       {saveSuccessMsg && (
-        <div className="fixed bottom-6 right-6 z-50 bg-emerald-500/90 text-black font-semibold text-xs px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md flex items-center gap-2 animate-bounce">
+        <div className="fixed bottom-6 right-6 z-50 bg-emerald-500/90 text-black font-semibold text-xs px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md flex items-center gap-2">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
           {saveSuccessMsg}
         </div>
@@ -523,11 +840,24 @@ export default function DashboardApp() {
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs">
-            <span className={`w-2 h-2 rounded-full ${masterSwitch ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500 animate-ping'}`} />
+            <span className={`w-2 h-2 rounded-full ${rtdbStatus === 'connected' ? 'bg-cyan-400' : 'bg-amber-400'}`} />
+            <span className="font-semibold text-slate-300">
+              {rtdbStatus === 'connected' ? 'RTDB: LIVE' : 'RTDB: FIRESTORE FALLBACK'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs">
+            <span className={`w-2 h-2 rounded-full ${masterSwitch ? 'bg-emerald-400' : 'bg-rose-500'}`} />
             <span className="font-semibold text-slate-300">
               {masterSwitch ? 'ALL SYSTEMS ONLINE' : 'GLOBAL KILL SWITCH ACTIVE'}
             </span>
           </div>
+
+          {currentUser && (
+            <span className="text-xs text-slate-400 font-mono bg-white/5 px-2.5 py-1 rounded-lg border border-white/10 hidden sm:inline-block">
+              {currentUser.email}
+            </span>
+          )}
 
           <button
             onClick={handleLogout}
@@ -580,7 +910,7 @@ export default function DashboardApp() {
                     <span className={`px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase border ${
                       masterSwitch 
                         ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' 
-                        : 'bg-rose-500/30 border-rose-500/60 text-rose-300 animate-pulse'
+                        : 'bg-rose-500/30 border-rose-500/60 text-rose-300'
                     }`}>
                       {masterSwitch ? "STATUS: NORMAL OPERATION" : "EMERGENCY: ALL SUBLINKS OFFLINE"}
                     </span>
@@ -629,6 +959,130 @@ export default function DashboardApp() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Dynamic Service Registration Panel */}
+            <div className="p-6 rounded-3xl bg-[#0d121c] border border-white/10 shadow-xl space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                    Register New App / Service Key
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Dynamically create arbitrary killswitch flags across RTDB &amp; Firestore. Drop into your app: <code className="text-cyan-300 font-mono text-[11px]">&lt;script src="/killswitch.js" data-service="key"&gt;&lt;/script&gt;</code>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="px-4 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition flex items-center gap-1.5 self-start sm:self-auto"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  {showAddForm ? "Close Form" : "+ Add Service"}
+                </button>
+              </div>
+
+              {showAddForm && (
+                <form onSubmit={registerNewService} className="pt-4 border-t border-white/5 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                        Service Key Slug *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={newServiceKey}
+                        onChange={(e) => {
+                          const k = e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+                          setNewServiceKey(k);
+                          if (!newServicePath) setNewServicePath(`/${k}`);
+                        }}
+                        placeholder="e.g. tawir-quiz"
+                        className="w-full bg-[#080b12] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                        Display Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={newServiceName}
+                        onChange={(e) => setNewServiceName(e.target.value)}
+                        placeholder="e.g. TAWIR Quiz Game"
+                        className="w-full bg-[#080b12] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                        Category
+                      </label>
+                      <select
+                        value={newServiceCategory}
+                        onChange={(e) => setNewServiceCategory(e.target.value)}
+                        className="w-full bg-[#080b12] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-400"
+                      >
+                        <option value="AI Assistant">AI Assistant</option>
+                        <option value="Media">Media</option>
+                        <option value="Data Tool">Data Tool</option>
+                        <option value="Quality">Quality</option>
+                        <option value="Game">Game</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Social">Social</option>
+                        <option value="Utility">Utility</option>
+                        <option value="Custom">Custom</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                        Path Route
+                      </label>
+                      <input
+                        type="text"
+                        value={newServicePath}
+                        onChange={(e) => setNewServicePath(e.target.value)}
+                        placeholder="e.g. /tawir-quiz"
+                        className="w-full bg-[#080b12] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+                      Maintenance Notice (Offline Message)
+                    </label>
+                    <input
+                      type="text"
+                      value={newServiceMsg}
+                      onChange={(e) => setNewServiceMsg(e.target.value)}
+                      placeholder="e.g. This application is offline for scheduled maintenance."
+                      className="w-full bg-[#080b12] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddForm(false)}
+                      className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-400 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-lg shadow-emerald-500/20"
+                    >
+                      Save &amp; Register Service
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -784,6 +1238,24 @@ export default function DashboardApp() {
                         placeholder="Notice shown when offline..."
                         className="w-full bg-[#080b12] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-cyan-400"
                       />
+                    </div>
+
+                    <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-[11px]">
+                      <div className="flex items-center gap-1.5 font-mono text-slate-500 truncate max-w-[200px]">
+                        <span className="bg-white/5 px-1.5 py-0.5 rounded text-slate-400">/{key}</span>
+                        <span className="text-[10px] text-slate-500">data-service="{key}"</span>
+                      </div>
+
+                      {item.isDynamic && (
+                        <button
+                          type="button"
+                          onClick={() => deleteService(key)}
+                          className="text-rose-400 hover:text-rose-300 font-semibold text-xs px-2 py-0.5 rounded hover:bg-rose-500/10 transition"
+                          title="Remove this dynamic service"
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </div>
                 );

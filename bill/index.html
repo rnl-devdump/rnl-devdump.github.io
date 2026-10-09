@@ -4,228 +4,334 @@
   <script src="/sublink-guard.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CENPELCO Bill Estimator</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <title>CENPELCO Bill Estimator: The Kiruu</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-rounded/css/uicons-bold-rounded.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    @font-face {
+      font-family: 'Vandelvira';
+      src: url('/fonts/Vandelvira-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --black: #0a0a0a;
-      --off-black: #111111;
-      --card: #161616;
-      --border: #2a2a2a;
-      --muted: #3a3a3a;
-      --dim: #666666;
-      --mid: #999999;
-      --light: #cccccc;
-      --white: #f5f5f5;
-      --green: #00e87a;
-      --green-dim: #00e87a22;
+      --primary-dark: #1A1A19;
+      --bg-peach: #fee6e3;
+      --bg-peach-hover: #ffdeda;
+      --border-dark: #111111;
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --font-display: 'Vandelvira', Georgia, serif;
+      --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'DM Mono', monospace;
+      --accent-green: #047857;
+      --accent-green-bg: #ecfdf5;
     }
 
     body {
-      background: var(--black);
-      color: var(--white);
-      font-family: 'Syne', sans-serif;
       min-height: 100vh;
-      padding: 0;
+      width: 100%;
+      background-color: #dceef9;
+      color: var(--primary-dark);
+      font-family: var(--font-ui);
+      position: relative;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Iconic water ripple background with mint-cyan to ambient fade */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #e3ffe7 0%, #d9e7ff 38%, rgba(200, 230, 250, 0.4) 75%, rgba(0, 0, 0, 0.35) 100%), url('/bg.jpg');
+      background-size: cover;
+      background-position: center;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .fi {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
     }
 
     /* Header */
     .site-header {
-      border-bottom: 1px solid var(--border);
-      padding: 20px 24px;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 16px;
       flex-wrap: wrap;
+      border-bottom: 2px dashed rgba(26, 26, 25, 0.2);
     }
+
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
-    .brand-dot {
-      width: 10px;
-      height: 10px;
-      background: var(--green);
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.85); }
-    }
-    .brand-name {
-      font-size: 1rem;
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-display), serif;
+      font-size: 14px;
       font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--white);
-    }
-    .header-badge {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--dim);
-      border: 1px solid var(--border);
-      padding: 4px 10px;
-      border-radius: 100px;
-      letter-spacing: 0.04em;
-    }
-    .source-link {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--green);
+      color: #111;
       text-decoration: none;
-      border: 1px solid var(--green);
-      padding: 5px 12px;
-      border-radius: 100px;
-      transition: background 0.2s;
+      background: #ffffff;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 8px;
+      padding: 6px 12px;
+      box-shadow: 2px 2px 0 var(--border-dark);
+      transition: all 0.15s ease;
+    }
+
+    .back-link:hover {
+      background: var(--bg-peach);
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0 var(--border-dark);
+    }
+
+    .brand-name {
+      font-family: var(--font-display), serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: -0.01em;
+    }
+
+    .header-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: #374151;
+      background: #ffffff;
+      border: 1.5px solid var(--border-dark);
+      padding: 4px 10px;
+      border-radius: 20px;
+      box-shadow: 2px 2px 0 var(--border-dark);
+      font-weight: 600;
+    }
+
+    .source-link {
+      font-family: var(--font-display), serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #111;
+      text-decoration: none;
+      background: var(--bg-peach);
+      border: 2px solid var(--border-dark);
+      padding: 8px 16px;
+      border-radius: 8px;
+      box-shadow: 3px 3px 0 var(--border-dark);
+      transition: all 0.15s ease;
       white-space: nowrap;
     }
-    .source-link:hover { background: var(--green-dim); }
+
+    .source-link:hover {
+      background: var(--bg-peach-hover);
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0 var(--border-dark);
+    }
 
     /* Main layout */
     .main {
-      max-width: 900px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 32px 20px 60px;
+      padding: 32px 20px 80px;
     }
 
     /* Hero */
     .hero {
-      margin-bottom: 40px;
+      margin-bottom: 32px;
+      padding: 24px 28px;
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(12px);
+      border: 2px solid var(--border-dark);
+      border-radius: 18px;
+      box-shadow: 6px 6px 0 var(--border-dark);
     }
+
     .hero-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--dim);
-      margin-bottom: 10px;
+      color: #4b5563;
+      margin-bottom: 8px;
+      font-weight: 600;
     }
+
     .hero-title {
-      font-size: clamp(1.6rem, 5vw, 2.6rem);
-      font-weight: 800;
+      font-family: var(--font-display), serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
       line-height: 1.1;
-      color: var(--white);
+      color: #111827;
       letter-spacing: -0.02em;
     }
-    .hero-title span { color: var(--green); }
+
+    .hero-title span {
+      color: var(--accent-green);
+    }
+
     .hero-sub {
-      margin-top: 12px;
-      font-size: 0.9rem;
-      color: var(--mid);
-      font-weight: 400;
-      line-height: 1.6;
+      margin-top: 10px;
+      font-size: 1rem;
+      color: #4b5563;
+      max-width: 780px;
+      line-height: 1.5;
     }
 
     /* Calculator card */
     .calc-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      border: 2px solid var(--border-dark);
+      border-radius: 18px;
       padding: 28px 24px;
-      margin-bottom: 32px;
+      margin-bottom: 36px;
+      box-shadow: 6px 6px 0 var(--border-dark);
     }
+
     .card-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--dim);
-      margin-bottom: 20px;
+      font-family: var(--font-display), serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 16px;
     }
 
     .input-row {
       display: flex;
-      gap: 12px;
-      align-items: stretch;
+      gap: 14px;
+      align-items: flex-end;
       flex-wrap: wrap;
     }
+
     .input-wrap {
       flex: 1;
-      min-width: 180px;
+      min-width: 220px;
       position: relative;
     }
+
     .input-wrap label {
       display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--mid);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #374151;
       margin-bottom: 8px;
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
+
     .kwh-input {
       width: 100%;
-      background: var(--off-black);
-      border: 1px solid var(--border);
-      color: var(--white);
-      font-family: 'DM Mono', monospace;
-      font-size: 1.3rem;
-      font-weight: 500;
-      padding: 14px 50px 14px 18px;
-      border-radius: 8px;
+      background: #ffffff;
+      border: 2px solid var(--border-dark);
+      color: #111;
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      font-weight: 700;
+      padding: 12px 56px 12px 18px;
+      border-radius: 10px;
       outline: none;
-      transition: border-color 0.2s;
+      box-shadow: 3px 3px 0 var(--border-dark);
+      transition: all 0.15s ease;
       -moz-appearance: textfield;
     }
+
     .kwh-input::-webkit-outer-spin-button,
     .kwh-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-    .kwh-input:focus { border-color: var(--green); }
-    .kwh-input::placeholder { color: var(--muted); }
+
+    .kwh-input:focus {
+      box-shadow: 5px 5px 0 var(--border-dark);
+      transform: translate(-1px, -1px);
+    }
+
     .input-unit {
       position: absolute;
-      right: 14px;
-      bottom: 16px;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--dim);
-      letter-spacing: 0.08em;
+      right: 18px;
+      bottom: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #6b7280;
     }
 
     .compute-btn {
-      background: var(--green);
-      color: var(--black);
-      border: none;
-      padding: 14px 26px;
-      font-family: 'Syne', sans-serif;
+      background: var(--bg-peach);
+      color: #111;
+      border: 2px solid var(--border-dark);
+      padding: 13px 28px;
+      font-family: var(--font-display), serif;
       font-weight: 700;
-      font-size: 0.9rem;
-      border-radius: 8px;
+      font-size: 1.05rem;
+      border-radius: 10px;
       cursor: pointer;
-      letter-spacing: 0.04em;
-      transition: opacity 0.2s, transform 0.1s;
-      align-self: flex-end;
+      box-shadow: 4px 4px 0 var(--border-dark);
+      transition: all 0.15s ease;
       white-space: nowrap;
       flex-shrink: 0;
     }
-    .compute-btn:active { transform: scale(0.97); opacity: 0.85; }
 
-    /* Result */
+    .compute-btn:hover {
+      background: var(--bg-peach-hover);
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--border-dark);
+    }
+
+    .compute-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--border-dark);
+    }
+
+    /* Result Area */
     .result-area {
       display: none;
       margin-top: 28px;
-      border-top: 1px solid var(--border);
+      border-top: 2px dashed rgba(26, 26, 25, 0.2);
       padding-top: 24px;
       animation: fadeIn 0.3s ease;
     }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .result-total-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--dim);
-      margin-bottom: 6px;
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
+
+    .result-total-label {
+      font-family: var(--font-display), serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #4b5563;
+      margin-bottom: 4px;
+    }
+
     .result-total-amount {
-      font-family: 'DM Mono', monospace;
-      font-size: clamp(2rem, 6vw, 3rem);
-      font-weight: 500;
-      color: var(--green);
+      font-family: var(--font-mono);
+      font-size: clamp(2.4rem, 6vw, 3.5rem);
+      font-weight: 700;
+      color: var(--accent-green);
       letter-spacing: -0.02em;
       margin-bottom: 24px;
     }
@@ -234,59 +340,73 @@
     .ledger {
       width: 100%;
       border-collapse: collapse;
+      background: #ffffff;
+      border: 2px solid var(--border-dark);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 4px 4px 0 var(--border-dark);
     }
-    .ledger-group-header {
-      background: transparent;
-    }
+
     .ledger-group-header td {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.14em;
+      font-family: var(--font-display), serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      color: var(--dim);
-      padding: 16px 0 6px;
-      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      color: #111;
+      background: #f8fafc;
+      padding: 12px 18px 8px;
+      border-bottom: 1.5px solid var(--border-dark);
     }
+
     .ledger tr.data-row td {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--muted);
-      font-size: 0.88rem;
-      color: var(--light);
+      padding: 10px 18px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.92rem;
+      color: #334155;
     }
+
     .ledger tr.data-row:last-child td { border-bottom: none; }
-    .ledger tr.data-row td.name { color: var(--white); }
+    .ledger tr.data-row td.name { color: #111; font-weight: 500; }
     .ledger tr.data-row td.amount {
       text-align: right;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #111;
     }
+
     .ledger tr.subtotal td {
-      padding: 10px 0;
-      border-top: 1px solid var(--border);
+      padding: 12px 18px;
+      border-top: 2px solid var(--border-dark);
+      background: #f1f5f9;
       font-weight: 700;
-      font-size: 0.88rem;
-      color: var(--white);
+      font-size: 0.92rem;
+      color: #111;
     }
+
     .ledger tr.subtotal td.amount {
       text-align: right;
-      font-family: 'DM Mono', monospace;
-      color: var(--white);
+      font-family: var(--font-mono);
+      color: #111;
     }
+
     .ledger tr.grand-total td {
-      padding: 14px 0;
-      border-top: 2px solid var(--green);
-      font-size: 1rem;
-      font-weight: 800;
-      color: var(--green);
-      letter-spacing: 0.02em;
+      padding: 16px 18px;
+      border-top: 2px solid var(--border-dark);
+      background: #d1fae5;
+      font-family: var(--font-display), serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #065f46;
     }
+
     .ledger tr.grand-total td.amount {
       text-align: right;
-      font-family: 'DM Mono', monospace;
-      font-size: 1.1rem;
-      color: var(--green);
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #065f46;
     }
 
     /* Rates section */
@@ -298,150 +418,166 @@
       gap: 10px;
       flex-wrap: wrap;
     }
+
     .section-title {
-      font-size: 1.1rem;
+      font-family: var(--font-display), serif;
+      font-size: 1.5rem;
       font-weight: 700;
-      color: var(--white);
-      letter-spacing: -0.01em;
+      color: #111;
     }
+
     .section-mono {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
-      color: var(--dim);
-      letter-spacing: 0.08em;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 500;
     }
 
     .rates-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      border: 2px solid var(--border-dark);
+      border-radius: 16px;
       overflow: hidden;
-      margin-bottom: 28px;
+      margin-bottom: 32px;
+      box-shadow: 5px 5px 0 var(--border-dark);
     }
+
     .rates-table {
       width: 100%;
       border-collapse: collapse;
+      background: #ffffff;
     }
+
     .rates-table thead tr {
-      background: var(--off-black);
-      border-bottom: 1px solid var(--border);
+      background: #f8fafc;
+      border-bottom: 2px solid var(--border-dark);
     }
+
     .rates-table th {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.12em;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--dim);
-      padding: 12px 16px;
+      color: #475569;
+      padding: 14px 18px;
       text-align: left;
-      font-weight: 400;
+      font-weight: 700;
     }
+
     .rates-table td {
-      padding: 12px 16px;
-      font-size: 0.85rem;
-      color: var(--light);
-      border-bottom: 1px solid var(--border);
+      padding: 12px 18px;
+      font-size: 0.88rem;
+      color: #334155;
+      border-bottom: 1px solid #e2e8f0;
       vertical-align: top;
       line-height: 1.4;
     }
+
     .rates-table tr:last-child td { border-bottom: none; }
-    .rates-table tr:hover td { background: #1c1c1c; }
-    .rates-table td.group-tag {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--dim);
-      letter-spacing: 0.05em;
-      white-space: nowrap;
-    }
-    .rates-table td.name-col { color: var(--white); font-weight: 600; }
+    .rates-table tr:hover td { background: #fdfaf6; }
+
+    .rates-table td.name-col { color: #111; font-weight: 600; }
     .rates-table td.value-col {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.85rem;
-      color: var(--green);
-      white-space: nowrap;
-    }
-    .rates-table td.formula-col {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--mid);
-      word-break: break-word;
-    }
-    .type-badge {
-      display: inline-block;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.06em;
-      padding: 2px 7px;
-      border-radius: 4px;
-      border: 1px solid var(--muted);
-      color: var(--dim);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--accent-green);
+      font-weight: 700;
       white-space: nowrap;
     }
 
-    .no-data-row td {
+    .rates-table td.formula-col {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+
+    .no-data-row td, td.no-data {
       text-align: center;
-      color: var(--dim);
-      font-size: 0.82rem;
+      color: #64748b;
+      font-size: 0.85rem;
       padding: 28px 16px;
-      font-family: 'DM Mono', monospace;
-      letter-spacing: 0.04em;
+      font-family: var(--font-mono);
     }
 
     /* Generation section */
-    .gen-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .gen-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
     .gen-table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 620px;
+      min-width: 660px;
+      background: #ffffff;
     }
+
     .gen-table thead tr {
-      background: var(--off-black);
-      border-bottom: 1px solid var(--border);
+      background: #f8fafc;
+      border-bottom: 2px solid var(--border-dark);
     }
+
     .gen-table th {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.1em;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--dim);
-      padding: 12px 14px;
+      color: #475569;
+      padding: 12px 16px;
       text-align: left;
-      font-weight: 400;
+      font-weight: 700;
       white-space: nowrap;
     }
+
     .gen-table td {
-      padding: 12px 14px;
-      font-size: 0.83rem;
-      color: var(--light);
-      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: #334155;
+      border-bottom: 1px solid #e2e8f0;
     }
+
     .gen-table tr:last-child td { border-bottom: none; }
-    .gen-table tr:hover td { background: #1c1c1c; }
+    .gen-table tr:hover td { background: #fdfaf6; }
 
     /* Footer */
     .footer {
       margin-top: 48px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border);
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.75);
+      border: 2px solid var(--border-dark);
+      border-radius: 14px;
+      box-shadow: 4px 4px 0 var(--border-dark);
       text-align: center;
     }
+
     .footer p {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      color: var(--dim);
-      letter-spacing: 0.06em;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: #475569;
       line-height: 1.8;
     }
-    .footer a { color: var(--green); text-decoration: none; }
 
-    @media (max-width: 520px) {
-      .site-header { padding: 16px; gap: 10px; }
-      .main { padding: 24px 16px 48px; }
+    .footer a {
+      color: #0369a1;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      .site-header { padding: 16px; gap: 12px; }
+      .main { padding: 20px 16px 60px; }
       .calc-card { padding: 20px 16px; }
-      .input-row { flex-direction: column; }
-      .compute-btn { width: 100%; padding: 16px; font-size: 1rem; }
-      .rates-table th:nth-child(3),
-      .rates-table td:nth-child(3) { display: none; }
+      .input-row { flex-direction: column; align-items: stretch; }
+      .compute-btn { width: 100%; min-height: 44px; padding: 14px; font-size: 1rem; }
+    }
+
+    /* Accessibility focus indicators */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible {
+      outline: 3px solid var(--border-dark) !important;
+      outline-offset: 2px !important;
     }
   </style>
 </head>
@@ -449,19 +585,28 @@
 
 <header class="site-header">
   <div class="brand">
-    <div class="brand-dot"></div>
+    <a href="/" class="back-link" title="Return to The Kiruu Hub">
+      <i class="fi fi-br-arrow-left" style="font-size: 12px;" aria-hidden="true"></i> The Kiruu
+    </a>
     <span class="brand-name">CENPELCO</span>
     <span class="header-badge">Lingayen Residential</span>
   </div>
-  <a href="https://cmbis.cenpelco.com/public/rates/billrates.jsp" target="_blank" class="source-link">↗ Official Rates</a>
+  <a href="https://cmbis.cenpelco.com/public/rates/billrates.jsp" target="_blank" rel="noopener noreferrer" class="source-link">
+    Official Rates
+  </a>
 </header>
 
 <main class="main">
 
   <div class="hero">
-    <div class="hero-label">Bill Estimator · <span id="label-month">Current Billing Period</span></div>
+    <div class="hero-label">
+      <i class="fi fi-br-bolt" style="color: #b45309;" aria-hidden="true"></i>
+      <span>Bill Estimator &bull; <strong id="label-month">Current Billing Period</strong></span>
+    </div>
     <h1 class="hero-title">Monthly Bill<br><span>Statement Calculator</span></h1>
-    <p class="hero-sub">Enter your consumption in kilowatt-hours to generate an itemized breakdown of your electricity charges for the current billing period.</p>
+    <p class="hero-sub">
+      Enter your consumption in kilowatt-hours (kWh) to generate an itemized breakdown of your electricity charges based on official CENPELCO unbundled tariffs.
+    </p>
   </div>
 
   <div class="calc-card">
@@ -472,7 +617,7 @@
         <input type="number" id="input-kwh" class="kwh-input" placeholder="e.g. 150" min="0">
         <span class="input-unit">kWh</span>
       </div>
-      <button onclick="processUnbundledBill()" class="compute-btn">Compute Bill →</button>
+      <button onclick="processUnbundledBill()" class="compute-btn">Compute Bill</button>
     </div>
 
     <div id="panel-result" class="result-area">
@@ -499,7 +644,7 @@
         </tr>
       </thead>
       <tbody id="body-rates-table">
-        <tr class="no-data-row"><td colspan="5">Rate data not yet loaded</td></tr>
+        <tr class="no-data-row"><td colspan="5">Rate data loading...</td></tr>
       </tbody>
     </table>
   </div>
@@ -526,15 +671,18 @@
           </tr>
         </thead>
         <tbody id="body-generation-table">
-          <tr class="no-data-row"><td colspan="9">Power source data not yet available</td></tr>
+          <tr class="no-data-row"><td colspan="9">Power source data loading...</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <footer class="footer">
-    <p>Estimates are based on official CENPELCO rates for Lingayen Residential customers.<br>
-    Figures are for reference only. Please refer to your actual bill for exact charges. <a href="https://cmbis.cenpelco.com/public/rates/billrates.jsp" target="_blank">View official rates →</a></p>
+    <p>
+      Estimates are based on official CENPELCO rates for Lingayen Residential customers.<br>
+      Figures are for reference only. Please refer to your actual bill for exact charges.
+      <a href="https://cmbis.cenpelco.com/public/rates/billrates.jsp" target="_blank" rel="noopener noreferrer">View official rates</a>
+    </p>
   </footer>
 
 </main>
@@ -542,17 +690,19 @@
 <script src="app.js"></script>
 
 <script>
-  // Set current billing month label
+  // Set current billing month label fallback
   const now = new Date();
-  document.getElementById('label-month').textContent = now.toLocaleString('en-PH', { month: 'long', year: 'numeric' });
+  const labelMonth = document.getElementById('label-month');
+  if (labelMonth && (!labelMonth.textContent || labelMonth.textContent === 'Current Billing Period')) {
+    labelMonth.textContent = now.toLocaleString('en-PH', { month: 'long', year: 'numeric' });
+  }
 
-  // Fallback demo if app.js doesn't define processUnbundledBill
+  // Fallback demo calculation if app.js doesn't override processUnbundledBill
   if (typeof processUnbundledBill === 'undefined') {
     window.processUnbundledBill = function() {
       const kwh = parseFloat(document.getElementById('input-kwh').value);
       if (!kwh || kwh <= 0) return;
 
-      // Demo rates (replace with real data from app.js)
       const charges = [
         { group: 'Generation', name: 'Generation Charge', rate: 5.1234 },
         { group: 'Transmission', name: 'Transmission Charge', rate: 0.9785 },
@@ -560,8 +710,7 @@
         { group: 'Distribution', name: 'Supply Charge', rate: 0.2546 },
         { group: 'Distribution', name: 'Metering Charge', rate: 0.1832 },
         { group: 'Subsidies', name: 'Lifeline Rate Subsidy', rate: 0.1523 },
-        { group: 'Taxes & Fees', name: 'Value Added Tax (VAT)', rate: 0.0 },
-        { group: 'Taxes & Fees', name: 'Franchise Tax', rate: 0.0 },
+        { group: 'Taxes & Fees', name: 'Value Added Tax (VAT 12%)', rate: 0.0 },
         { group: 'Universal Charges', name: 'NPC Stranded Cost', rate: 0.0428 },
         { group: 'Universal Charges', name: 'Missionary Electrification', rate: 0.1754 },
       ];
@@ -579,11 +728,10 @@
 
       let rows = '';
       Object.keys(groups).forEach(group => {
-        rows += `<tr class="ledger-group-header"><td colspan="2"><td/></tr>`;
-        rows += `<tr class="ledger-group-header"><td colspan="2" style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:#666;padding:16px 0 6px;border-bottom:1px solid #2a2a2a">${group}</td></tr>`;
+        rows += `<tr class="ledger-group-header"><td colspan="2">${group}</td></tr>`;
         groups[group].forEach(c => {
           const amt = c.rate * kwh;
-          rows += `<tr class="data-row"><td class="name">${c.name}</td><td class="amount">${amt > 0 ? '₱' + amt.toFixed(2) : '—'}</td></tr>`;
+          rows += `<tr class="data-row"><td class="name">${c.name}</td><td class="amount">${amt > 0 ? '₱' + amt.toFixed(2) : '₱0.00'}</td></tr>`;
         });
       });
 
@@ -598,6 +746,11 @@
       panel.style.display = 'block';
       panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     };
+  }
+
+  // Trigger app.js runLoader if available
+  if (typeof runLoader === 'function') {
+    runLoader();
   }
 </script>
 </body>

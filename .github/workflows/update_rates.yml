@@ -2,8 +2,8 @@ name: Update Utility Rates Data
 
 on:
   schedule:
-    # Runs at 00:00 UTC (8:00 AM PHT) daily
-    - cron: '0 0 * * *'
+    # Runs at 00:00 and 12:00 UTC (8:00 AM & 8:00 PM PHT)
+    - cron: '0 0,12 * * *'
   workflow_dispatch:
 
 permissions:

@@ -106,6 +106,14 @@ function SiteCard({ site }) {
 }
 
 function OthersWindow({ onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
       <section
@@ -124,7 +132,7 @@ function OthersWindow({ onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
           >
             Close
           </button>
@@ -212,7 +220,7 @@ export default function DirectoryPage() {
               <button
                 type="button"
                 onClick={() => setShowOthersWindow(true)}
-                className="rounded-lg bg-amber-700 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-amber-800"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-amber-700 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-amber-800 focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:outline-none"
               >
                 Show OTHERS
               </button>
@@ -225,13 +233,13 @@ export default function DirectoryPage() {
                     onChange={(event) => setPasscode(event.target.value)}
                     type="password"
                     autoComplete="current-password"
-                    className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-amber-600 focus:ring-2 focus:ring-amber-100"
+                    className="min-h-[44px] rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-amber-600 focus:ring-2 focus:ring-amber-100 focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:outline-none"
                   />
                 </label>
                 {error ? <p className="mt-2 text-xs font-bold text-red-700">{error}</p> : null}
                 <button
                   type="submit"
-                  className="mt-3 w-full rounded-lg bg-amber-700 px-4 py-2 text-sm font-bold text-white transition hover:bg-amber-800"
+                  className="mt-3 inline-flex min-h-[44px] w-full items-center justify-center rounded-lg bg-amber-700 px-4 py-2 text-sm font-bold text-white transition hover:bg-amber-800 focus-visible:ring-2 focus-visible:ring-amber-900 focus-visible:outline-none"
                 >
                   Unlock OTHERS
                 </button>

@@ -66,7 +66,7 @@ export default function ActiveRoomsRow() {
     <div className="layout-container my-8">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+          <div className="w-3 h-3 rounded-full bg-red-500" />
           <h2 className="text-xl md:text-2xl font-bold text-white tracking-wide">
             Live Watch Parties
           </h2>
