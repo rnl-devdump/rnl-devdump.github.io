@@ -15,7 +15,7 @@
     return;
   }
 
-  function renderOfflineUI() {
+  function renderOfflineUI(customNotice) {
     window.stop && window.stop();
 
     function inject() {
@@ -208,7 +208,7 @@
           <h3 class="kiruu-subtitle">We'll be right back!</h3>
           <h1 class="kiruu-title">Service</h1>
           <h1 class="kiruu-title">Offline</h1>
-          <p class="kiruu-notice">This service is turned off! Please try again later.</p>
+          <p class="kiruu-notice">${customNotice || "This service is turned off! Please try again later."}</p>
           <div>
             <a href="/" class="button-rn" role="button">
               Return to Homepage
@@ -273,7 +273,10 @@
     const sublinkConfig = (config.services && config.services[slug]) || (config.sublinks && config.sublinks[slug]);
 
     if (isMasterOff || (sublinkConfig && sublinkConfig.enabled === false)) {
-      renderOfflineUI();
+      const notice = sublinkConfig
+        ? (sublinkConfig.maintenanceMessage || sublinkConfig.message)
+        : (config.maintenanceMessage || "All services are currently undergoing maintenance.");
+      renderOfflineUI(notice);
     }
   }
 
@@ -295,45 +298,45 @@
       .then(data => {
         try {
           localStorage.setItem('kiruu_sublinks_status', JSON.stringify(data));
+          localStorage.setItem('kiruu_services_status', JSON.stringify(data));
         } catch (e) {}
         checkConfig(data);
       })
       .catch(() => {});
   }
 
-  function fetchFirestoreFallback() {
-    fetch(FIRESTORE_STATUS_URL, { cache: 'no-store' })
-      .then(res => res.json())
-      .then(doc => {
-        if (doc && doc.fields && doc.fields.configJson && doc.fields.configJson.stringValue) {
-          const cloudData = JSON.parse(doc.fields.configJson.stringValue);
-          try {
-            localStorage.setItem('kiruu_services_status', JSON.stringify(cloudData));
-            localStorage.setItem('kiruu_sublinks_status', JSON.stringify(cloudData));
-          } catch (e) {}
-          checkConfig(cloudData);
-        } else {
-          fetchStaticFallback();
-        }
-      })
-      .catch(fetchStaticFallback);
-  }
-
-  // Attempt RTDB first, then Firestore, then sublinks.json
-  fetch(RTDB_STATUS_URL, { cache: 'no-store' })
+  // Direct Cloud Firestore check (live source of truth across all devices)
+  fetch(FIRESTORE_STATUS_URL, { cache: 'no-store' })
     .then(res => {
-      if (!res.ok) throw new Error("RTDB unavailable");
+      if (!res.ok) throw new Error("Firestore fetch failed: " + res.status);
       return res.json();
     })
-    .then(rtdbItem => {
-      if (rtdbItem && typeof rtdbItem.enabled === "boolean") {
-        if (rtdbItem.enabled === false) {
-          renderOfflineUI();
-        }
+    .then(doc => {
+      if (doc && doc.fields && doc.fields.configJson && doc.fields.configJson.stringValue) {
+        const cloudData = JSON.parse(doc.fields.configJson.stringValue);
+        try {
+          localStorage.setItem('kiruu_services_status', JSON.stringify(cloudData));
+          localStorage.setItem('kiruu_sublinks_status', JSON.stringify(cloudData));
+        } catch (e) {}
+        checkConfig(cloudData);
       } else {
-        fetchFirestoreFallback();
+        fetchStaticFallback();
       }
     })
-    .catch(fetchFirestoreFallback);
+    .catch(() => {
+      // Secondary check: RTDB if configured, or static sublinks.json fallback
+      fetch(RTDB_STATUS_URL, { cache: 'no-store' })
+        .then(res => res.ok ? res.json() : null)
+        .then(rtdbItem => {
+          if (rtdbItem && typeof rtdbItem.enabled === "boolean") {
+            if (rtdbItem.enabled === false) {
+              renderOfflineUI(rtdbItem.maintenanceMessage || rtdbItem.message);
+            }
+          } else {
+            fetchStaticFallback();
+          }
+        })
+        .catch(fetchStaticFallback);
+    });
 })();
 

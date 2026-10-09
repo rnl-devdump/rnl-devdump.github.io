@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, doc, setDoc } from 'firebase/firestore';
 import { ref, onValue, set, remove } from 'firebase/database';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { db, rtdb, auth, firebaseConfig } from '../lib/firebase.js';
@@ -133,108 +133,93 @@ export default function DashboardApp() {
     }
   }, []);
 
-  // Listen to Firebase Realtime Database (/services and /masterSwitch)
+  // Live real-time listener to Firestore Cloud status across all devices
   useEffect(() => {
-    if (!rtdb) return;
+    // 1. Initial cached load for immediate UI
     try {
-      const servicesRef = ref(rtdb, 'services');
-      const unsub = onValue(servicesRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data && typeof data === 'object') {
-          setSublinks(prev => {
-            const merged = { ...prev };
-            Object.entries(data).forEach(([key, val]) => {
-              if (val && typeof val === 'object') {
-                merged[key] = {
-                  ...(merged[key] || {}),
-                  name: val.name || key,
-                  enabled: typeof val.enabled === 'boolean' ? val.enabled : true,
-                  message: val.maintenanceMessage || val.message || (merged[key] && merged[key].message) || "Service temporarily offline.",
-                  maintenanceMessage: val.maintenanceMessage || val.message,
-                  category: val.category || (merged[key] && merged[key].category) || "Custom",
-                  path: val.path || (merged[key] && merged[key].path) || `/${key}`,
-                  description: val.description || (merged[key] && merged[key].description) || "Dynamic service flag",
-                  isDynamic: val.isDynamic !== undefined ? val.isDynamic : true,
-                };
-              }
-            });
-            return merged;
-          });
-          setRtdbStatus('connected');
-        }
-      }, (err) => {
-        console.warn("RTDB listener error (falling back to Firestore):", err);
-        setRtdbStatus('fallback');
-      });
-
-      const masterSwitchRef = ref(rtdb, 'masterSwitch');
-      const unsubMaster = onValue(masterSwitchRef, (snapshot) => {
-        const val = snapshot.val();
-        if (typeof val === 'boolean') {
-          setMasterSwitch(val);
-        }
-      }, () => {});
-
-      return () => {
-        unsub();
-        unsubMaster();
-      };
-    } catch (err) {
-      console.warn("RTDB init warning:", err);
-      setRtdbStatus('fallback');
-    }
-  }, []);
-
-  useEffect(() => {
-    try {
-      const cached = localStorage.getItem('kiruu_sublinks_status');
+      const cached = localStorage.getItem('kiruu_services_status') || localStorage.getItem('kiruu_sublinks_status');
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (parsed.sublinks) {
-          setSublinks(prev => ({ ...prev, ...parsed.sublinks }));
+        const cachedServices = parsed.services || parsed.sublinks;
+        if (cachedServices) {
+          setSublinks(prev => ({ ...prev, ...cachedServices }));
         }
         if (typeof parsed.masterSwitch === 'boolean') {
           setMasterSwitch(parsed.masterSwitch);
         }
       }
-    } catch (e) {
-      console.warn("Failed loading cached sublinks state", e);
+    } catch (e) {}
+
+    // 2. Real-time Cloud Firestore snapshot listener (Live across all devices)
+    if (db) {
+      try {
+        const docRef = doc(db, 'validations', 'system_status');
+        const unsubFirestore = onSnapshot(docRef, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data && data.configJson) {
+              try {
+                const cloudData = typeof data.configJson === 'string' ? JSON.parse(data.configJson) : data.configJson;
+                const remoteServices = cloudData.services || cloudData.sublinks;
+                if (remoteServices && typeof remoteServices === 'object') {
+                  setSublinks(prev => {
+                    const merged = { ...prev };
+                    Object.entries(remoteServices).forEach(([k, item]) => {
+                      if (item && typeof item === 'object') {
+                        merged[k] = {
+                          ...(merged[k] || {}),
+                          name: item.name || k,
+                          enabled: Boolean(item.enabled),
+                          message: item.message || item.maintenanceMessage || "Service temporarily offline.",
+                          maintenanceMessage: item.maintenanceMessage || item.message,
+                          category: item.category || (merged[k] && merged[k].category) || "Custom",
+                          path: item.path || (merged[k] && merged[k].path) || `/${k}`,
+                          description: item.description || (merged[k] && merged[k].description) || "",
+                          isDynamic: item.isDynamic !== undefined ? item.isDynamic : true
+                        };
+                      }
+                    });
+                    return merged;
+                  });
+                }
+                if (typeof cloudData.masterSwitch === 'boolean') {
+                  setMasterSwitch(cloudData.masterSwitch);
+                }
+                setRtdbStatus('connected');
+                try {
+                  localStorage.setItem('kiruu_sublinks_status', JSON.stringify(cloudData));
+                  localStorage.setItem('kiruu_services_status', JSON.stringify(cloudData));
+                } catch (e) {}
+              } catch (err) {
+                console.warn("Parse configJson warning:", err);
+              }
+            }
+          }
+        }, (err) => {
+          console.warn("Firestore snapshot listener error:", err);
+          setRtdbStatus('fallback');
+        });
+
+        return () => unsubFirestore();
+      } catch (err) {
+        console.warn("Firestore snapshot setup error:", err);
+      }
     }
 
-    // Sync from Firestore Cloud so state is identical across all devices
+    // 3. Fallback: REST fetch if SDK listener is unavailable
     fetch(FIRESTORE_SYNC_URL, { cache: 'no-store' })
       .then(res => res.json())
-      .then(doc => {
-        if (doc && doc.fields && doc.fields.configJson && doc.fields.configJson.stringValue) {
-          const cloudData = JSON.parse(doc.fields.configJson.stringValue);
-          if (cloudData.sublinks) {
-            setSublinks(prev => ({ ...prev, ...cloudData.sublinks }));
-          }
-          if (typeof cloudData.masterSwitch === 'boolean') {
-            setMasterSwitch(cloudData.masterSwitch);
-          }
-          try {
-            localStorage.setItem('kiruu_sublinks_status', JSON.stringify(cloudData));
-          } catch (e) {}
-        } else {
-          // Static fallback
-          fetch('/sublinks.json?t=' + Date.now())
-            .then(res => res.json())
-            .then(data => {
-              if (data.sublinks) setSublinks(prev => ({ ...prev, ...data.sublinks }));
-              if (typeof data.masterSwitch === 'boolean') setMasterSwitch(data.masterSwitch);
-            })
-            .catch(() => {});
+      .then(docSnap => {
+        if (docSnap && docSnap.fields && docSnap.fields.configJson && docSnap.fields.configJson.stringValue) {
+          const cloudData = JSON.parse(docSnap.fields.configJson.stringValue);
+          const remoteServices = cloudData.services || cloudData.sublinks;
+          if (remoteServices) setSublinks(prev => ({ ...prev, ...remoteServices }));
+          if (typeof cloudData.masterSwitch === 'boolean') setMasterSwitch(cloudData.masterSwitch);
+          setRtdbStatus('connected');
         }
       })
       .catch(() => {
-        fetch('/sublinks.json?t=' + Date.now())
-          .then(res => res.json())
-          .then(data => {
-            if (data.sublinks) setSublinks(prev => ({ ...prev, ...data.sublinks }));
-            if (typeof data.masterSwitch === 'boolean') setMasterSwitch(data.masterSwitch);
-          })
-          .catch(() => {});
+        setRtdbStatus('fallback');
       });
   }, []);
 
@@ -400,7 +385,8 @@ export default function DashboardApp() {
     const payload = {
       updatedAt: new Date().toISOString(),
       masterSwitch: mSwitch,
-      sublinks: sublinkMap
+      sublinks: sublinkMap,
+      services: sublinkMap
     };
     try {
       localStorage.setItem('kiruu_sublinks_status', JSON.stringify(payload));
@@ -409,56 +395,17 @@ export default function DashboardApp() {
       console.error(e);
     }
 
-    // 1. Synchronize to Firebase Realtime Database
-    if (rtdb) {
-      try {
-        if (updatedKey) {
-          if (isDelete) {
-            await remove(ref(rtdb, `services/${updatedKey}`));
-          } else {
-            const item = sublinkMap[updatedKey];
-            if (item) {
-              await set(ref(rtdb, `services/${updatedKey}`), {
-                name: item.name || updatedKey,
-                enabled: Boolean(item.enabled),
-                maintenanceMessage: item.message || item.maintenanceMessage || "This service is currently undergoing scheduled maintenance.",
-                category: item.category || "Custom",
-                path: item.path || `/${updatedKey}`,
-                description: item.description || "",
-                isDynamic: Boolean(item.isDynamic),
-                updatedAt: Date.now()
-              });
-            }
-          }
-        } else {
-          // Push entire services map
-          const rtdbPayload = {};
-          Object.entries(sublinkMap).forEach(([k, item]) => {
-            rtdbPayload[k] = {
-              name: item.name || k,
-              enabled: Boolean(item.enabled),
-              maintenanceMessage: item.message || item.maintenanceMessage || "This service is currently undergoing scheduled maintenance.",
-              category: item.category || "Custom",
-              path: item.path || `/${k}`,
-              description: item.description || "",
-              isDynamic: Boolean(item.isDynamic),
-              updatedAt: Date.now()
-            };
-          });
-          await set(ref(rtdb, 'services'), rtdbPayload);
-        }
-
-        if (typeof mSwitch === 'boolean') {
-          await set(ref(rtdb, 'masterSwitch'), mSwitch);
-        }
-      } catch (rtdbErr) {
-        console.warn("RTDB sync warning:", rtdbErr);
-      }
-    }
-
-    // 2. Broadcast in real-time to Cloud Firestore across all devices
+    // 1. Immediately broadcast to Cloud Firestore (Live source of truth across all devices)
     try {
-      setSaveSuccessMsg('Syncing to RTDB & Cloud...');
+      setSaveSuccessMsg('Syncing to Cloud Firestore...');
+
+      if (db) {
+        await setDoc(doc(db, 'validations', 'system_status'), {
+          configJson: JSON.stringify(payload)
+        }, { merge: true });
+      }
+
+      // REST fallback write to guarantee persistence
       const cloudPayload = {
         fields: {
           configJson: {
@@ -466,22 +413,85 @@ export default function DashboardApp() {
           }
         }
       };
-
-      const res = await fetch(FIRESTORE_SYNC_URL, {
+      await fetch(FIRESTORE_SYNC_URL, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cloudPayload)
       });
 
-      if (res.ok) {
-        setSaveSuccessMsg('State updated across ALL devices (RTDB + Cloud)!');
-      } else {
-        setSaveSuccessMsg(rtdb ? 'Updated in Realtime Database.' : 'Saved locally.');
-      }
+      setSaveSuccessMsg('Status updated live across ALL devices!');
     } catch (err) {
-      console.warn("Cloud Firestore sync error:", err);
-      setSaveSuccessMsg(rtdb ? 'Updated in Realtime Database.' : 'Saved locally.');
+      console.warn("Cloud Firestore sync warning:", err);
+      try {
+        const cloudPayload = {
+          fields: {
+            configJson: {
+              stringValue: JSON.stringify(payload)
+            }
+          }
+        };
+        await fetch(FIRESTORE_SYNC_URL, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cloudPayload)
+        });
+        setSaveSuccessMsg('Status updated live across ALL devices!');
+      } catch (restErr) {
+        console.warn("Firestore REST write error:", restErr);
+        setSaveSuccessMsg('Saved locally (network error syncing to cloud).');
+      }
     }
+
+    // 2. Non-blocking RTDB sync attempt (times out in 500ms so it never hangs)
+    if (rtdb) {
+      try {
+        const rtdbWrite = (async () => {
+          if (updatedKey) {
+            if (isDelete) {
+              await remove(ref(rtdb, `services/${updatedKey}`));
+            } else {
+              const item = sublinkMap[updatedKey];
+              if (item) {
+                await set(ref(rtdb, `services/${updatedKey}`), {
+                  name: item.name || updatedKey,
+                  enabled: Boolean(item.enabled),
+                  maintenanceMessage: item.message || item.maintenanceMessage || "This service is currently undergoing scheduled maintenance.",
+                  category: item.category || "Custom",
+                  path: item.path || `/${updatedKey}`,
+                  description: item.description || "",
+                  isDynamic: Boolean(item.isDynamic),
+                  updatedAt: Date.now()
+                });
+              }
+            }
+          } else {
+            const rtdbPayload = {};
+            Object.entries(sublinkMap).forEach(([k, item]) => {
+              rtdbPayload[k] = {
+                name: item.name || k,
+                enabled: Boolean(item.enabled),
+                maintenanceMessage: item.message || item.maintenanceMessage || "This service is currently undergoing scheduled maintenance.",
+                category: item.category || "Custom",
+                path: item.path || `/${k}`,
+                description: item.description || "",
+                isDynamic: Boolean(item.isDynamic),
+                updatedAt: Date.now()
+              };
+            });
+            await set(ref(rtdb, 'services'), rtdbPayload);
+          }
+          if (typeof mSwitch === 'boolean') {
+            await set(ref(rtdb, 'masterSwitch'), mSwitch);
+          }
+        })();
+
+        await Promise.race([
+          rtdbWrite,
+          new Promise((_, reject) => setTimeout(() => reject(new Error("RTDB timeout")), 500))
+        ]);
+      } catch (rtdbErr) {}
+    }
+
     setTimeout(() => setSaveSuccessMsg(''), 3000);
   }
 
@@ -834,7 +844,7 @@ export default function DashboardApp() {
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs">
             <span className={`w-2 h-2 rounded-full ${rtdbStatus === 'connected' ? 'bg-cyan-400' : 'bg-amber-400'}`} />
             <span className="font-semibold text-slate-300">
-              {rtdbStatus === 'connected' ? 'RTDB: LIVE' : 'RTDB: FIRESTORE FALLBACK'}
+              {rtdbStatus === 'connected' ? 'CLOUD: LIVE' : 'CLOUD: SYNCING'}
             </span>
           </div>
 

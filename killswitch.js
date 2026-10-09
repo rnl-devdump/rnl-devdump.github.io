@@ -55,34 +55,7 @@
       // Ignore localStorage parse errors
     }
 
-    // 5. Query Firebase Realtime Database
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500);
-
-      const res = await fetch(`${RTDB_URL}/services/${serviceKey}.json`, {
-        signal: controller.signal,
-        cache: "no-store"
-      });
-      clearTimeout(timeoutId);
-
-      if (res.ok) {
-        serviceState = await res.json();
-      }
-    } catch (rtdbErr) {
-      // RTDB call failed or timed out; will proceed to Firestore fallback
-    }
-
-    // If RTDB returned valid state for this service
-    if (serviceState && typeof serviceState.enabled === "boolean") {
-      if (serviceState.enabled === false) {
-        renderMaintenance(serviceState.maintenanceMessage || "Service temporarily offline.");
-        return;
-      }
-      return; // Service is explicitly enabled in RTDB
-    }
-
-    // 6. Fallback: Query Firestore Cloud status document
+    // 5. Query Cloud Firestore first (live source of truth across all devices)
     try {
       const fRes = await fetch(FIRESTORE_FALLBACK_URL, { cache: "no-store" });
       if (fRes.ok) {
@@ -91,6 +64,7 @@
           const cloudData = JSON.parse(doc.fields.configJson.stringValue);
           try {
             localStorage.setItem("kiruu_services_status", JSON.stringify(cloudData));
+            localStorage.setItem("kiruu_sublinks_status", JSON.stringify(cloudData));
           } catch (e) {}
 
           if (cloudData.masterSwitch === false) {
@@ -105,11 +79,33 @@
             renderMaintenance(svc.maintenanceMessage || svc.message || "Service temporarily offline.");
             return;
           }
+          return; // Service explicitly active in Cloud Firestore
         }
       }
     } catch (firestoreErr) {
+      console.warn("Firestore status check error:", firestoreErr);
+    }
+
+    // 6. Secondary / RTDB check
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1200);
+
+      const res = await fetch(`${RTDB_URL}/services/${serviceKey}.json`, {
+        signal: controller.signal,
+        cache: "no-store"
+      });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        serviceState = await res.json();
+        if (serviceState && serviceState.enabled === false) {
+          renderMaintenance(serviceState.maintenanceMessage || "Service temporarily offline.");
+          return;
+        }
+      }
+    } catch (rtdbErr) {
       // Fail-open: If all endpoints fail, app continues running
-      console.warn("Kill-switch gate unreachable, failing open:", firestoreErr);
     }
   } catch (err) {
     // Fail-open guarantee
