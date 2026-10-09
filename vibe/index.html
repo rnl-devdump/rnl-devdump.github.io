@@ -98,18 +98,7 @@
 
           <!-- Tab Panel 1: Create Meeting -->
           <div id="panel-create" class="tab-panel active" role="tabpanel">
-            <div class="input-group">
-              <label for="create-passcode-input">
-                Room Passcode
-                <span class="label-hint">(Required for both caller and guest)</span>
-              </label>
-              <div class="password-field">
-                <input type="password" id="create-passcode-input" placeholder="Set meeting passcode" maxlength="32">
-                <button type="button" class="field-icon-btn" id="toggle-create-passcode" aria-label="Show passcode">
-                  <span class="material-symbols-outlined">visibility</span>
-                </button>
-              </div>
-            </div>
+            <!-- Removed passcode input -->
 
             <div class="input-group">
               <label for="custom-room-id">
@@ -138,22 +127,11 @@
               <input type="text" id="join-room-id" placeholder="e.g. vibe-829-104" required>
             </div>
 
-            <div class="input-group">
-              <label for="join-passcode-input">
-                Room Passcode
-                <span class="label-hint">(Enter the host passcode)</span>
-              </label>
-              <div class="password-field">
-                <input type="password" id="join-passcode-input" placeholder="Enter room passcode" maxlength="32" required>
-                <button type="button" class="field-icon-btn" id="toggle-join-passcode" aria-label="Show passcode">
-                  <span class="material-symbols-outlined">visibility</span>
-                </button>
-              </div>
-            </div>
+            <!-- Removed passcode input -->
 
             <button id="btn-join-meeting" class="btn-primary full-width" type="button">
               <span class="material-symbols-outlined">login</span>
-              Join Meeting
+              Ask to Join
             </button>
           </div>
 
@@ -163,6 +141,17 @@
             <span id="lobby-error-message"></span>
           </div>
         </div>
+
+        <!-- Admission Prompt (Hidden by default, shown to Host) -->
+        <div id="admission-modal" class="action-card hidden" style="margin-top: 20px; border-color: var(--accent-cyan);">
+          <h2 class="lobby-title" style="font-size: 18px;">Someone wants to join</h2>
+          <p class="lobby-subtitle" id="admission-guest-name">Guest Name</p>
+          <div style="display: flex; gap: 10px;">
+            <button id="btn-admit-guest" class="btn-primary" style="flex: 1;">Admit</button>
+            <button id="btn-deny-guest" class="btn-secondary" style="flex: 1; background: var(--color-danger); color: white; border: none;">Deny</button>
+          </div>
+        </div>
+
       </section>
     </div>
   </main>
@@ -209,8 +198,7 @@
             <code id="waiting-code-display" class="share-value">...</code>
           </div>
           <div class="share-info-row">
-            <span class="share-label">Passcode:</span>
-            <span id="waiting-passcode-display" class="share-value font-mono">••••</span>
+            <!-- Removed passcode display -->
           </div>
           <button id="btn-copy-waiting-invite" class="btn-copy-invite" type="button">
             <span class="material-symbols-outlined icon-inline">content_copy</span>
@@ -335,8 +323,7 @@
               <strong id="drawer-room-code" class="info-code-text">vibe-room</strong>
             </div>
             <div class="info-data-row">
-              <span class="info-sublabel">Passcode:</span>
-              <strong id="drawer-passcode-display" class="info-passcode-text">••••</strong>
+              <!-- Removed passcode display -->
             </div>
             <button id="btn-copy-drawer-link" class="btn-copy-full" type="button">
               <span class="material-symbols-outlined icon-inline">content_copy</span>

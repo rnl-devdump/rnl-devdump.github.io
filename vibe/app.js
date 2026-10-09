@@ -89,10 +89,10 @@ const elements = {
   tabBtnJoin: document.getElementById("tab-btn-join"),
   panelCreate: document.getElementById("panel-create"),
   panelJoin: document.getElementById("panel-join"),
-  createPasscodeInput: document.getElementById("create-passcode-input"),
-  joinPasscodeInput: document.getElementById("join-passcode-input"),
-  toggleCreatePasscode: document.getElementById("toggle-create-passcode"),
-  toggleJoinPasscode: document.getElementById("toggle-join-passcode"),
+  admissionModal: document.getElementById("admission-modal"),
+  admissionGuestName: document.getElementById("admission-guest-name"),
+  btnAdmitGuest: document.getElementById("btn-admit-guest"),
+  btnDenyGuest: document.getElementById("btn-deny-guest"),
   customRoomId: document.getElementById("custom-room-id"),
   joinRoomId: document.getElementById("join-room-id"),
   btnGenerateCode: document.getElementById("btn-generate-code"),
@@ -169,16 +169,7 @@ const elements = {
 /**
  * SHA-256 Passcode Hasher using Web Crypto API
  */
-async function hashPasscode(passcode) {
-  const clean = (passcode || "").trim();
-  if (!clean) return "";
-  const encoder = new TextEncoder();
-  const data = encoder.encode(clean);
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hash))
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("");
-}
+// Removed hashPasscode
 
 /**
  * Generate readable room code
@@ -627,18 +618,11 @@ async function updateRoomDocumentStatus(fields) {
 
 async function startMeetingAsHost() {
   const userName = (elements.displayNameInput.value || "").trim();
-  const rawPasscode = (elements.createPasscodeInput.value || "").trim();
   let roomId = (elements.customRoomId.value || "").trim().toLowerCase();
 
   if (!userName) {
     showLobbyError("Please enter your name before starting the meeting.");
     elements.displayNameInput.focus();
-    return;
-  }
-
-  if (!rawPasscode) {
-    showLobbyError("Please set a room passcode. Both host and guest require this passcode to enter.");
-    elements.createPasscodeInput.focus();
     return;
   }
 
@@ -653,11 +637,8 @@ async function startMeetingAsHost() {
   elements.btnStartMeeting.textContent = "Setting up meeting...";
 
   try {
-    const hashedPasscode = await hashPasscode(rawPasscode);
     state.role = "host";
     state.roomId = roomId;
-    state.passcode = rawPasscode;
-    state.passcodeHash = hashedPasscode;
     state.userName = userName;
     state.isRoomDocCreated = false;
     state.isRemoteDescriptionSet = false;
@@ -669,13 +650,10 @@ async function startMeetingAsHost() {
     // Check if room exists
     const snap = await getDoc(roomRef);
     if (snap.exists()) {
-      const roomData = snap.data();
-      if (roomData.passcodeHash && roomData.passcodeHash !== hashedPasscode) {
-        showLobbyError("A meeting with this code already exists with a different passcode.");
-        elements.btnStartMeeting.disabled = false;
-        elements.btnStartMeeting.textContent = "Start Meeting";
-        return;
-      }
+      showLobbyError("A meeting with this code already exists. Please generate a new one.");
+      elements.btnStartMeeting.disabled = false;
+      elements.btnStartMeeting.textContent = "Start Meeting";
+      return;
     }
 
     // Initialize peer connection
@@ -692,9 +670,10 @@ async function startMeetingAsHost() {
     // Save initial room document including all candidates buffered so far
     await setDoc(roomRef, {
       roomId,
-      passcodeHash: hashedPasscode,
       hostName: userName,
       guestName: null,
+      pendingGuest: null,
+      deniedGuest: null,
       createdAt: Date.now(),
       status: "waiting",
       offer: { sdp: offer.sdp, type: offer.type },
@@ -754,6 +733,14 @@ async function startMeetingAsHost() {
       if (Array.isArray(data.chatMessages)) {
         syncFirestoreChat(data.chatMessages);
       }
+
+      // Admission logic
+      if (data.pendingGuest && !data.guestName) {
+        elements.admissionGuestName.textContent = data.pendingGuest;
+        elements.admissionModal.classList.remove("hidden");
+      } else {
+        elements.admissionModal.classList.add("hidden");
+      }
     });
   } catch (err) {
     console.error("Failed to start meeting:", err);
@@ -770,7 +757,6 @@ async function startMeetingAsHost() {
 async function joinMeetingAsGuest() {
   const userName = (elements.displayNameInput.value || "").trim();
   const roomId = (elements.joinRoomId.value || "").trim().toLowerCase();
-  const rawPasscode = (elements.joinPasscodeInput.value || "").trim();
 
   if (!userName) {
     showLobbyError("Please enter your name.");
@@ -784,128 +770,127 @@ async function joinMeetingAsGuest() {
     return;
   }
 
-  if (!rawPasscode) {
-    showLobbyError("Please enter the room passcode provided by the host.");
-    elements.joinPasscodeInput.focus();
-    return;
-  }
-
   showLobbyError(null);
   elements.btnJoinMeeting.disabled = true;
   elements.btnJoinMeeting.textContent = "Verifying room...";
 
   try {
-    const hashedPasscode = await hashPasscode(rawPasscode);
     const roomRef = doc(db, "validations", `vibe_room_${roomId}`);
     const snap = await getDoc(roomRef);
 
     if (!snap.exists()) {
       showLobbyError("Meeting not found. Please verify the code and try again.");
       elements.btnJoinMeeting.disabled = false;
-      elements.btnJoinMeeting.textContent = "Join Meeting";
+      elements.btnJoinMeeting.textContent = "Ask to Join";
       return;
     }
 
     const roomData = snap.data();
 
-    // PASSCODE VERIFICATION (CRITICAL HARD GATE)
-    if (roomData.passcodeHash !== hashedPasscode) {
-      showLobbyError("Incorrect room passcode. Access denied.");
-      elements.btnJoinMeeting.disabled = false;
-      elements.btnJoinMeeting.textContent = "Join Meeting";
-      return;
-    }
-
     if (!roomData.offer) {
       showLobbyError("Host is not ready yet. Please try again in a few moments.");
       elements.btnJoinMeeting.disabled = false;
-      elements.btnJoinMeeting.textContent = "Join Meeting";
+      elements.btnJoinMeeting.textContent = "Ask to Join";
       return;
     }
 
-    // Set state
-    state.role = "guest";
-    state.roomId = roomId;
-    state.passcode = rawPasscode;
-    state.passcodeHash = hashedPasscode;
-    state.userName = userName;
-    state.peerName = roomData.hostName || "Host";
-    state.isRoomDocCreated = true;
-    state.isRemoteDescriptionSet = false;
-    state.localIceBuffer = [];
-    state.remoteIceQueue = [];
-
-    elements.remoteNameLabel.textContent = state.peerName;
-    elements.remoteAvatarLetter.textContent = state.peerName.charAt(0).toUpperCase();
-
-    // Create RTCPeerConnection
-    const pc = createPeerConnection();
-
-    // Guest listens for incoming data channel
-    pc.ondatachannel = event => {
-      setupDataChannelEvents(event.channel);
-    };
-
-    // Set Host Offer as Remote Description
-    await pc.setRemoteDescription(new RTCSessionDescription(roomData.offer));
-    state.isRemoteDescriptionSet = true;
-    console.log("Guest set remote description from host offer");
-
-    // Process initial Host ICE candidates
-    if (Array.isArray(roomData.hostIce)) {
-      for (const candidateData of roomData.hostIce) {
-        const candidateKey = JSON.stringify(candidateData);
-        if (!state.processedIceCandidates.has(candidateKey)) {
-          state.processedIceCandidates.add(candidateKey);
-          await processRemoteIceCandidate(candidateData);
-        }
-      }
+    if (roomData.guestName) {
+      showLobbyError("This meeting already has a guest.");
+      elements.btnJoinMeeting.disabled = false;
+      elements.btnJoinMeeting.textContent = "Ask to Join";
+      return;
     }
 
-    // Create SDP Answer
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-
-    // Drain any remaining queued candidates
-    await drainRemoteIceQueue();
-
-    // Update Firestore with guest answer and initial candidates
+    elements.btnJoinMeeting.textContent = "Asking to join...";
     await updateDoc(roomRef, {
-      answer: { sdp: answer.sdp, type: answer.type },
-      guestName: userName,
-      guestIce: state.localIceBuffer,
-      status: "connected"
+      pendingGuest: userName
     });
 
-    // Enter active meeting screen
-    enterMeetingUI();
+    elements.btnJoinMeeting.textContent = "Waiting for host to admit...";
 
-    // Listen for future snapshot updates
     state.roomUnsubscribe = onSnapshot(roomRef, async snapshot => {
       if (!snapshot.exists()) return;
       const data = snapshot.data();
 
-      // Host ICE candidates
-      if (Array.isArray(data.hostIce)) {
-        for (const candidateData of data.hostIce) {
-          const candidateKey = JSON.stringify(candidateData);
-          if (!state.processedIceCandidates.has(candidateKey)) {
-            state.processedIceCandidates.add(candidateKey);
-            await processRemoteIceCandidate(candidateData);
-          }
+      if (data.deniedGuest === userName) {
+        showLobbyError("Host denied your request to join.");
+        elements.btnJoinMeeting.disabled = false;
+        elements.btnJoinMeeting.textContent = "Ask to Join";
+        if (state.roomUnsubscribe) {
+          state.roomUnsubscribe();
+          state.roomUnsubscribe = null;
         }
+        return;
       }
 
-      // Chat sync
-      if (Array.isArray(data.chatMessages)) {
-        syncFirestoreChat(data.chatMessages);
+      if (data.guestName === userName && !state.isRoomDocCreated) {
+        // Admitted
+        state.role = "guest";
+        state.roomId = roomId;
+        state.userName = userName;
+        state.peerName = data.hostName || "Host";
+        state.isRoomDocCreated = true;
+        state.isRemoteDescriptionSet = false;
+        state.localIceBuffer = [];
+        state.remoteIceQueue = [];
+
+        elements.remoteNameLabel.textContent = state.peerName;
+        elements.remoteAvatarLetter.textContent = state.peerName.charAt(0).toUpperCase();
+
+        const pc = createPeerConnection();
+
+        pc.ondatachannel = event => {
+          setupDataChannelEvents(event.channel);
+        };
+
+        await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+        state.isRemoteDescriptionSet = true;
+        console.log("Guest set remote description from host offer");
+
+        if (Array.isArray(data.hostIce)) {
+          for (const candidateData of data.hostIce) {
+            const candidateKey = JSON.stringify(candidateData);
+            if (!state.processedIceCandidates.has(candidateKey)) {
+              state.processedIceCandidates.add(candidateKey);
+              await processRemoteIceCandidate(candidateData);
+            }
+          }
+        }
+
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+
+        await drainRemoteIceQueue();
+
+        await updateDoc(roomRef, {
+          answer: { sdp: answer.sdp, type: answer.type },
+          guestIce: state.localIceBuffer,
+          status: "connected"
+        });
+
+        enterMeetingUI();
+      } else if (state.isRoomDocCreated) {
+        // Already admitted, handle subsequent updates
+        if (Array.isArray(data.hostIce)) {
+          for (const candidateData of data.hostIce) {
+            const candidateKey = JSON.stringify(candidateData);
+            if (!state.processedIceCandidates.has(candidateKey)) {
+              state.processedIceCandidates.add(candidateKey);
+              await processRemoteIceCandidate(candidateData);
+            }
+          }
+        }
+
+        if (Array.isArray(data.chatMessages)) {
+          syncFirestoreChat(data.chatMessages);
+        }
       }
     });
   } catch (err) {
     console.error("Failed to join meeting:", err);
     showLobbyError("Failed to join meeting: " + (err.message || "Unknown error"));
     elements.btnJoinMeeting.disabled = false;
-    elements.btnJoinMeeting.textContent = "Join Meeting";
+    elements.btnJoinMeeting.textContent = "Ask to Join";
   }
 }
 
@@ -1339,19 +1324,35 @@ function setupEventListeners() {
     showLobbyError(null);
   });
 
-  // Password Visibility Toggles
-  elements.toggleCreatePasscode.addEventListener("click", () => {
-    const isPass = elements.createPasscodeInput.type === "password";
-    elements.createPasscodeInput.type = isPass ? "text" : "password";
-    const icon = elements.toggleCreatePasscode.querySelector(".material-symbols-outlined");
-    if (icon) icon.textContent = isPass ? "visibility_off" : "visibility";
+  // Admit / Deny Guests
+  elements.btnAdmitGuest.addEventListener("click", async () => {
+    if (!state.roomId) return;
+    elements.admissionModal.classList.add("hidden");
+    try {
+      const roomRef = doc(db, "validations", `vibe_room_${state.roomId}`);
+      const guestName = elements.admissionGuestName.textContent;
+      await updateDoc(roomRef, {
+        guestName: guestName,
+        pendingGuest: null
+      });
+    } catch (e) {
+      console.error(e);
+    }
   });
 
-  elements.toggleJoinPasscode.addEventListener("click", () => {
-    const isPass = elements.joinPasscodeInput.type === "password";
-    elements.joinPasscodeInput.type = isPass ? "text" : "password";
-    const icon = elements.toggleJoinPasscode.querySelector(".material-symbols-outlined");
-    if (icon) icon.textContent = isPass ? "visibility_off" : "visibility";
+  elements.btnDenyGuest.addEventListener("click", async () => {
+    if (!state.roomId) return;
+    elements.admissionModal.classList.add("hidden");
+    try {
+      const roomRef = doc(db, "validations", `vibe_room_${state.roomId}`);
+      const guestName = elements.admissionGuestName.textContent;
+      await updateDoc(roomRef, {
+        deniedGuest: guestName,
+        pendingGuest: null
+      });
+    } catch (e) {
+      console.error(e);
+    }
   });
 
   // Generate Room Code
@@ -1437,7 +1438,6 @@ function setupEventListeners() {
   elements.btnRejoin.addEventListener("click", () => {
     if (state.roomId) {
       elements.joinRoomId.value = state.roomId;
-      elements.joinPasscodeInput.value = state.passcode;
     }
     returnToLobby();
   });
@@ -1463,7 +1463,7 @@ function setupEventListeners() {
   if (paramRoom) {
     elements.joinRoomId.value = paramRoom;
     elements.tabBtnJoin.click();
-    showToast(`Room code ${paramRoom} pre-filled. Enter passcode to join.`);
+    showToast(`Room code ${paramRoom} pre-filled. Enter your name to ask to join.`);
   } else {
     elements.customRoomId.value = generateRoomCode();
   }
