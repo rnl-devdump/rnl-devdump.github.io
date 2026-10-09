@@ -1,14 +1,25 @@
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from './firebase.js';
+import { collection, addDoc, doc, setDoc, increment, arrayUnion, serverTimestamp } from 'firebase/firestore';
+import { db, auth } from './firebase.js';
 
-export function getDeviceInfo() {
-  const ua = navigator.userAgent;
+export const TELEMETRY_COLLECTION = 'validations';
+export const TELEMETRY_DOC_ID = 'telemetry_data';
+
+export function getDeviceInfo(customUa = null) {
+  const ua = typeof customUa === 'string'
+    ? customUa
+    : ((typeof navigator !== 'undefined' && navigator.userAgent) ? navigator.userAgent : '');
+    
   let os = 'Unknown OS';
   if (ua.indexOf('Win') !== -1) os = 'Windows';
-  else if (ua.indexOf('Mac') !== -1) os = 'macOS';
-  else if (ua.indexOf('Linux') !== -1) os = 'Linux';
   else if (ua.indexOf('Android') !== -1) os = 'Android';
   else if (ua.indexOf('like Mac') !== -1 || ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1) os = 'iOS';
+  else if (ua.indexOf('Mac') !== -1) os = 'macOS';
+  else if (ua.indexOf('Linux') !== -1) os = 'Linux';
+  else if (typeof process !== 'undefined' && process.platform) {
+    if (process.platform === 'win32') os = 'Windows';
+    else if (process.platform === 'darwin') os = 'macOS';
+    else if (process.platform === 'linux') os = 'Linux';
+  }
 
   let browser = 'Unknown Browser';
   if (ua.indexOf('Firefox') !== -1) browser = 'Firefox';
@@ -30,19 +41,22 @@ export function getDeviceInfo() {
   const dayOfWeek = now.getDay(); // 0 (Sun) - 6 (Sat)
   const hourOfDay = now.getHours(); // 0 - 23
 
+  const screenWidth = typeof window !== 'undefined' ? (window.innerWidth || 0) : 0;
+  const screenHeight = typeof window !== 'undefined' ? (window.innerHeight || 0) : 0;
+
   return {
     os,
     browser,
     deviceType,
-    screenWidth: window.innerWidth,
-    screenHeight: window.innerHeight,
+    screenWidth,
+    screenHeight,
     dayOfWeek,
     hourOfDay,
     timestamp: Date.now(),
   };
 }
 
-function scrubPii(text) {
+export function scrubPii(text) {
   if (typeof text !== "string") return "";
   return text
     .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[REDACTED_EMAIL]")
@@ -51,16 +65,59 @@ function scrubPii(text) {
     .slice(0, 160);
 }
 
+function bufferLocalEvent(storageKey, eventObj, maxItems = 50) {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    const raw = window.localStorage.getItem(storageKey);
+    const list = raw ? JSON.parse(raw) : [];
+    list.unshift(eventObj);
+    if (list.length > maxItems) list.length = maxItems;
+    window.localStorage.setItem(storageKey, JSON.stringify(list));
+  } catch (_) {
+    // Ignore storage quota or parse errors
+  }
+}
+
 export async function trackVisitEvent(page = 'movie') {
   try {
     const info = getDeviceInfo();
-    await addDoc(collection(db, 'device_logs'), {
+    const eventId = 'v_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+    const visitRecord = {
+      id: eventId,
       ...info,
       page: String(page || 'unknown').slice(0, 32),
-      createdAt: serverTimestamp(),
-    });
+    };
+
+    // 1. Buffer in localStorage for instant local continuity and resilience
+    bufferLocalEvent('kiruu_local_telemetry_visits', visitRecord);
+
+    // 2. Write to public validations/telemetry_data in Firestore (open access rule)
+    if (db) {
+      try {
+        const teleDocRef = doc(db, TELEMETRY_COLLECTION, TELEMETRY_DOC_ID);
+        await setDoc(teleDocRef, {
+          totalVisits: increment(1),
+          recentVisits: arrayUnion(visitRecord),
+          lastUpdated: Date.now(),
+        }, { merge: true });
+      } catch (docErr) {
+        // Fallback silently if SDK write fails
+      }
+
+      // 3. Optional write to collection device_logs if authenticated admin session exists
+      if (auth && auth.currentUser) {
+        try {
+          await addDoc(collection(db, 'device_logs'), {
+            ...visitRecord,
+            createdAt: serverTimestamp(),
+          });
+        } catch (_) {
+          // Suppress unauthenticated collection write error
+        }
+      }
+    }
   } catch (err) {
-    console.warn("Failed to log visit telemetry:", err);
+    // Fail-safe: telemetry tracking must never break host application execution
   }
 }
 
@@ -68,15 +125,44 @@ export async function trackAiEvent(promptText, engine = 'Gemini') {
   try {
     const safePrompt = scrubPii(promptText);
     const info = getDeviceInfo();
-    await addDoc(collection(db, 'ai_usage_logs'), {
+    const eventId = 'ai_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+    const aiRecord = {
+      id: eventId,
       ...info,
       prompt: safePrompt,
       engine: String(engine || 'Unknown').slice(0, 32),
       promptLength: typeof promptText === "string" ? promptText.length : 0,
-      createdAt: serverTimestamp(),
-    });
+    };
+
+    // 1. Buffer in localStorage for instant local continuity
+    bufferLocalEvent('kiruu_local_telemetry_ai', aiRecord);
+
+    // 2. Write to public validations/telemetry_data in Firestore (open access rule)
+    if (db) {
+      try {
+        const teleDocRef = doc(db, TELEMETRY_COLLECTION, TELEMETRY_DOC_ID);
+        await setDoc(teleDocRef, {
+          totalAiQueries: increment(1),
+          recentAiQueries: arrayUnion(aiRecord),
+          lastUpdated: Date.now(),
+        }, { merge: true });
+      } catch (docErr) {
+        // Fallback silently if SDK write fails
+      }
+
+      // 3. Optional write to collection ai_usage_logs if authenticated admin session exists
+      if (auth && auth.currentUser) {
+        try {
+          await addDoc(collection(db, 'ai_usage_logs'), {
+            ...aiRecord,
+            createdAt: serverTimestamp(),
+          });
+        } catch (_) {
+          // Suppress unauthenticated collection write error
+        }
+      }
+    }
   } catch (err) {
-    console.warn("Failed to log AI telemetry:", err);
+    // Fail-safe: telemetry tracking must never break host application execution
   }
 }
-

@@ -4,23 +4,27 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 
-const apiKey = import.meta.env.VITE_FIREBASE_API_KEY || (
-  (import.meta.env.VITE_FIREBASE_API_KEY_P1 || 'AIzaSy') +
-  (import.meta.env.VITE_FIREBASE_API_KEY_P2 || 'BPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c')
+const env = (typeof import.meta !== 'undefined' && import.meta.env) 
+  ? import.meta.env 
+  : ((typeof process !== 'undefined' && process.env) ? process.env : {});
+
+const apiKey = env.VITE_FIREBASE_API_KEY || (
+  (env.VITE_FIREBASE_API_KEY_P1 || 'AIzaSy') +
+  (env.VITE_FIREBASE_API_KEY_P2 || 'BPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c')
 );
 
-const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || 'pangasinan-dataset';
-const databaseURL = import.meta.env.VITE_FIREBASE_DATABASE_URL || `https://${projectId}-default-rtdb.firebaseio.com`;
+const projectId = env.VITE_FIREBASE_PROJECT_ID || 'pangasinan-dataset';
+const databaseURL = env.VITE_FIREBASE_DATABASE_URL || `https://${projectId}-default-rtdb.firebaseio.com`;
 
 export const firebaseConfig = {
   apiKey,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`,
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`,
   databaseURL,
   projectId,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || `${projectId}.appspot.com`,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || `${projectId}.appspot.com`,
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: env.VITE_FIREBASE_APP_ID,
+  measurementId: env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);

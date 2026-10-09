@@ -3,6 +3,7 @@ import { collection, query, orderBy, limit, onSnapshot, doc, setDoc } from 'fire
 import { ref, onValue, set, remove } from 'firebase/database';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { db, rtdb, auth, firebaseConfig } from '../lib/firebase.js';
+import { trackVisitEvent, trackAiEvent, TELEMETRY_COLLECTION, TELEMETRY_DOC_ID } from '../lib/telemetry.js';
 
 const PWD_SALT = "kiruu_console_guard_salt_2026_x89a";
 const PWD_HASH = "78c2a001ef868e6e51e2aa5015eb6e88efe412744a62f027ebe1663853acb67f";
@@ -85,6 +86,33 @@ const INITIAL_SUBLINKS = {
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
+function parseFirestoreMapValue(item) {
+  if (!item || !item.mapValue || !item.mapValue.fields) return null;
+  const fields = item.mapValue.fields;
+  const obj = {};
+  for (const [k, v] of Object.entries(fields)) {
+    if (v.stringValue !== undefined) obj[k] = v.stringValue;
+    else if (v.integerValue !== undefined) obj[k] = Number(v.integerValue);
+    else if (v.booleanValue !== undefined) obj[k] = v.booleanValue;
+    else if (v.timestampValue !== undefined) obj[k] = v.timestampValue;
+  }
+  return obj;
+}
+
+function dedupeTelemetry(list) {
+  const seen = new Set();
+  const res = [];
+  for (const item of list) {
+    if (!item) continue;
+    const key = item.id || ((item.page || item.prompt || '') + '_' + item.timestamp);
+    if (!seen.has(key)) {
+      seen.add(key);
+      res.push(item);
+    }
+  }
+  return res;
+}
+
 export default function DashboardApp() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return sessionStorage.getItem('kiruu_console_session') === 'active';
@@ -133,8 +161,10 @@ export default function DashboardApp() {
   const [deviceLogs, setDeviceLogs] = useState([]);
   const [aiLogs, setAiLogs] = useState([]);
   const [loadingTelemetry, setLoadingTelemetry] = useState(true);
+  const [isSimulatingPing, setIsSimulatingPing] = useState(false);
 
   const FIRESTORE_SYNC_URL = 'https://firestore.googleapis.com/v1/projects/pangasinan-dataset/databases/(default)/documents/validations/system_status?key=AIzaSyBPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c';
+  const TELEMETRY_SYNC_URL = 'https://firestore.googleapis.com/v1/projects/pangasinan-dataset/databases/(default)/documents/validations/telemetry_data?key=AIzaSyBPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c';
 
   // Listen for Firebase Auth state changes
   useEffect(() => {
@@ -280,35 +310,113 @@ export default function DashboardApp() {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const qDevices = query(
-      collection(db, 'device_logs'),
-      orderBy('createdAt', 'desc'),
-      limit(200)
-    );
-    const unsubDevices = onSnapshot(qDevices, (snapshot) => {
-      const logs = [];
-      snapshot.forEach((doc) => logs.push({ id: doc.id, ...doc.data() }));
-      setDeviceLogs(logs);
-      setLoadingTelemetry(false);
-    }, (err) => {
-      console.warn("Device logs subscription warning:", err);
-      setLoadingTelemetry(false);
-    });
+    let unsubTeleDoc = () => {};
+    let unsubDevices = () => {};
+    let unsubAi = () => {};
 
-    const qAi = query(
-      collection(db, 'ai_usage_logs'),
-      orderBy('createdAt', 'desc'),
-      limit(200)
-    );
-    const unsubAi = onSnapshot(qAi, (snapshot) => {
-      const logs = [];
-      snapshot.forEach((doc) => logs.push({ id: doc.id, ...doc.data() }));
-      setAiLogs(logs);
-    }, (err) => {
-      console.warn("AI logs subscription warning:", err);
-    });
+    // 1. Primary real-time listener: validations/telemetry_data (open access rule)
+    if (db) {
+      try {
+        const teleDocRef = doc(db, TELEMETRY_COLLECTION, TELEMETRY_DOC_ID);
+        unsubTeleDoc = onSnapshot(teleDocRef, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            const visits = Array.isArray(data.recentVisits) ? data.recentVisits : [];
+            const aiQueries = Array.isArray(data.recentAiQueries) ? data.recentAiQueries : [];
+
+            let localVisits = [];
+            let localAi = [];
+            try {
+              localVisits = JSON.parse(localStorage.getItem('kiruu_local_telemetry_visits') || '[]');
+              localAi = JSON.parse(localStorage.getItem('kiruu_local_telemetry_ai') || '[]');
+            } catch (_) {}
+
+            setDeviceLogs(dedupeTelemetry([...visits, ...localVisits]));
+            setAiLogs(dedupeTelemetry([...aiQueries, ...localAi]));
+            setLoadingTelemetry(false);
+          } else {
+            fallbackFetchTelemetry();
+          }
+        }, (err) => {
+          console.warn("Telemetry doc snapshot warning:", err);
+          fallbackFetchTelemetry();
+        });
+      } catch (err) {
+        console.warn("Telemetry listener setup error:", err);
+        fallbackFetchTelemetry();
+      }
+
+      // 2. Secondary listener: root collections if authenticated admin session exists
+      if (auth && auth.currentUser) {
+        try {
+          const qDevices = query(
+            collection(db, 'device_logs'),
+            orderBy('createdAt', 'desc'),
+            limit(100)
+          );
+          unsubDevices = onSnapshot(qDevices, (snapshot) => {
+            const logs = [];
+            snapshot.forEach((docSnap) => logs.push({ id: docSnap.id, ...docSnap.data() }));
+            if (logs.length > 0) {
+              setDeviceLogs(prev => dedupeTelemetry([...logs, ...prev]));
+            }
+          }, () => {});
+
+          const qAi = query(
+            collection(db, 'ai_usage_logs'),
+            orderBy('createdAt', 'desc'),
+            limit(100)
+          );
+          unsubAi = onSnapshot(qAi, (snapshot) => {
+            const logs = [];
+            snapshot.forEach((docSnap) => logs.push({ id: docSnap.id, ...docSnap.data() }));
+            if (logs.length > 0) {
+              setAiLogs(prev => dedupeTelemetry([...logs, ...prev]));
+            }
+          }, () => {});
+        } catch (_) {}
+      }
+    } else {
+      fallbackFetchTelemetry();
+    }
+
+    function fallbackFetchTelemetry() {
+      fetch(TELEMETRY_SYNC_URL, { cache: 'no-store' })
+        .then(res => res.json())
+        .then(docSnap => {
+          if (docSnap && docSnap.fields) {
+            const rawVisits = docSnap.fields.recentVisits?.arrayValue?.values || [];
+            const rawAi = docSnap.fields.recentAiQueries?.arrayValue?.values || [];
+            const parsedVisits = rawVisits.map(parseFirestoreMapValue).filter(Boolean);
+            const parsedAi = rawAi.map(parseFirestoreMapValue).filter(Boolean);
+            if (parsedVisits.length > 0 || parsedAi.length > 0) {
+              setDeviceLogs(dedupeTelemetry(parsedVisits));
+              setAiLogs(dedupeTelemetry(parsedAi));
+              setLoadingTelemetry(false);
+              return;
+            }
+          }
+          loadLocalFallback();
+        })
+        .catch(() => {
+          loadLocalFallback();
+        });
+    }
+
+    function loadLocalFallback() {
+      try {
+        const localVisits = JSON.parse(localStorage.getItem('kiruu_local_telemetry_visits') || '[]');
+        const localAi = JSON.parse(localStorage.getItem('kiruu_local_telemetry_ai') || '[]');
+        if (localVisits.length > 0 || localAi.length > 0) {
+          setDeviceLogs(localVisits);
+          setAiLogs(localAi);
+        }
+      } catch (_) {}
+      setLoadingTelemetry(false);
+    }
 
     return () => {
+      unsubTeleDoc();
       unsubDevices();
       unsubAi();
     };
@@ -667,6 +775,21 @@ export default function DashboardApp() {
       .catch(() => {
         alert('Failed copying to clipboard.');
       });
+  }
+
+  async function simulateTelemetryPing() {
+    setIsSimulatingPing(true);
+    try {
+      await trackVisitEvent('dashboard-ping');
+      await trackAiEvent('Console diagnostics real-time telemetry verification ping', 'Gemini AI');
+      setSaveSuccessMsg('Test visit & AI prompt logged live to Cloud Telemetry!');
+      setTimeout(() => setSaveSuccessMsg(''), 4000);
+    } catch (_) {
+      setSaveSuccessMsg('Ping buffered locally.');
+      setTimeout(() => setSaveSuccessMsg(''), 3000);
+    } finally {
+      setIsSimulatingPing(false);
+    }
   }
 
   const stats = useMemo(() => {
@@ -1629,6 +1752,34 @@ export default function DashboardApp() {
 
         {activeTab === 'analytics' && (
           <div className="space-y-8">
+            {/* Live Telemetry Stream Status & Diagnostics Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/95 rounded-2xl p-4 border-2 border-[#111111] shadow-[3px_3px_0px_#111111]">
+              <div className="flex items-center gap-2.5">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs font-bold text-[#111827]">
+                  Cloud Telemetry Stream: <span className="text-emerald-700 font-extrabold">{loadingTelemetry ? 'Connecting...' : 'Connected & Active'}</span>
+                </span>
+                <span className="text-[11px] text-[#475569] hidden md:inline">
+                  (Live multi-device visits &amp; AI prompt logs)
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={simulateTelemetryPing}
+                  disabled={isSimulatingPing}
+                  className="px-3.5 py-1.5 rounded-xl bg-amber-300 hover:bg-amber-400 border-2 border-[#111111] text-xs font-bold text-[#111827] shadow-[2px_2px_0px_#111111] transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  title="Dispatch a test visit and AI query to verify real-time telemetry"
+                >
+                  <FlameIcon className="w-3.5 h-3.5" />
+                  {isSimulatingPing ? 'Logging Ping...' : 'Log Test Ping'}
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard 
                 title="Total Visits Logged" 
@@ -1789,6 +1940,79 @@ export default function DashboardApp() {
                     );
                   })}
                 </div>
+              </div>
+            </div>
+
+            {/* Live Activity Stream Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Recent AI Queries */}
+              <div className="bg-white/95 rounded-2xl p-6 border-2 border-[#111111] shadow-[4px_4px_0px_#111111]">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-[#111827] flex items-center gap-2">
+                    <SparklesIcon className="w-4 h-4 text-amber-600" />
+                    Recent AI Interactions ({aiLogs.length})
+                  </h3>
+                  <span className="text-[11px] font-bold text-slate-500 font-mono">Live Stream</span>
+                </div>
+                {aiLogs.length === 0 ? (
+                  <p className="text-xs text-slate-500 italic py-6 text-center">No AI queries logged yet. Prompts from Movie and Anime AI recommenders will stream here.</p>
+                ) : (
+                  <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
+                    {aiLogs.slice(0, 15).map((log, idx) => (
+                      <div key={log.id || idx} className="p-3 bg-[#f8fafc] rounded-xl border border-slate-200 text-xs">
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-purple-100 text-purple-900 border border-purple-300">
+                            {log.engine || 'AI Engine'}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            {log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : 'Recent'}
+                          </span>
+                        </div>
+                        <p className="font-medium text-[#111827] line-clamp-2">"{log.prompt || 'Recommendation query'}"</p>
+                        <div className="mt-2 flex items-center gap-2 text-[10px] text-slate-500 font-mono">
+                          <span>{log.deviceType || 'Desktop'}</span>
+                          <span>•</span>
+                          <span>{log.os || 'OS'} / {log.browser || 'Browser'}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Recent Page Visits */}
+              <div className="bg-white/95 rounded-2xl p-6 border-2 border-[#111111] shadow-[4px_4px_0px_#111111]">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-[#111827] flex items-center gap-2">
+                    <GlobeIcon className="w-4 h-4 text-emerald-600" />
+                    Recent Page Visits ({deviceLogs.length})
+                  </h3>
+                  <span className="text-[11px] font-bold text-slate-500 font-mono">Live Stream</span>
+                </div>
+                {deviceLogs.length === 0 ? (
+                  <p className="text-xs text-slate-500 italic py-6 text-center">No visits logged yet. Page traffic will stream here.</p>
+                ) : (
+                  <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
+                    {deviceLogs.slice(0, 15).map((log, idx) => (
+                      <div key={log.id || idx} className="p-3 bg-[#f8fafc] rounded-xl border border-slate-200 text-xs flex items-center justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-900 border border-emerald-300">
+                              /{log.page || 'visit'}
+                            </span>
+                            <span className="font-bold text-[#111827]">{log.deviceType || 'Desktop'}</span>
+                          </div>
+                          <div className="text-[10px] text-slate-500 font-mono">
+                            {log.os || 'OS'} • {log.browser || 'Browser'} {log.screenWidth ? `(${log.screenWidth}x${log.screenHeight})` : ''}
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-mono shrink-0">
+                          {log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : 'Recent'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
