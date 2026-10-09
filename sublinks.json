@@ -58,13 +58,6 @@
       "enabled": true,
       "message": "Utility rates service is temporarily unavailable."
     },
-    "forum": {
-      "name": "Community Forum",
-      "path": "/forum",
-      "category": "Social",
-      "enabled": true,
-      "message": "The forum is temporarily closed for maintenance."
-    },
     "chess": {
       "name": "Java Chess (Web)",
       "path": "/chess",

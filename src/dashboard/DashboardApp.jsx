@@ -40,14 +40,6 @@ const INITIAL_SUBLINKS = {
     enabled: true,
     message: "Movie streaming portal is offline."
   },
-  "forum": {
-    name: "Community Forum",
-    path: "/forum",
-    category: "Social",
-    description: "Community discussion boards and user topics",
-    enabled: true,
-    message: "The forum is temporarily closed for maintenance."
-  },
   "dataset": {
     name: "Dataset Annotator",
     path: "/dataset",
