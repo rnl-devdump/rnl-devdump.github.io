@@ -713,7 +713,8 @@
     if (!config) return;
 
     const isMasterOff = config.masterSwitch === false;
-    const sublinkConfig = (config.services && config.services[slug]) || (config.sublinks && config.sublinks[slug]);
+    const sublinkConfig = (config.services && (config.services[slug] || (slug === "tawir-dev" ? (config.services["tawir-dev"] || config.services["tawir-beta"]) : null))) || 
+                          (config.sublinks && (config.sublinks[slug] || (slug === "tawir-dev" ? (config.sublinks["tawir-dev"] || config.sublinks["tawir-beta"]) : null)));
 
     if (isMasterOff || (sublinkConfig && sublinkConfig.enabled === false)) {
       const notice = sublinkConfig

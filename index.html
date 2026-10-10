@@ -651,7 +651,7 @@
                     // Special multi-service handling for TAWIR Assistant (v3 Flutter & Beta WebApp)
                     if (sKey === "tawir") {
                         var v3Obj = services["tawir"];
-                        var devObj = services["tawir-dev"] || services["tawir-webapp"];
+                        var devObj = services["tawir-dev"] || services["tawir-webapp"] || services["tawir-beta"];
                         var v3Online = !v3Obj || v3Obj.enabled !== false;
                         var devOnline = !devObj || devObj.enabled !== false;
 
@@ -751,7 +751,7 @@
                     }
                     if (sKey === "tawir") {
                         var v3Obj = services["tawir"];
-                        var devObj = services["tawir-dev"] || services["tawir-webapp"];
+                        var devObj = services["tawir-dev"] || services["tawir-webapp"] || services["tawir-beta"];
                         var v3Online = !v3Obj || v3Obj.enabled !== false;
                         var devOnline = !devObj || devObj.enabled !== false;
                         if (v3Online || devOnline) {

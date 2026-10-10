@@ -17,6 +17,14 @@ const INITIAL_SUBLINKS = {
     enabled: true,
     message: "TAWIR is temporarily offline."
   },
+  "tawir-dev": {
+    name: "TAWIR Beta Web App",
+    path: "/tawir-dev",
+    category: "AI Assistant",
+    description: "Next-gen Salitan Pangasinan conversational AI client with neural web agent and MMS-TTS",
+    enabled: true,
+    message: "TAWIR Beta is currently undergoing maintenance."
+  },
   "tawir-convo": {
     name: "TAWIR Conversation Monitor",
     path: "/tawir-convo",
@@ -241,6 +249,14 @@ export default function DashboardApp() {
                         };
                       }
                     });
+                    if (merged['tawir-beta'] && !remoteServices['tawir-dev']) {
+                      merged['tawir-dev'] = {
+                        ...(merged['tawir-dev'] || INITIAL_SUBLINKS['tawir-dev']),
+                        enabled: Boolean(merged['tawir-beta'].enabled),
+                        message: merged['tawir-beta'].message || "TAWIR Beta is currently undergoing maintenance."
+                      };
+                      delete merged['tawir-beta'];
+                    }
                     return merged;
                   });
                 }
@@ -545,12 +561,19 @@ export default function DashboardApp() {
 
   async function saveStateLocally(mSwitch, sublinkMap, updatedKey = null, isDelete = false, customAdminBanner = null) {
     const currentAdminBanner = customAdminBanner !== null ? customAdminBanner : adminBanner;
+    const syncedSublinks = { ...sublinkMap };
+    if (syncedSublinks['tawir-dev']) {
+      syncedSublinks['tawir-beta'] = {
+        ...syncedSublinks['tawir-dev'],
+        path: '/tawir-dev'
+      };
+    }
     const payload = {
       updatedAt: new Date().toISOString(),
       masterSwitch: mSwitch,
       adminAnnouncement: currentAdminBanner,
-      sublinks: sublinkMap,
-      services: sublinkMap
+      sublinks: syncedSublinks,
+      services: syncedSublinks
     };
     try {
       localStorage.setItem('kiruu_sublinks_status', JSON.stringify(payload));
