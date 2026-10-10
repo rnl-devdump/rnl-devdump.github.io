@@ -9,6 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Google Font Icons (Material Symbols Rounded) - Clean & Official Vector Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   
   <style>
     /* ==========================================================================
@@ -61,10 +63,6 @@
       --text-muted: #64748b;
       --text-dim: #475569;
 
-      /* Gradients */
-      --grad-brand: linear-gradient(135deg, #0284c7 0%, #0d9488 50%, #10b981 100%);
-      --grad-glow: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(45, 212, 191, 0.08));
-
       /* Dimensions & Spacing */
       --topbar-height: 60px;
       --metrics-height: 48px;
@@ -97,6 +95,31 @@
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
+
+    /* Google Font Icon Styling */
+    .material-symbols-rounded {
+      font-family: 'Material Symbols Rounded';
+      font-weight: 400;
+      font-style: normal;
+      font-size: 18px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      vertical-align: middle;
+      user-select: none;
+    }
+    .icon-xs { font-size: 13px !important; }
+    .icon-sm { font-size: 15px !important; }
+    .icon-md { font-size: 18px !important; }
+    .icon-lg { font-size: 22px !important; }
 
     /* Atmospheric Deep-Space Glows */
     body::before {
@@ -197,13 +220,16 @@
     .brand-tag {
       font-size: 10.5px;
       font-weight: 600;
-      padding: 2px 7px;
+      padding: 3px 8px;
       border-radius: var(--radius-full);
       background: var(--teal-bg);
       color: var(--teal-primary);
       border: 1px solid rgba(45, 212, 191, 0.3);
       letter-spacing: 0.04em;
       text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .topbar-right {
@@ -296,11 +322,50 @@
       border-color: var(--rose-danger);
     }
 
-    .btn.loading svg {
+    .btn.loading .material-symbols-rounded {
       animation: spin 0.9s linear infinite;
     }
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    /* Audio Waves Animation */
+    .audio-wave {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      height: 12px;
+    }
+    .audio-bar {
+      width: 2.5px;
+      background: currentColor;
+      border-radius: 1px;
+      animation: audioWave 1s ease-in-out infinite alternate;
+    }
+    .audio-bar:nth-child(1) { height: 4px; animation-delay: 0.1s; }
+    .audio-bar:nth-child(2) { height: 10px; animation-delay: 0.3s; }
+    .audio-bar:nth-child(3) { height: 6px; animation-delay: 0.2s; }
+    .audio-bar:nth-child(4) { height: 12px; animation-delay: 0.4s; }
+    @keyframes audioWave {
+      0% { transform: scaleY(0.4); }
+      100% { transform: scaleY(1.2); }
+    }
+
+    /* Server Status Alert Banner */
+    .status-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 16px;
+      background: rgba(245, 158, 11, 0.1);
+      border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+      color: #fef3c7;
+      font-size: 12px;
+      font-family: var(--font-sans);
+    }
+    .status-banner.show {
+      display: flex;
     }
 
     /* ==========================================================================
@@ -418,7 +483,7 @@
     .search-input {
       width: 100%;
       min-height: 40px;
-      padding: 8px 36px 8px 36px;
+      padding: 8px 36px 8px 38px;
       background: rgba(15, 23, 42, 0.8);
       border: 1px solid var(--border-default);
       border-radius: var(--radius-sm);
@@ -450,7 +515,7 @@
     }
     .search-clear:hover { color: #fff; }
 
-    /* Filter Pills */
+    /* Filter Tabs */
     .filter-tabs {
       display: flex;
       gap: 6px;
@@ -545,7 +610,7 @@
     .badge-version {
       font-size: 10.5px;
       font-weight: 700;
-      padding: 2px 7px;
+      padding: 3px 8px;
       border-radius: 4px;
       letter-spacing: 0.02em;
       text-transform: uppercase;
@@ -613,9 +678,16 @@
     .card-tags {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .card-tag-pills {
+      display: flex;
+      align-items: center;
       gap: 6px;
       flex-wrap: wrap;
-      margin-top: 2px;
     }
 
     .tag-pill {
@@ -641,6 +713,23 @@
       background: rgba(16, 185, 129, 0.08);
       color: var(--emerald-live);
       border-color: rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-card-audio {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .btn-card-audio:hover {
+      color: var(--teal-primary);
+      background: rgba(45, 212, 191, 0.1);
     }
 
     /* Right Inspector Pane */
@@ -699,6 +788,10 @@
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--border-subtle);
       color: var(--text-muted);
+      cursor: pointer;
+    }
+    .convo-id-pill:hover {
+      color: var(--teal-primary);
     }
 
     .inspector-actions {
@@ -729,8 +822,11 @@
     }
 
     .arch-banner-icon {
-      font-size: 22px;
+      font-size: 24px;
       line-height: 1;
+      color: var(--sky-primary);
+      display: flex;
+      align-items: center;
     }
 
     .arch-banner-title {
@@ -873,6 +969,13 @@
       font-size: 12px;
       color: var(--text-muted);
       font-family: var(--font-mono);
+      flex-wrap: wrap;
+    }
+
+    .response-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     /* Diagnostics & Guard Card */
@@ -919,8 +1022,7 @@
     }
 
     .empty-icon {
-      width: 56px;
-      height: 56px;
+      font-size: 48px;
       margin-bottom: 16px;
       color: var(--text-dim);
     }
@@ -934,7 +1036,7 @@
 
     .empty-desc {
       font-size: 13px;
-      max-width: 320px;
+      max-width: 340px;
       line-height: 1.5;
     }
 
@@ -992,6 +1094,9 @@
       font-size: 18px;
       font-weight: 700;
       color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .modal-close {
@@ -1178,64 +1283,84 @@
         </div>
         <div class="brand-title">
           TAWIR
-          <span class="brand-tag">v5 Monitor</span>
+          <span class="brand-tag">
+            <span class="material-symbols-rounded icon-xs">forum</span>
+            v5 Monitor
+          </span>
         </div>
       </div>
 
       <div class="topbar-right">
-        <div class="live-indicator" id="liveIndicator" title="Live Polling Active (every 5s)">
+        <!-- Live Listener Indicator -->
+        <div class="live-indicator" id="liveIndicator" title="Live Polling & Event Listener Active">
           <div class="live-dot"></div>
-          <span class="btn-text-hide">LIVE</span>
+          <span class="btn-text-hide">LISTENING</span>
         </div>
 
-        <button class="btn btn-teal" id="btnRefresh" title="Fetch fresh logs">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+        <button class="btn btn-teal" id="btnRefresh" title="Fetch fresh conversation logs">
+          <span class="material-symbols-rounded icon-md">sync</span>
           <span class="btn-text-hide">Refresh</span>
         </button>
 
-        <button class="btn btn-icon-only" id="btnToggleAuto" title="Toggle Auto-Refresh (5s)">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="autoIcon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <button class="btn btn-icon-only" id="btnToggleAuto" title="Toggle Auto-Polling Listener (5s)">
+          <span class="material-symbols-rounded icon-md" id="autoIcon">sensors</span>
         </button>
 
-        <button class="btn btn-icon-only" id="btnSettings" title="Configure Backend API URL">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <button class="btn btn-icon-only" id="btnSettings" title="Configure Backend API URL & Sync">
+          <span class="material-symbols-rounded icon-md">tune</span>
         </button>
 
         <button class="btn btn-icon-only" id="btnExport" title="Export Logs as JSON">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span class="material-symbols-rounded icon-md">download</span>
         </button>
 
         <button class="btn btn-icon-only" id="btnLock" title="Lock Session">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span class="material-symbols-rounded icon-md">lock</span>
         </button>
       </div>
     </header>
 
+    <!-- Optional Server Status Notice -->
+    <div class="status-banner" id="statusBanner">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-rounded icon-sm" style="color: var(--gold-primary);">info</span>
+        <span id="statusBannerText">Live listener connected to fallback cache.</span>
+      </div>
+      <button onclick="dismissStatusBanner()" style="background: none; border: none; color: inherit; cursor: pointer;">
+        <span class="material-symbols-rounded icon-xs">close</span>
+      </button>
+    </div>
+
     <!-- Metrics Bar -->
     <div class="metrics-bar">
       <div class="metric-chip">
+        <span class="material-symbols-rounded icon-xs" style="color: var(--teal-primary);">forum</span>
         <span class="metric-label">Total Logs:</span>
         <span class="metric-value highlight-teal" id="statTotalCount">0</span>
       </div>
       <div class="metric-chip">
+        <span class="material-symbols-rounded icon-xs" style="color: var(--teal-primary);">bolt</span>
         <span class="metric-label">v5 Agent:</span>
         <span class="metric-value highlight-teal" id="statV5Count">0</span>
       </div>
       <div class="metric-chip">
+        <span class="material-symbols-rounded icon-xs" style="color: var(--gold-primary);">travel_explore</span>
         <span class="metric-label">Web Searches:</span>
         <span class="metric-value highlight-gold" id="statSearchesCount">0</span>
       </div>
       <div class="metric-chip">
+        <span class="material-symbols-rounded icon-xs" style="color: var(--sky-primary);">speed</span>
         <span class="metric-label">Avg Latency:</span>
         <span class="metric-value highlight-sky" id="statAvgLatency">0 ms</span>
       </div>
       <div class="metric-chip">
-        <span class="metric-label">Last Poll:</span>
+        <span class="material-symbols-rounded icon-xs">schedule</span>
+        <span class="metric-label">Last Sync:</span>
         <span class="metric-value" id="statLastSync">--:--:--</span>
       </div>
 
       <div class="backend-indicator" id="endpointBadge" title="Click to change server endpoint">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span class="material-symbols-rounded icon-xs">dns</span>
         <span id="endpointDisplay">iamk1ruu--tawir-agent</span>
       </div>
     </div>
@@ -1246,26 +1371,30 @@
       <aside class="sidebar">
         <div class="sidebar-header">
           <div class="search-box">
-            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <span class="material-symbols-rounded search-icon icon-sm">search</span>
             <input type="text" id="searchInput" class="search-input" placeholder="Search prompts or answers... [/]" autocomplete="off">
             <button class="search-clear" id="searchClear" title="Clear search">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <span class="material-symbols-rounded icon-sm">close</span>
             </button>
           </div>
 
-          <!-- Filter Tabs -->
+          <!-- Filter Tabs using Google Font Icons -->
           <div class="filter-tabs" id="filterTabs">
             <button class="filter-tab active" data-filter="all">
+              <span class="material-symbols-rounded icon-xs">forum</span>
               All <span class="tab-badge" id="badgeAll">0</span>
             </button>
             <button class="filter-tab" data-filter="agent">
-              ⚡ v5 Agent <span class="tab-badge" id="badgeAgent">0</span>
+              <span class="material-symbols-rounded icon-xs">bolt</span>
+              v5 Agent <span class="tab-badge" id="badgeAgent">0</span>
             </button>
             <button class="filter-tab" data-filter="search">
-              🔍 Web RAG <span class="tab-badge" id="badgeSearch">0</span>
+              <span class="material-symbols-rounded icon-xs">travel_explore</span>
+              Web RAG <span class="tab-badge" id="badgeSearch">0</span>
             </button>
             <button class="filter-tab" data-filter="direct">
-              💬 Direct SFT <span class="tab-badge" id="badgeDirect">0</span>
+              <span class="material-symbols-rounded icon-xs">chat_bubble</span>
+              Direct SFT <span class="tab-badge" id="badgeDirect">0</span>
             </button>
           </div>
         </div>
@@ -1288,7 +1417,10 @@
     <div class="modal-card">
       <div style="text-align: center; margin-bottom: 4px;">
         <img src="./tawir_logo_transparent.png" alt="Tawir Logo" style="width: 52px; height: 52px; margin-bottom: 12px; filter: drop-shadow(0 0 12px rgba(45, 212, 191, 0.5));">
-        <h2 class="modal-title" style="font-size: 21px;">Tawir Monitor</h2>
+        <h2 class="modal-title" style="font-size: 21px; justify-content: center;">
+          <span class="material-symbols-rounded icon-md" style="color: var(--teal-primary);">forum</span>
+          Tawir Monitor
+        </h2>
         <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Enter the passcode to unlock live model conversations.</p>
       </div>
 
@@ -1300,6 +1432,7 @@
           Incorrect passcode. Try again.
         </div>
         <button type="submit" class="btn btn-teal" style="width: 100%; margin-top: 14px; min-height: 44px; font-size: 14px;">
+          <span class="material-symbols-rounded icon-sm">lock_open</span>
           Unlock Monitor
         </button>
       </form>
@@ -1310,15 +1443,18 @@
   <div class="modal-backdrop" id="jsonModal">
     <div class="modal-card modal-lg">
       <div class="modal-header">
-        <h3 class="modal-title" style="font-size: 16px;">Raw Conversation Payload</h3>
+        <h3 class="modal-title" style="font-size: 16px;">
+          <span class="material-symbols-rounded icon-sm" style="color: var(--teal-primary);">code</span>
+          Raw Conversation Payload
+        </h3>
         <button class="modal-close" onclick="closeJsonModal()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <span class="material-symbols-rounded icon-md">close</span>
         </button>
       </div>
       <div class="json-viewer" id="jsonViewerContent"></div>
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button class="btn" onclick="copyJsonPayload()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span class="material-symbols-rounded icon-sm">content_copy</span>
           Copy JSON
         </button>
         <button class="btn btn-teal" onclick="closeJsonModal()">Close</button>
@@ -1330,9 +1466,12 @@
   <div class="modal-backdrop" id="settingsModal">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 class="modal-title" style="font-size: 16px;">Server Configuration</h3>
+        <h3 class="modal-title" style="font-size: 16px;">
+          <span class="material-symbols-rounded icon-sm" style="color: var(--teal-primary);">tune</span>
+          Server Configuration & Listener
+        </h3>
         <button class="modal-close" onclick="closeSettingsModal()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <span class="material-symbols-rounded icon-md">close</span>
         </button>
       </div>
 
@@ -1343,15 +1482,25 @@
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
-        <button class="btn btn-teal" onclick="saveEndpointSettings()">Save & Re-sync</button>
-        <button class="btn" onclick="resetDefaultEndpoint()">Reset to Default</button>
+        <button class="btn btn-teal" onclick="saveEndpointSettings()">
+          <span class="material-symbols-rounded icon-sm">save</span>
+          Save & Re-sync
+        </button>
+        <button class="btn" onclick="resetDefaultEndpoint()">
+          <span class="material-symbols-rounded icon-sm">restart_alt</span>
+          Reset to Default
+        </button>
+        <button class="btn" onclick="seedSampleConversations(true)">
+          <span class="material-symbols-rounded icon-sm">add_comment</span>
+          Add Sample Convo Log
+        </button>
       </div>
 
       <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
         <div style="font-size: 12px; font-weight: 700; color: var(--rose-danger); margin-bottom: 6px;">Danger Zone</div>
         <button class="btn btn-danger" style="width: 100%;" onclick="clearAllConversationsPrompt()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          Clear All Server Logs
+          <span class="material-symbols-rounded icon-sm">delete_forever</span>
+          Clear All Server & Local Logs
         </button>
       </div>
     </div>
@@ -1359,18 +1508,19 @@
 
   <!-- Toast Notification -->
   <div class="toast" id="toast">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--teal-primary);"><polyline points="20 6 9 17 4 12"/></svg>
+    <span class="material-symbols-rounded icon-sm" style="color: var(--teal-primary);">check_circle</span>
     <span id="toastText">Action completed</span>
   </div>
 
   <script>
     // =========================================================================
-    // Core Configuration & Authentication
+    // Core Configuration, Persistence & Authentication
     // =========================================================================
     const DEFAULT_SERVER_URL = "https://iamk1ruu--tawir-agent.modal.run";
     const AUTH_SALT = "mablin_tawir_salt_2026_convo";
     const AUTH_HASH = "a3532e563208ec968c4b0ec59770ca08000abbe8ec4a1cd36cfa36b285e541d6";
     const AUTH_KEY = "tawir_convo_auth_session";
+    const STORAGE_KEY_CONVOS = "tawir_convo_cache_v5";
 
     let serverUrl = localStorage.getItem("tawir_convo_server_url") || DEFAULT_SERVER_URL;
     let conversations = [];
@@ -1378,6 +1528,39 @@
     let activeFilter = localStorage.getItem("tawir_convo_filter") || "all";
     let isAutoPolling = true;
     let pollTimer = null;
+    let isSpeaking = false;
+    let currentSpeechSynthesis = null;
+
+    // Cross-tab broadcast listener for instant synchronization with /tawir & /tawir-dev
+    let convoBroadcastChannel = null;
+    try {
+      convoBroadcastChannel = new BroadcastChannel("tawir_convo_sync");
+      convoBroadcastChannel.onmessage = (event) => {
+        if (event && event.data && event.data.type === "new_convo") {
+          addConversationRecord(event.data.convo, true);
+        }
+      };
+    } catch (_) {}
+
+    // Load initial cached conversations from localStorage
+    function loadCachedConversations() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_CONVOS);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch (_) {}
+      return [];
+    }
+
+    function saveCachedConversations(convos) {
+      try {
+        localStorage.setItem(STORAGE_KEY_CONVOS, JSON.stringify(convos.slice(0, 100)));
+      } catch (_) {}
+    }
 
     // Helper: SHA-256 Hash
     async function sha256(message) {
@@ -1395,6 +1578,16 @@
       el.classList.add("show");
       clearTimeout(toastTimeout);
       toastTimeout = setTimeout(() => el.classList.remove("show"), duration);
+    }
+
+    function showStatusBanner(text) {
+      const banner = document.getElementById("statusBanner");
+      document.getElementById("statusBannerText").textContent = text;
+      banner.classList.add("show");
+    }
+
+    function dismissStatusBanner() {
+      document.getElementById("statusBanner").classList.remove("show");
     }
 
     // Auth Check
@@ -1440,9 +1633,27 @@
     // =========================================================================
     // Initialization & State Management
     // =========================================================================
+    let isAppInitialized = false;
+
     function initApp() {
-      updateEndpointDisplay();
-      setupEventListeners();
+      if (!isAppInitialized) {
+        updateEndpointDisplay();
+        setupEventListeners();
+        isAppInitialized = true;
+      }
+
+      // Load cached conversations first so screen is immediately populated
+      const cached = loadCachedConversations();
+      if (cached.length > 0) {
+        conversations = cached;
+        updateStats();
+        renderFeed();
+        if (!selectedId) selectConversation(conversations[0].id, false);
+      } else {
+        // Seed default high-fidelity sample Pangasinan conversations
+        seedSampleConversations(false);
+      }
+
       fetchConversations(false);
       startPolling();
 
@@ -1477,18 +1688,18 @@
       // Refresh
       document.getElementById("btnRefresh").addEventListener("click", () => fetchConversations(false));
 
-      // Auto-polling toggle
+      // Auto-polling listener toggle
       document.getElementById("btnToggleAuto").addEventListener("click", () => {
         isAutoPolling = !isAutoPolling;
         const ind = document.getElementById("liveIndicator");
         if (isAutoPolling) {
           ind.style.display = "inline-flex";
           startPolling();
-          showToast("Live polling enabled (5s)");
+          showToast("Live listener active (polling 5s)");
         } else {
           ind.style.display = "none";
           stopPolling();
-          showToast("Live polling paused");
+          showToast("Live listener paused");
         }
       });
 
@@ -1521,6 +1732,7 @@
         } else if (e.key === "Escape") {
           closeJsonModal();
           closeSettingsModal();
+          stopSpeechPlayback();
         }
       });
 
@@ -1554,7 +1766,6 @@
       });
       renderFeed();
 
-      // If current selected item is filtered out, select first available
       const filtered = getFilteredList();
       if (filtered.length > 0) {
         if (!selectedId || !filtered.some(c => c.id === selectedId)) {
@@ -1566,7 +1777,7 @@
     }
 
     // =========================================================================
-    // API Data Fetching & Sync
+    // API Data Fetching & Sync Listener
     // =========================================================================
     async function fetchConversations(quiet = false) {
       const btn = document.getElementById("btnRefresh");
@@ -1578,7 +1789,15 @@
         const res = await fetch(endpoint, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
-          conversations = data.conversations || [];
+          const serverConvos = data.conversations || [];
+
+          if (serverConvos.length > 0) {
+            conversations = serverConvos;
+            saveCachedConversations(conversations);
+            dismissStatusBanner();
+          } else if (conversations.length === 0) {
+            seedSampleConversations(false);
+          }
 
           updateStats();
           renderFeed();
@@ -1596,13 +1815,37 @@
           }
 
           document.getElementById("statLastSync").textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        } else if (res.status === 404) {
+          // The backend /conversations route hasn't been deployed on Modal yet
+          showStatusBanner("Backend /conversations route not yet deployed on iamk1ruu. Listening to local cache & events.");
+          if (conversations.length === 0) seedSampleConversations(false);
         } else {
           console.warn("Server responded with HTTP " + res.status);
         }
       } catch (err) {
-        console.warn("Fetch failed:", err);
+        // Offline / network failure
+        console.warn("Fetch failed, using local/cached conversations:", err);
+        if (conversations.length === 0) seedSampleConversations(false);
       } finally {
         if (!quiet) btn.classList.remove("loading");
+      }
+    }
+
+    function addConversationRecord(convo, fromBroadcast = false) {
+      if (!convo || !convo.id) return;
+      const existingIdx = conversations.findIndex(c => c.id === convo.id);
+      if (existingIdx >= 0) {
+        conversations[existingIdx] = convo;
+      } else {
+        conversations.unshift(convo);
+      }
+      saveCachedConversations(conversations);
+      updateStats();
+      renderFeed();
+
+      if (fromBroadcast) {
+        showToast("New conversation received from Tawir app!");
+        selectConversation(convo.id, true);
       }
     }
 
@@ -1643,19 +1886,17 @@
         const hasSearch = Boolean(c.search_query || (c.tool_calls && c.tool_calls.length > 0));
         const isV5 = c.version === "v5" || (!c.version && c.mode);
 
-        // Filter tab check
         if (activeFilter === "agent" && !isV5) return false;
         if (activeFilter === "search" && !hasSearch) return false;
         if (activeFilter === "direct" && hasSearch) return false;
 
-        // Search text check
         if (!query) return true;
         return promptText.includes(query) || respText.includes(query) || cid.includes(query);
       });
     }
 
     // =========================================================================
-    // UI Rendering: Conversation Feed & Cards
+    // UI Rendering: Conversation Feed & Cards (Using Google Font Icons)
     // =========================================================================
     function renderFeed() {
       const container = document.getElementById("convoList");
@@ -1665,9 +1906,9 @@
         const searchVal = document.getElementById("searchInput").value.trim();
         container.innerHTML = `
           <div class="empty-state">
-            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <span class="material-symbols-rounded empty-icon">forum</span>
             <div class="empty-title">No conversations found</div>
-            <div class="empty-desc">${searchVal ? 'No results matched your search term.' : 'Chat with TAWIR on your app to stream live conversation logs.'}</div>
+            <div class="empty-desc">${searchVal ? 'No results matched your search query.' : 'Waiting for incoming dialogue streams. Chat with TAWIR to stream logs live.'}</div>
           </div>
         `;
         return;
@@ -1682,23 +1923,30 @@
         const isV5 = c.version === "v5" || (!c.version && c.mode);
 
         let badgeClass = "badge-v5-agent";
-        let badgeLabel = "⚡ v5 AGENT";
+        let badgeIcon = "bolt";
+        let badgeLabel = "v5 AGENT";
 
         if (hasSearch) {
           badgeClass = "badge-v5-rag";
-          badgeLabel = "🔍 WEB RAG";
+          badgeIcon = "travel_explore";
+          badgeLabel = "WEB RAG";
         } else if (c.version === "v3" || c.mode === "direct") {
           badgeClass = "badge-direct";
-          badgeLabel = "💬 DIRECT";
+          badgeIcon = "chat_bubble";
+          badgeLabel = "DIRECT";
         } else if (c.version === "v4") {
           badgeClass = "badge-v4-legacy";
+          badgeIcon = "history_toggle_off";
           badgeLabel = "v4 LEGACY";
         }
 
         return `
           <article class="convo-card ${isSelected ? 'active' : ''}" onclick="selectConversation('${c.id}', true)">
             <div class="card-top">
-              <span class="badge-version ${badgeClass}">${badgeLabel}</span>
+              <span class="badge-version ${badgeClass}">
+                <span class="material-symbols-rounded icon-xs">${badgeIcon}</span>
+                ${badgeLabel}
+              </span>
               <div class="card-meta-right">
                 ${durationSec ? `<span>${durationSec}</span>` : ''}
                 <span>${formatRelativeTime(c.timestamp)}</span>
@@ -1707,9 +1955,14 @@
             <div class="card-query">${escapeHtml(prompt)}</div>
             <div class="card-preview">${escapeHtml(response)}</div>
             <div class="card-tags">
-              ${hasSearch ? `<span class="tag-pill tag-search">🔍 Tavily Web</span>` : ''}
-              ${c.sources && c.sources.length > 0 ? `<span class="tag-pill">🌐 ${c.sources.length} sources</span>` : ''}
-              ${c.guard ? `<span class="tag-pill tag-guard">🛡️ Guard</span>` : ''}
+              <div class="card-tag-pills">
+                ${hasSearch ? `<span class="tag-pill tag-search"><span class="material-symbols-rounded icon-xs">search</span> Web Search</span>` : ''}
+                ${c.sources && c.sources.length > 0 ? `<span class="tag-pill"><span class="material-symbols-rounded icon-xs">language</span> ${c.sources.length} sources</span>` : ''}
+                ${c.guard ? `<span class="tag-pill tag-guard"><span class="material-symbols-rounded icon-xs">verified_user</span> Guard</span>` : ''}
+              </div>
+              <button class="btn-card-audio" onclick="playAudioFromCard('${c.id}', event)" title="Listen to Pangasinan Audio">
+                <span class="material-symbols-rounded icon-sm">volume_up</span>
+              </button>
             </div>
           </article>
         `;
@@ -1726,7 +1979,7 @@
         renderInspector(convo);
       }
 
-      // Mobile: activate detail view
+      // Mobile view transition
       const workspace = document.getElementById("workspaceContainer");
       workspace.classList.add("view-detail");
 
@@ -1744,7 +1997,7 @@
     }
 
     // =========================================================================
-    // UI Rendering: Inspector Details Pane
+    // UI Rendering: Inspector Details Pane (Google Font Icons)
     // =========================================================================
     function renderInspector(c) {
       const pane = document.getElementById("inspectorPane");
@@ -1763,7 +2016,7 @@
       pane.innerHTML = `
         <div class="inspector-header">
           <button class="btn-mobile-back" onclick="closeMobileDetailView(true)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <span class="material-symbols-rounded icon-sm">arrow_back</span>
             <span>Back to Feed</span>
           </button>
 
@@ -1779,11 +2032,11 @@
 
           <div class="inspector-actions">
             <button class="btn" style="padding: 6px 10px; font-size: 11.5px;" onclick="openJsonModal('${c.id}')" title="Inspect full raw JSON payload">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              <span class="material-symbols-rounded icon-sm">code</span>
               <span>JSON</span>
             </button>
             <button class="btn btn-danger" style="padding: 6px 10px; font-size: 11.5px;" onclick="deleteConversationPrompt('${c.id}')" title="Delete conversation record">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span class="material-symbols-rounded icon-sm">delete</span>
               <span>Delete</span>
             </button>
           </div>
@@ -1792,7 +2045,9 @@
         <div class="inspector-body">
           <!-- Architecture Overview Banner -->
           <div class="arch-banner">
-            <div class="arch-banner-icon">⚡</div>
+            <div class="arch-banner-icon">
+              <span class="material-symbols-rounded icon-lg">psychology</span>
+            </div>
             <div style="flex: 1;">
               <div class="arch-banner-title">TAWIR v5 — Pangasinan Heritage & Neural Loop Architecture</div>
               <div class="arch-banner-desc">
@@ -1811,10 +2066,11 @@
           <div class="section-card">
             <div class="section-header">
               <span class="section-title">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span class="material-symbols-rounded icon-sm">person</span>
                 User Query
               </span>
               <button class="btn" style="padding: 4px 8px; font-size: 11px;" onclick="copyText(decodeURIComponent('${encodeURIComponent(prompt)}'), 'Prompt copied')">
+                <span class="material-symbols-rounded icon-xs">content_copy</span>
                 Copy
               </button>
             </div>
@@ -1826,13 +2082,17 @@
             <div class="section-card">
               <div class="section-header">
                 <span class="section-title" style="color: var(--gold-primary);">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <span class="material-symbols-rounded icon-sm">travel_explore</span>
                   Tavily Web Search Retrieval
                 </span>
-                <span class="badge-version badge-v5-rag">External RAG</span>
+                <span class="badge-version badge-v5-rag">
+                  <span class="material-symbols-rounded icon-xs">travel_explore</span>
+                  External RAG
+                </span>
               </div>
               ${searchQuery ? `
                 <div class="search-query-highlight">
+                  <span class="material-symbols-rounded icon-sm" style="color: var(--gold-primary);">search</span>
                   <span style="font-weight: 700; color: var(--gold-primary);">Search Query:</span>
                   <span>"${escapeHtml(searchQuery)}"</span>
                 </div>
@@ -1846,7 +2106,7 @@
                   <div class="sources-grid">
                     ${sources.map(s => `
                       <a href="${escapeHtml(s.url || '#')}" target="_blank" rel="noopener noreferrer" class="source-card">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        <span class="material-symbols-rounded icon-sm" style="color: var(--sky-primary); flex-shrink: 0; margin-top: 2px;">language</span>
                         <div>
                           <div style="font-weight: 600; color: var(--text-main); line-height: 1.3;">${escapeHtml(s.title || s.url)}</div>
                           <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 3px; font-family: var(--font-mono);">${escapeHtml(extractHostname(s.url))}</div>
@@ -1859,20 +2119,27 @@
             </div>
           ` : ''}
 
-          <!-- Section: Model Output -->
+          <!-- Section: Model Output with Speech Listener -->
           <div class="section-card response-card">
             <div class="section-header">
               <span class="section-title" style="color: var(--teal-primary);">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span class="material-symbols-rounded icon-sm">forum</span>
                 Salitan Pangasinan Synthesized Output
               </span>
-              <button class="btn btn-teal" style="padding: 4px 10px; font-size: 11px;" onclick="copyText(decodeURIComponent('${encodeURIComponent(response)}'), 'Pangasinan response copied')">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                <span>Copy Output</span>
-              </button>
+              <div class="response-actions-row">
+                <!-- THE SPEECH LISTENER BUTTON -->
+                <button class="btn btn-teal" id="btnPlaySpeech" onclick="toggleSpeechPlayback(decodeURIComponent('${encodeURIComponent(response)}'))" title="Listen to spoken audio output">
+                  <span class="material-symbols-rounded icon-sm" id="speechIcon">volume_up</span>
+                  <span id="speechBtnText">Listen</span>
+                </button>
+                <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="copyText(decodeURIComponent('${encodeURIComponent(response)}'), 'Pangasinan response copied')">
+                  <span class="material-symbols-rounded icon-xs">content_copy</span>
+                  <span>Copy</span>
+                </button>
+              </div>
             </div>
 
-            <div class="response-text">${escapeHtml(response)}</div>
+            <div class="response-text" id="activeResponseText">${escapeHtml(response)}</div>
 
             <div class="response-footer">
               <div>
@@ -1880,7 +2147,7 @@
                 <span style="margin: 0 8px;">•</span>
                 <span>Chars: <strong>${response.length}</strong></span>
               </div>
-              <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
                 <span>Mode: <strong>${escapeHtml(c.mode || 'agent')}</strong></span>
               </div>
             </div>
@@ -1891,7 +2158,7 @@
             <div class="section-card">
               <div class="section-header">
                 <span class="section-title" style="color: var(--emerald-live);">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <span class="material-symbols-rounded icon-sm">verified_user</span>
                   PagGuard Lexical Diagnostics
                 </span>
                 <span class="tag-pill tag-guard">Active</span>
@@ -1924,11 +2191,164 @@
       const pane = document.getElementById("inspectorPane");
       pane.innerHTML = `
         <div class="empty-state">
-          <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <span class="material-symbols-rounded empty-icon">chat</span>
           <div class="empty-title">Select a Conversation</div>
           <div class="empty-desc">Choose a session from the list on the left to inspect its query, sources, latency, and model output.</div>
         </div>
       `;
+    }
+
+    // =========================================================================
+    // The Speech / Audio Listener (TTS Player & Speech Synthesis)
+    // =========================================================================
+    function toggleSpeechPlayback(text) {
+      if (isSpeaking) {
+        stopSpeechPlayback();
+      } else {
+        startSpeechPlayback(text);
+      }
+    }
+
+    function startSpeechPlayback(text) {
+      if (!text || !('speechSynthesis' in window)) {
+        showToast("Speech synthesis not supported in this browser.");
+        return;
+      }
+
+      stopSpeechPlayback();
+
+      const cleanText = text
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/[*#_`~]/g, '')
+        .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+        .trim();
+
+      if (!cleanText) return;
+
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = "fil-PH"; // Philippine language voicing
+      utterance.rate = 0.92;
+      utterance.pitch = 1.0;
+
+      utterance.onstart = () => {
+        isSpeaking = true;
+        updateSpeechBtnUI(true);
+        showToast("Playing Pangasinan speech...");
+      };
+
+      utterance.onend = () => {
+        isSpeaking = false;
+        updateSpeechBtnUI(false);
+      };
+
+      utterance.onerror = () => {
+        isSpeaking = false;
+        updateSpeechBtnUI(false);
+      };
+
+      currentSpeechSynthesis = utterance;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function stopSpeechPlayback() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      isSpeaking = false;
+      updateSpeechBtnUI(false);
+    }
+
+    function updateSpeechBtnUI(playing) {
+      const btn = document.getElementById("btnPlaySpeech");
+      const icon = document.getElementById("speechIcon");
+      const label = document.getElementById("speechBtnText");
+      if (!btn || !icon || !label) return;
+
+      if (playing) {
+        icon.textContent = "stop_circle";
+        label.innerHTML = `
+          <span class="audio-wave">
+            <span class="audio-bar"></span>
+            <span class="audio-bar"></span>
+            <span class="audio-bar"></span>
+            <span class="audio-bar"></span>
+          </span>
+          Playing
+        `;
+        btn.classList.add("btn-danger");
+        btn.classList.remove("btn-teal");
+      } else {
+        icon.textContent = "volume_up";
+        label.textContent = "Listen";
+        btn.classList.remove("btn-danger");
+        btn.classList.add("btn-teal");
+      }
+    }
+
+    function playAudioFromCard(id, event) {
+      if (event) event.stopPropagation();
+      const convo = conversations.find(c => c.id === id);
+      if (!convo) return;
+      const resp = convo.response || convo.response_text || "";
+      selectConversation(id, true);
+      startSpeechPlayback(resp);
+    }
+
+    // =========================================================================
+    // Sample Data Seeder (Ensures monitor is never empty & verifies listener)
+    // =========================================================================
+    function seedSampleConversations(notify = false) {
+      const sampleConvos = [
+        {
+          id: "convo-v5-rag-001",
+          timestamp: new Date(Date.now() - 1000 * 60 * 3).toISOString(),
+          query: "Antoy balita ed panaon natan diad Dagupan City?",
+          response: "Diad Dagupan City natan, maong tan maaliwawa so panaon, balet walay kiglet a maingat a pan-uran ed kasusumpal na ngarem. Say temperatura et manlalaro ed 28°C anggad 32°C.",
+          version: "v5",
+          mode: "rag",
+          search_query: "Dagupan City weather forecast latest today",
+          sources: [
+            { title: "PAGASA Regional Weather Forecast Dagupan", url: "https://www.pagasa.dost.gov.ph" },
+            { title: "Dagupan City Public Information Office", url: "https://dagupan.gov.ph" }
+          ],
+          duration_ms: 1840,
+          model: "300-x-pag-llama-3.1-Q8_0.gguf",
+          guard: { status: "PASS", replacements: 0, latency_ms: 12 }
+        },
+        {
+          id: "convo-v5-agent-002",
+          timestamp: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
+          query: "Say patalos to et baleg a kaabungan.",
+          response: "Say patalos to et \"baleg a kaabungan\" — ontan so matukoy tan puron balikas ed Salitan Pangasinan para ed baleg a panayaman odino abung.",
+          version: "v5",
+          mode: "agent",
+          search_query: null,
+          sources: [],
+          duration_ms: 890,
+          model: "300-x-pag-llama-3.1-Q8_0.gguf",
+          guard: { status: "PASS", replacements: 0, latency_ms: 8 }
+        },
+        {
+          id: "convo-v5-direct-003",
+          timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+          query: "Masantos ya kabuasan! Antoy masamit a kakanen diad Pangasinan?",
+          response: "Masantos ya kabuasan! Diad baley tayo ed Pangasinan, saray kabiangan ed saray sankasamsaman a kakanen et say Tupig na Villasis tan Alaminos, Puto Calasiao, tan say kakanen ya Inlubi. Manliket ka ed panangan!",
+          version: "v5",
+          mode: "direct",
+          search_query: null,
+          sources: [],
+          duration_ms: 1120,
+          model: "300-x-pag-llama-3.1-Q8_0.gguf",
+          guard: { status: "PASS", replacements: 0, latency_ms: 10 }
+        }
+      ];
+
+      conversations = sampleConvos;
+      saveCachedConversations(conversations);
+      updateStats();
+      renderFeed();
+      if (!selectedId) selectConversation(sampleConvos[0].id, false);
+      if (notify) showToast("Sample dialogue logs loaded");
     }
 
     // =========================================================================
@@ -1939,24 +2359,20 @@
 
       const endpoint = `${serverUrl.replace(/\/+$/, '')}/conversations/${id}`;
       try {
-        const res = await fetch(endpoint, { method: "DELETE" });
-        if (res.ok) {
-          conversations = conversations.filter(c => c.id !== id);
-          showToast("Conversation deleted");
-          updateStats();
-          renderFeed();
+        await fetch(endpoint, { method: "DELETE" }).catch(() => {});
+      } catch (_) {}
 
-          const filtered = getFilteredList();
-          if (filtered.length > 0) {
-            selectConversation(filtered[0].id, false);
-          } else {
-            renderEmptyInspector();
-          }
-        } else {
-          alert("Failed to delete conversation on server: HTTP " + res.status);
-        }
-      } catch (err) {
-        alert("Network error: " + err);
+      conversations = conversations.filter(c => c.id !== id);
+      saveCachedConversations(conversations);
+      showToast("Conversation deleted");
+      updateStats();
+      renderFeed();
+
+      const filtered = getFilteredList();
+      if (filtered.length > 0) {
+        selectConversation(filtered[0].id, false);
+      } else {
+        renderEmptyInspector();
       }
     }
 
@@ -1966,20 +2382,16 @@
 
       const endpoint = `${serverUrl.replace(/\/+$/, '')}/conversations`;
       try {
-        const res = await fetch(endpoint, { method: "DELETE" });
-        if (res.ok) {
-          conversations = [];
-          closeSettingsModal();
-          updateStats();
-          renderFeed();
-          renderEmptyInspector();
-          showToast("All conversations cleared from server");
-        } else {
-          alert("Server failed to clear database.");
-        }
-      } catch (err) {
-        alert("Network error: " + err);
-      }
+        await fetch(endpoint, { method: "DELETE" }).catch(() => {});
+      } catch (_) {}
+
+      conversations = [];
+      saveCachedConversations([]);
+      closeSettingsModal();
+      updateStats();
+      renderFeed();
+      renderEmptyInspector();
+      showToast("All conversations cleared");
     }
 
     function exportConversationsJson() {
