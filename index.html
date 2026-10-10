@@ -121,7 +121,7 @@
 
                 <div class="apps-grid">
                     <!-- TAWIR AI Assistant -->
-                    <article class="app-card" data-service="tawir" data-tags="tawir v3 v4 ai assistant pangasinan translation language model nlp flutter chat webapp">
+                    <article class="app-card" data-service="tawir" data-tags="tawir v3 beta ai assistant pangasinan translation language model nlp flutter chat webapp">
                         <div class="app-card-top">
                             <div class="app-icon" style="background: #eff6ff;">
                                 <i class="fi fi-br-chatbot" style="color: #2563eb;" aria-hidden="true"></i>
@@ -133,14 +133,14 @@
                         </div>
                         <div class="app-card-body">
                             <h3 class="app-title">TAWIR AI Assistant</h3>
-                            <span class="app-path">kiruu.xyz/tawir &bull; /tawir-webapp</span>
+                            <span class="app-path">kiruu.xyz/tawir &bull; /tawir-dev</span>
                             <p class="app-description">
-                                Pangasinan conversational AI assistant and translation engine. Choose between the classic v3 Flutter assistant or the next-gen v4 web application.
+                                Pangasinan conversational AI assistant and translation engine. Choose between the classic v3 Flutter assistant or the next-gen Beta web application.
                             </p>
                         </div>
                         <div class="app-card-footer" style="display: flex; gap: 10px;">
                             <a href="/tawir" data-service-btn="tawir" class="button-rn app-launch-btn" style="flex: 1; padding: 0 10px;">Launch v3</a>
-                            <a href="/tawir-webapp" data-service-btn="tawir-webapp" class="button-rn app-launch-btn" style="flex: 1; padding: 0 10px; background-color: #dbeafe;">Launch v4</a>
+                            <a href="/tawir-dev" data-service-btn="tawir-dev" class="button-rn app-launch-btn" style="flex: 1; padding: 0 10px; background-color: #dbeafe;">Launch Beta</a>
                         </div>
                     </article>
 
@@ -648,15 +648,15 @@
                         return;
                     }
 
-                    // Special multi-service handling for TAWIR Assistant (v3 Flutter & v4 WebApp)
+                    // Special multi-service handling for TAWIR Assistant (v3 Flutter & Beta WebApp)
                     if (sKey === "tawir") {
                         var v3Obj = services["tawir"];
-                        var v4Obj = services["tawir-webapp"];
+                        var devObj = services["tawir-dev"] || services["tawir-webapp"];
                         var v3Online = !v3Obj || v3Obj.enabled !== false;
-                        var v4Online = !v4Obj || v4Obj.enabled !== false;
+                        var devOnline = !devObj || devObj.enabled !== false;
 
                         var btnV3 = card.querySelector('.app-launch-btn[data-service-btn="tawir"]') || card.querySelector('a[href="/tawir"]');
-                        var btnV4 = card.querySelector('.app-launch-btn[data-service-btn="tawir-webapp"]') || card.querySelector('a[href="/tawir-webapp"]');
+                        var btnDev = card.querySelector('.app-launch-btn[data-service-btn="tawir-dev"]') || card.querySelector('a[href="/tawir-dev"]');
 
                         if (btnV3) {
                             if (!v3Online) {
@@ -668,33 +668,33 @@
                             }
                         }
 
-                        if (btnV4) {
-                            if (!v4Online) {
-                                btnV4.className = btnV4.getAttribute("data-orig-class") + " btn-offline";
-                                btnV4.title = (v4Obj && (v4Obj.message || v4Obj.maintenanceMessage)) || "TAWIR v4 is currently undergoing maintenance.";
+                        if (btnDev) {
+                            if (!devOnline) {
+                                btnDev.className = btnDev.getAttribute("data-orig-class") + " btn-offline";
+                                btnDev.title = (devObj && (devObj.message || devObj.maintenanceMessage)) || "TAWIR Beta is currently undergoing maintenance.";
                             } else {
-                                btnV4.className = btnV4.getAttribute("data-orig-class");
-                                btnV4.removeAttribute("title");
+                                btnDev.className = btnDev.getAttribute("data-orig-class");
+                                btnDev.removeAttribute("title");
                             }
                         }
 
-                        if (!v3Online && !v4Online) {
+                        if (!v3Online && !devOnline) {
                             badge.className = "status-badge status-offline";
                             badge.removeAttribute("style");
                             badge.innerHTML = '<span class="mini-dot"></span> Offline';
                             badge.title = "Both TAWIR assistants are currently offline.";
                             card.classList.add("card-offline");
-                        } else if (!v3Online && v4Online) {
+                        } else if (!v3Online && devOnline) {
                             badge.className = "status-badge status-partial";
                             badge.removeAttribute("style");
-                            badge.innerHTML = '<span class="mini-dot"></span> v4 Active';
-                            badge.title = "TAWIR v3 is offline • v4 is active";
+                            badge.innerHTML = '<span class="mini-dot"></span> Beta Active';
+                            badge.title = "TAWIR v3 is offline • Beta is active";
                             card.classList.remove("card-offline");
-                        } else if (v3Online && !v4Online) {
+                        } else if (v3Online && !devOnline) {
                             badge.className = "status-badge status-partial";
                             badge.removeAttribute("style");
                             badge.innerHTML = '<span class="mini-dot"></span> v3 Active';
-                            badge.title = "TAWIR v4 is offline • v3 is active";
+                            badge.title = "TAWIR Beta is offline • v3 is active";
                             card.classList.remove("card-offline");
                         } else {
                             badge.className = origClass;
@@ -751,10 +751,10 @@
                     }
                     if (sKey === "tawir") {
                         var v3Obj = services["tawir"];
-                        var v4Obj = services["tawir-webapp"];
+                        var devObj = services["tawir-dev"] || services["tawir-webapp"];
                         var v3Online = !v3Obj || v3Obj.enabled !== false;
-                        var v4Online = !v4Obj || v4Obj.enabled !== false;
-                        if (v3Online || v4Online) {
+                        var devOnline = !devObj || devObj.enabled !== false;
+                        if (v3Online || devOnline) {
                             onlineApps++;
                         }
                         return;

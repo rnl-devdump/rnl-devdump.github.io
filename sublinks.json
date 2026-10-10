@@ -15,12 +15,12 @@
       "enabled": true,
       "message": "TAWIR v3 is temporarily offline."
     },
-    "tawir-webapp": {
-      "name": "TAWIR v4 Web App",
-      "path": "/tawir-webapp",
+    "tawir-dev": {
+      "name": "TAWIR Beta Web App",
+      "path": "/tawir-dev",
       "category": "AI Assistant",
       "enabled": true,
-      "message": "TAWIR v4 is currently undergoing maintenance."
+      "message": "TAWIR Beta is currently undergoing maintenance."
     },
     "tawir-convo": {
       "name": "TAWIR Conversation Monitor",
