@@ -237,6 +237,34 @@
       font-size: 11px;
       font-weight: 700;
       font-family: var(--font-mono);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .live-pulse-badge:hover {
+      filter: brightness(1.15);
+      border-color: rgba(16, 185, 129, 0.5);
+    }
+
+    .live-pulse-badge.status-polling {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.35);
+      color: var(--amber-accent);
+    }
+    .live-pulse-badge.status-polling .live-pulse-dot {
+      background: var(--amber-accent);
+      box-shadow: 0 0 8px var(--amber-accent);
+    }
+
+    .live-pulse-badge.status-error {
+      background: rgba(244, 63, 94, 0.1);
+      border-color: rgba(244, 63, 94, 0.4);
+      color: var(--rose-accent);
+    }
+    .live-pulse-badge.status-error .live-pulse-dot {
+      background: var(--rose-accent);
+      box-shadow: 0 0 8px var(--rose-accent);
     }
 
     .live-pulse-dot {
@@ -252,6 +280,14 @@
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.4; transform: scale(0.85); }
     }
+
+    .btn.loading .material-symbols-rounded {
+      animation: spinAnim 0.9s linear infinite;
+    }
+    @keyframes spinAnim {
+      100% { transform: rotate(360deg); }
+    }
+
 
     .topbar-actions {
       display: flex;
@@ -1035,9 +1071,9 @@
 
       <!-- Real-time Telemetry Strip -->
       <div class="topbar-telemetry-strip">
-        <div class="live-pulse-badge" id="liveListenerBadge" title="Live Event Listener & Polling Active">
+        <div class="live-pulse-badge status-connected" id="liveListenerBadge" title="Backend: Connecting... (Click to configure)">
           <div class="live-pulse-dot"></div>
-          <span>LISTENING</span>
+          <span id="liveListenerLabel">LISTENING</span>
         </div>
         <div class="telemetry-chip">
           <span>Queries:</span>
@@ -1269,21 +1305,54 @@
 
       <div style="display: flex; flex-direction: column; gap: 6px;">
         <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Modal Server Base URL</label>
-        <input type="text" id="configUrlInput" class="search-input-field" style="height: 40px; padding-left: 12px;" placeholder="https://iamk1ruu--tawir-agent.modal.run">
+        <input type="text" id="configUrlInput" class="search-input-field" style="height: 40px; padding-left: 12px; font-family: var(--font-mono); font-size: 12px;" placeholder="https://iamk1ruu--tawir-agent-exa.modal.run">
         <span style="font-size: 11.5px; color: var(--text-dim);">Live API server hosting /conversations and /health.</span>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
-        <button class="btn btn-primary" onclick="saveServerConfig()">Save & Re-sync</button>
-        <button class="btn" onclick="resetServerConfig()">Reset to Default (iamk1ruu)</button>
+      <!-- Quick Switch Presets -->
+      <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
+        <span style="font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">Quick Presets</span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <button class="btn" type="button" onclick="selectPresetEndpoint('exa')" id="btnPresetExa" style="justify-content: flex-start; padding: 7px 10px; font-size: 11.5px;">
+            <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">bolt</span>
+            <span>Exa v5 (Live)</span>
+          </button>
+          <button class="btn" type="button" onclick="selectPresetEndpoint('tavily')" id="btnPresetTavily" style="justify-content: flex-start; padding: 7px 10px; font-size: 11.5px;">
+            <span class="material-symbols-rounded icon-xs" style="color: var(--amber-accent);">search</span>
+            <span>Standard Backend</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Test Ping Result Banner -->
+      <div id="connectionTestResult" style="display: none; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 11.5px; font-family: var(--font-mono); margin-top: 10px;"></div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px;">
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-primary" style="flex: 1;" onclick="saveServerConfig()">
+            <span class="material-symbols-rounded icon-xs">save</span>
+            Save & Re-sync
+          </button>
+          <button class="btn" style="flex: 1;" onclick="testCurrentEndpoint()" id="btnTestEndpoint">
+            <span class="material-symbols-rounded icon-xs">network_ping</span>
+            Test Ping
+          </button>
+        </div>
+        <button class="btn" onclick="resetServerConfig()">Reset to Default (Exa v5)</button>
       </div>
 
       <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
         <div style="font-size: 11.5px; font-weight: 700; color: var(--rose-accent); margin-bottom: 6px;">Data Maintenance</div>
-        <button class="btn btn-danger" style="width: 100%;" onclick="clearAllDataPrompt()">
-          <span class="material-symbols-rounded icon-sm">delete_forever</span>
-          Purge All Log Records
-        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-danger" style="flex: 1;" onclick="clearAllDataPrompt()">
+            <span class="material-symbols-rounded icon-sm">delete_forever</span>
+            Purge Server Logs
+          </button>
+          <button class="btn" style="flex: 1;" onclick="seedHighFidelitySampleLogs(); closeConfigModal(); showAdminToast('Loaded sample demo logs');">
+            <span class="material-symbols-rounded icon-sm">dataset</span>
+            Load Sample Logs
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1298,13 +1367,21 @@
     // =========================================================================
     // Core Admin State & Authentication
     // =========================================================================
-    const DEFAULT_SERVER_URL = "https://iamk1ruu--tawir-agent.modal.run";
+    const EXA_SERVER_URL = "https://iamk1ruu--tawir-agent-exa.modal.run";
+    const TAVILY_SERVER_URL = "https://iamk1ruu--tawir-agent.modal.run";
+    const DEFAULT_SERVER_URL = EXA_SERVER_URL;
     const AUTH_SALT = "mablin_tawir_salt_2026_convo";
     const AUTH_HASH = "a3532e563208ec968c4b0ec59770ca08000abbe8ec4a1cd36cfa36b285e541d6";
     const AUTH_KEY = "tawir_convo_auth_session";
     const STORAGE_KEY_LOGS = "tawir_admin_audit_logs_v5";
 
-    let serverUrl = localStorage.getItem("tawir_convo_server_url") || DEFAULT_SERVER_URL;
+    // Auto-migrate legacy 404 URL if previously stored in localStorage
+    let storedUrl = localStorage.getItem("tawir_convo_server_url");
+    if (!storedUrl || storedUrl === TAVILY_SERVER_URL || storedUrl === "https://iamk1ruu--tawir-agent.modal.run" || (storedUrl.includes("--tawir-agent.modal.run") && !storedUrl.includes("-exa"))) {
+      storedUrl = EXA_SERVER_URL;
+      localStorage.setItem("tawir_convo_server_url", storedUrl);
+    }
+    let serverUrl = storedUrl;
     let conversations = [];
     let selectedId = null;
     let activeFilter = "all";
@@ -1329,6 +1406,38 @@
       const msgBuffer = new TextEncoder().encode(message);
       const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
       return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Guard and Connection Status Helpers
+    function isGuardPass(guard) {
+      if (!guard) return false;
+      if (guard.status === "PASS") return true;
+      if (Array.isArray(guard.problems) && guard.problems.length === 0) return true;
+      if (guard.repaired === false && (!guard.problems || guard.problems.length === 0)) return true;
+      return false;
+    }
+
+    function setConnectionStatus(status, label, titleText = "") {
+      const badge = document.getElementById("liveListenerBadge");
+      const labelSpan = document.getElementById("liveListenerLabel");
+      if (!badge) return;
+
+      badge.classList.remove("status-connected", "status-polling", "status-error");
+      if (status === "connected") {
+        badge.classList.add("status-connected");
+      } else if (status === "syncing") {
+        badge.classList.add("status-polling");
+      } else {
+        badge.classList.add("status-error");
+      }
+
+      if (labelSpan) labelSpan.textContent = label;
+      const cleanServer = serverUrl.replace(/^https?:\/\//, '');
+      if (titleText) {
+        badge.title = `${titleText} • Click to configure backend`;
+      } else {
+        badge.title = `Connected to ${cleanServer} • Click to configure backend`;
+      }
     }
 
     // Toast
@@ -1450,6 +1559,7 @@
 
       // Config & Export
       document.getElementById("btnConfigModal").addEventListener("click", openConfigModal);
+      document.getElementById("liveListenerBadge").addEventListener("click", openConfigModal);
       document.getElementById("btnExportMenu").addEventListener("click", exportLogsPayload);
     }
 
@@ -1484,21 +1594,61 @@
     async function fetchServerLogs(quiet = false) {
       const btn = document.getElementById("btnLiveRefresh");
       if (!quiet) btn.classList.add("loading");
+      setConnectionStatus("syncing", "SYNCING...");
 
       const endpoint = `${serverUrl.replace(/\/+$/, '')}/conversations`;
 
       try {
-        const res = await fetch(endpoint, { cache: "no-store" });
+        let res = await fetch(endpoint, { cache: "no-store" });
+
+        // Auto-fallback resolution: if 404, probe alternative backend endpoint
+        if (!res.ok && res.status === 404) {
+          const fallbackUrl = serverUrl === EXA_SERVER_URL ? TAVILY_SERVER_URL : EXA_SERVER_URL;
+          try {
+            const fallbackRes = await fetch(`${fallbackUrl.replace(/\/+$/, '')}/conversations`, { cache: "no-store" });
+            if (fallbackRes.ok) {
+              serverUrl = fallbackUrl;
+              localStorage.setItem("tawir_convo_server_url", serverUrl);
+              res = fallbackRes;
+              showAdminToast(`Auto-switched to active backend: ${serverUrl.includes("-exa") ? "Exa v5" : "Standard"}`);
+            }
+          } catch (_) {}
+        }
+
         if (res.ok) {
           const data = await res.json();
-          const serverList = data.conversations || [];
-          if (serverList.length > 0) {
-            conversations = serverList;
+          if (Array.isArray(data.conversations)) {
+            conversations = data.conversations;
             saveCachedLogs();
           }
+          const isExa = serverUrl.includes("-exa");
+          setConnectionStatus("connected", isExa ? "CONNECTED (v5)" : "CONNECTED", `Active: ${serverUrl} (${conversations.length} dialogues)`);
+        } else {
+          setConnectionStatus("error", `ERR (${res.status})`, `Backend error HTTP ${res.status}`);
         }
       } catch (err) {
-        // Fallback to local / cached logs gracefully
+        // Fallback on network/CORS error
+        const fallbackUrl = serverUrl === EXA_SERVER_URL ? TAVILY_SERVER_URL : EXA_SERVER_URL;
+        let recovered = false;
+        try {
+          const fallbackRes = await fetch(`${fallbackUrl.replace(/\/+$/, '')}/conversations`, { cache: "no-store" });
+          if (fallbackRes.ok) {
+            const data = await fallbackRes.json();
+            if (Array.isArray(data.conversations)) {
+              conversations = data.conversations;
+              saveCachedLogs();
+            }
+            serverUrl = fallbackUrl;
+            localStorage.setItem("tawir_convo_server_url", serverUrl);
+            const isExa = serverUrl.includes("-exa");
+            setConnectionStatus("connected", isExa ? "CONNECTED (v5)" : "CONNECTED", `Auto-recovered to ${serverUrl}`);
+            recovered = true;
+          }
+        } catch (_) {}
+
+        if (!recovered) {
+          setConnectionStatus("error", "OFFLINE", `Failed to connect to ${serverUrl}`);
+        }
       } finally {
         if (!quiet) btn.classList.remove("loading");
         document.getElementById("teleLastSync").textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -1528,13 +1678,13 @@
       const query = (document.getElementById("adminSearchInput").value || "").trim().toLowerCase();
 
       let list = conversations.filter(c => {
-        const hasSearch = Boolean(c.search_query || (c.tool_calls && c.tool_calls.length > 0));
+        const hasSearch = Boolean(c.search_query || (c.tool_calls && c.tool_calls.length > 0) || c.mode === "web" || c.mode === "rag");
         const mode = (c.mode || "").toLowerCase();
 
         if (activeFilter === "rag" && !hasSearch) return false;
         if (activeFilter === "agent" && (mode !== "agent" && c.version !== "v5")) return false;
         if (activeFilter === "direct" && hasSearch) return false;
-        if (activeFilter === "guard" && (!c.guard || c.guard.status !== "PASS")) return false;
+        if (activeFilter === "guard" && !isGuardPass(c.guard)) return false;
 
         if (!query) return true;
         const qText = (c.query || c.user_message || "").toLowerCase();
@@ -1613,11 +1763,11 @@
       let totalDuration = 0;
 
       conversations.forEach(c => {
-        const hasSearch = Boolean(c.search_query || (c.tool_calls && c.tool_calls.length > 0));
+        const hasSearch = Boolean(c.search_query || (c.tool_calls && c.tool_calls.length > 0) || c.mode === "web" || c.mode === "rag");
         if (hasSearch) ragCount++;
         if (c.mode === "agent" || c.version === "v5") agentCount++;
-        if (!hasSearch && c.mode === "direct") directCount++;
-        if (c.guard && c.guard.status === "PASS") guardCount++;
+        if (!hasSearch && (c.mode === "direct" || !c.mode)) directCount++;
+        if (isGuardPass(c.guard)) guardCount++;
         totalDuration += (c.duration_ms || 0);
       });
 
@@ -1669,7 +1819,8 @@
         const isSelected = c.id === selectedId;
         const prompt = c.query || c.user_message || "Empty prompt";
         const response = c.response || c.response_text || "No response recorded";
-        const hasSearch = Boolean(c.search_query || (c.tool_calls && c.tool_calls.length > 0));
+        const hasSearch = Boolean(c.search_query || (c.tool_calls && c.tool_calls.length > 0) || c.mode === "web" || c.mode === "rag");
+        const sources = c.sources || [];
         const durationSec = c.duration_ms ? (c.duration_ms / 1000).toFixed(1) + "s" : "-";
 
         let tagClass = "tag-agent";
@@ -1678,7 +1829,7 @@
         if (hasSearch) {
           tagClass = "tag-rag";
           tagIcon = "travel_explore";
-          tagText = "RAG SEARCH";
+          tagText = "EXA RAG";
         } else if (c.mode === "direct" || c.version === "v3") {
           tagClass = "tag-direct";
           tagIcon = "chat_bubble";
@@ -1699,8 +1850,8 @@
             <div class="card-footer-strip">
               <div class="card-metrics-row">
                 <span><span class="material-symbols-rounded icon-xs">schedule</span> ${durationSec}</span>
-                ${hasSearch ? `<span style="color: var(--amber-accent);"><span class="material-symbols-rounded icon-xs">travel_explore</span> 1 search</span>` : ''}
-                ${c.guard ? `<span style="color: var(--emerald-accent);"><span class="material-symbols-rounded icon-xs">verified_user</span> Pass</span>` : ''}
+                ${hasSearch ? `<span style="color: var(--amber-accent);"><span class="material-symbols-rounded icon-xs">travel_explore</span> ${sources.length > 0 ? sources.length + ' sources' : '1 search'}</span>` : ''}
+                ${isGuardPass(c.guard) ? `<span style="color: var(--emerald-accent);"><span class="material-symbols-rounded icon-xs">verified_user</span> Pass</span>` : ''}
               </div>
               <div class="card-quick-actions">
                 <button class="icon-action-btn" onclick="quickCopyText(decodeURIComponent('${encodeURIComponent(prompt)}'), event)" title="Copy prompt">
@@ -1727,7 +1878,7 @@
         const isSelected = c.id === selectedId;
         const prompt = c.query || c.user_message || "";
         const response = c.response || c.response_text || "";
-        const hasSearch = Boolean(c.search_query || (c.tool_calls && c.tool_calls.length > 0));
+        const hasSearch = Boolean(c.search_query || (c.tool_calls && c.tool_calls.length > 0) || c.mode === "web" || c.mode === "rag");
         const durationSec = c.duration_ms ? (c.duration_ms / 1000).toFixed(1) + "s" : "-";
 
         return `
@@ -1735,16 +1886,16 @@
             <td style="font-family: var(--font-mono); font-size: 11.5px;">${new Date(c.timestamp).toLocaleTimeString()}</td>
             <td>
               <span class="tag-badge ${hasSearch ? 'tag-rag' : 'tag-agent'}">
-                ${hasSearch ? 'RAG' : (c.mode || 'AGENT').toUpperCase()}
+                ${hasSearch ? 'EXA RAG' : (c.mode || 'AGENT').toUpperCase()}
               </span>
             </td>
             <td><div class="table-text-cell" title="${escapeHtml(prompt)}">${escapeHtml(prompt)}</div></td>
             <td><div class="table-text-cell" title="${escapeHtml(response)}">${escapeHtml(response)}</div></td>
             <td>
-              ${hasSearch ? `<span style="color: var(--amber-accent); font-family: var(--font-mono); font-size: 11px;">${escapeHtml(c.search_query || 'Tavily')}</span>` : `<span style="color: var(--text-dim);">—</span>`}
+              ${hasSearch ? `<span style="color: var(--amber-accent); font-family: var(--font-mono); font-size: 11px;">${escapeHtml(c.search_query || (c.tool_calls && c.tool_calls[0] && c.tool_calls[0].args ? c.tool_calls[0].args.query : 'Exa Search'))}</span>` : `<span style="color: var(--text-dim);">—</span>`}
             </td>
             <td>
-              ${c.guard ? `<span style="color: var(--emerald-accent); font-weight: 700; font-size: 11px;">PASS</span>` : `<span style="color: var(--text-dim);">—</span>`}
+              ${isGuardPass(c.guard) ? `<span style="color: var(--emerald-accent); font-weight: 700; font-size: 11px;">PASS</span>` : `<span style="color: var(--text-dim);">—</span>`}
             </td>
             <td style="font-family: var(--font-mono); font-weight: 600;">${durationSec}</td>
             <td>
@@ -1845,7 +1996,7 @@
             <div class="dialogue-card-header">
               <span class="dialogue-title" style="color: var(--amber-accent);">
                 <span class="material-symbols-rounded icon-sm">travel_explore</span>
-                Tavily Live Search Retrieval Telemetry
+                Exa Live Search Retrieval Telemetry
               </span>
               <span class="tag-badge tag-rag">EXTERNAL RAG</span>
             </div>
@@ -1925,21 +2076,29 @@
                 <span class="material-symbols-rounded icon-sm">verified_user</span>
                 PagGuard Runtime Lexical Diagnostics
               </span>
-              <span class="tag-badge tag-direct">INTEGRITY PASS</span>
+              <span class="tag-badge ${isGuardPass(c.guard) ? 'tag-direct' : 'tag-rag'}">
+                ${isGuardPass(c.guard) ? 'INTEGRITY PASS' : 'LEAK DETECTED'}
+              </span>
             </div>
             <div style="padding: 16px;">
               <div class="telemetry-matrix-grid">
                 <div class="matrix-cell">
                   <span class="matrix-label">Validation Status</span>
-                  <span class="matrix-data" style="color: var(--emerald-accent);">${escapeHtml(c.guard.status || 'PASS')}</span>
+                  <span class="matrix-data" style="color: ${isGuardPass(c.guard) ? 'var(--emerald-accent)' : 'var(--amber-accent)'};">
+                    ${escapeHtml(c.guard.status || (isGuardPass(c.guard) ? 'PASS' : 'FLAGGED'))}
+                  </span>
                 </div>
                 <div class="matrix-cell">
-                  <span class="matrix-label">Replacements Made</span>
-                  <span class="matrix-data">${c.guard.replacements !== undefined ? c.guard.replacements : 0}</span>
+                  <span class="matrix-label">Problems / Leaks</span>
+                  <span class="matrix-data">${Array.isArray(c.guard.problems) ? c.guard.problems.length : (c.guard.replacements !== undefined ? c.guard.replacements : 0)}</span>
+                </div>
+                <div class="matrix-cell">
+                  <span class="matrix-label">Repaired / Retried</span>
+                  <span class="matrix-data">${c.guard.repaired ? 'Yes' : 'Clean'}</span>
                 </div>
                 <div class="matrix-cell">
                   <span class="matrix-label">Guard Overhead</span>
-                  <span class="matrix-data">${c.guard.latency_ms !== undefined ? c.guard.latency_ms : 0} ms</span>
+                  <span class="matrix-data">${c.guard.latency_ms !== undefined ? c.guard.latency_ms + ' ms' : '< 10 ms'}</span>
                 </div>
               </div>
             </div>
@@ -2158,6 +2317,7 @@
       ];
       saveCachedLogs();
       updateTelemetryStats();
+      renderAllViews();
     }
 
     // =========================================================================
@@ -2217,8 +2377,64 @@
       });
     }
 
+    function selectPresetEndpoint(preset) {
+      const input = document.getElementById("configUrlInput");
+      if (preset === 'exa') {
+        input.value = EXA_SERVER_URL;
+      } else if (preset === 'tavily') {
+        input.value = TAVILY_SERVER_URL;
+      }
+      testCurrentEndpoint();
+    }
+
+    async function testCurrentEndpoint() {
+      const input = document.getElementById("configUrlInput");
+      const url = (input.value || "").trim().replace(/\/+$/, '');
+      const resultBox = document.getElementById("connectionTestResult");
+      const btn = document.getElementById("btnTestEndpoint");
+
+      if (!url) {
+        resultBox.style.display = "block";
+        resultBox.style.background = "rgba(244, 63, 94, 0.15)";
+        resultBox.style.color = "var(--rose-accent)";
+        resultBox.textContent = "Please enter a valid URL.";
+        return;
+      }
+
+      btn.classList.add("loading");
+      resultBox.style.display = "block";
+      resultBox.style.background = "rgba(245, 158, 11, 0.15)";
+      resultBox.style.color = "var(--amber-accent)";
+      resultBox.textContent = "Pinging endpoint /conversations...";
+
+      const t0 = performance.now();
+      try {
+        const res = await fetch(`${url}/conversations`, { cache: "no-store" });
+        const latency = Math.round(performance.now() - t0);
+        if (res.ok) {
+          const json = await res.json();
+          const count = json.count !== undefined ? json.count : (json.conversations ? json.conversations.length : 0);
+          resultBox.style.background = "rgba(16, 185, 129, 0.15)";
+          resultBox.style.color = "var(--emerald-accent)";
+          resultBox.textContent = `✓ 200 OK (${latency}ms) — Active v5 backend with ${count} dialogue records.`;
+        } else {
+          resultBox.style.background = "rgba(244, 63, 94, 0.15)";
+          resultBox.style.color = "var(--rose-accent)";
+          resultBox.textContent = `✗ HTTP ${res.status} (${latency}ms) — Endpoint does not expose /conversations.`;
+        }
+      } catch (err) {
+        resultBox.style.background = "rgba(244, 63, 94, 0.15)";
+        resultBox.style.color = "var(--rose-accent)";
+        resultBox.textContent = `✗ Connection failed: ${err.message || "Network / CORS error"}`;
+      } finally {
+        btn.classList.remove("loading");
+      }
+    }
+
     function openConfigModal() {
       document.getElementById("configUrlInput").value = serverUrl;
+      const resultBox = document.getElementById("connectionTestResult");
+      if (resultBox) resultBox.style.display = "none";
       document.getElementById("serverConfigModal").style.display = "flex";
     }
 
@@ -2238,10 +2454,10 @@
 
     function resetServerConfig() {
       serverUrl = DEFAULT_SERVER_URL;
-      localStorage.removeItem("tawir_convo_server_url");
+      localStorage.setItem("tawir_convo_server_url", serverUrl);
       document.getElementById("configUrlInput").value = DEFAULT_SERVER_URL;
       closeConfigModal();
-      showAdminToast("Reset to default server");
+      showAdminToast("Reset to default Exa v5 backend");
       fetchServerLogs(false);
     }
 
