@@ -606,7 +606,7 @@
 
                 <div class="kiruu-admin-links">
                   <a href="/dashboard/">Console Login</a>
-                  <span class="kiruu-admin-divider" aria-hidden="true">•</span>
+                  <span class="kiruu-admin-divider" aria-hidden="true">&bull;</span>
                   <button id="admin-bypass-trigger" type="button">Admin Unlock</button>
                 </div>
               </div>
@@ -709,12 +709,17 @@
     }
   }
 
-  function checkConfig(config) {
+  function checkConfig(config, isCached) {
     if (!config) return;
 
     const isMasterOff = config.masterSwitch === false;
     const sublinkConfig = (config.services && (config.services[slug] || (slug === "tawir-dev" ? (config.services["tawir-dev"] || config.services["tawir-beta"]) : null))) || 
                           (config.sublinks && (config.sublinks[slug] || (slug === "tawir-dev" ? (config.sublinks["tawir-dev"] || config.sublinks["tawir-beta"]) : null)));
+
+    // Ensure tawir-beta is never blocked on stale cached state
+    if (slug === "tawir-beta" && isCached) {
+      return;
+    }
 
     if (isMasterOff || (sublinkConfig && sublinkConfig.enabled === false)) {
       const notice = sublinkConfig
@@ -727,7 +732,7 @@
   try {
     const cached = localStorage.getItem('kiruu_services_status') || localStorage.getItem('kiruu_sublinks_status');
     if (cached) {
-      checkConfig(JSON.parse(cached));
+      checkConfig(JSON.parse(cached), true);
     }
   } catch (e) {}
 

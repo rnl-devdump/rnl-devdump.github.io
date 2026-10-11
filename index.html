@@ -85,7 +85,7 @@
             <button class="filter-btn" data-filter="ai">
                 <i class="fi fi-br-brain-circuit" aria-hidden="true"></i>
                 <span>AI &amp; Language</span>
-                <span class="filter-count">2</span>
+                <span class="filter-count">3</span>
             </button>
             <button class="filter-btn" data-filter="media">
                 <i class="fi fi-br-clapperboard-play" aria-hidden="true"></i>
@@ -116,12 +116,12 @@
                         </div>
                         <h2 class="category-title">AI &amp; Language Assistants</h2>
                     </div>
-                    <span class="category-badge">2 Apps</span>
+                    <span class="category-badge">3 Apps</span>
                 </div>
 
                 <div class="apps-grid">
-                    <!-- TAWIR AI Assistant -->
-                    <article class="app-card" data-service="tawir" data-tags="tawir v3 beta ai assistant pangasinan translation language model nlp flutter chat webapp">
+                    <!-- TAWIR (v3 Assistant) -->
+                    <article class="app-card" data-service="tawir" data-tags="tawir v3 ai assistant pangasinan translation language model nlp flutter chat webapp">
                         <div class="app-card-top">
                             <div class="app-icon" style="background: #eff6ff;">
                                 <i class="fi fi-br-chatbot" style="color: #2563eb;" aria-hidden="true"></i>
@@ -132,15 +132,37 @@
                             </div>
                         </div>
                         <div class="app-card-body">
-                            <h3 class="app-title">TAWIR AI Assistant</h3>
-                            <span class="app-path">kiruu.xyz/tawir &bull; /tawir-dev</span>
+                            <h3 class="app-title">TAWIR (v3 Assistant)</h3>
+                            <span class="app-path">kiruu.xyz/tawir</span>
                             <p class="app-description">
-                                Pangasinan conversational AI assistant and translation engine. Choose between the classic v3 Flutter assistant or the next-gen Beta web application.
+                                Authentic Salitan Pangasinan conversational AI assistant powered by the classic v3 Flutter engine and bilingual translation bridge.
                             </p>
                         </div>
-                        <div class="app-card-footer" style="display: flex; gap: 10px;">
-                            <a href="/tawir" data-service-btn="tawir" class="button-rn app-launch-btn" style="flex: 1; padding: 0 10px;">Launch v3</a>
-                            <a href="/tawir-dev" data-service-btn="tawir-dev" class="button-rn app-launch-btn" style="flex: 1; padding: 0 10px; background-color: #dbeafe;">Launch Beta</a>
+                        <div class="app-card-footer">
+                            <a href="/tawir" data-service-btn="tawir" class="button-rn app-launch-btn">Launch v3</a>
+                        </div>
+                    </article>
+
+                    <!-- TAWIR Beta -->
+                    <article class="app-card" data-service="tawir-beta" data-tags="tawir beta tawir-beta ai assistant pangasinan translation language model nlp flutter chat webapp">
+                        <div class="app-card-top">
+                            <div class="app-icon" style="background: #e0f2fe;">
+                                <i class="fi fi-br-sparkles" style="color: #0284c7;" aria-hidden="true"></i>
+                            </div>
+                            <div class="app-badges">
+                                <span class="tag-pill ai">AI Assistant</span>
+                                <span class="status-badge"><span class="mini-dot"></span> Active</span>
+                            </div>
+                        </div>
+                        <div class="app-card-body">
+                            <h3 class="app-title">TAWIR Beta</h3>
+                            <span class="app-path">kiruu.xyz/tawir-beta</span>
+                            <p class="app-description">
+                                Next-gen Salitan Pangasinan conversational AI assistant with animated emblem loading, clean direct responses, and MMS-TTS speech.
+                            </p>
+                        </div>
+                        <div class="app-card-footer">
+                            <a href="/tawir-beta" data-service-btn="tawir-beta" class="button-rn app-launch-btn" style="background-color: #dbeafe;">Launch Beta</a>
                         </div>
                     </article>
 
@@ -535,8 +557,10 @@
                 var val = (document.getElementById("modalInput").value || "").trim().toLowerCase();
                 if (!val) return;
                 var routeMap = {
-                    "tawir": "/tawir",
+                    "tawir-beta": "/tawir-beta",
+                    "tawir-dev": "/tawir-dev",
                     "tawir-convo": "/tawir-convo",
+                    "tawir": "/tawir",
                     "anime": "/anime",
                     "movie": "/movie",
                     "dataset": "/dataset",
@@ -688,13 +712,13 @@
                             badge.className = "status-badge status-partial";
                             badge.removeAttribute("style");
                             badge.innerHTML = '<span class="mini-dot"></span> Beta Active';
-                            badge.title = "TAWIR v3 is offline • Beta is active";
+                            badge.title = "TAWIR v3 is offline &bull; Beta is active";
                             card.classList.remove("card-offline");
                         } else if (v3Online && !devOnline) {
                             badge.className = "status-badge status-partial";
                             badge.removeAttribute("style");
                             badge.innerHTML = '<span class="mini-dot"></span> v3 Active';
-                            badge.title = "TAWIR Beta is offline • v3 is active";
+                            badge.title = "TAWIR Beta is offline &bull; v3 is active";
                             card.classList.remove("card-offline");
                         } else {
                             badge.className = origClass;
