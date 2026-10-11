@@ -28116,7 +28116,7 @@ this.b=b},
 app:function app(){},
 apq:function apq(){},
 apF:function apF(){},
-rN:function rN(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,a0){var _=this
+rN:function rN(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s){var _=this
 _.d=a
 _.e=b
 _.f=c
@@ -28128,22 +28128,21 @@ _.z=h
 _.Q=i
 _.as=j
 _.at=k
-_.ax=l
-_.ay=m
-_.ch=n
-_.CW=o
-_.cx=p
-_.cy=q
-_.dx=r
-_.dy=s
-_.a=a0},
+_.ay=l
+_.ch=m
+_.CW=n
+_.cx=o
+_.cy=p
+_.dx=q
+_.dy=r
+_.a=s},
 U0:function U0(a){var _=this
 _.d=0
 _.e="ALL"
 _.f=a
 _.r=!0
-_.as=_.Q=_.y=_.x=_.w=$
-_.at=!0
+_.Q=_.z=_.y=_.x=_.w=$
+_.as=!0
 _.c=_.a=null},
 aqX:function aqX(a,b,c,d,e){var _=this
 _.a=a
@@ -94555,7 +94554,7 @@ $S:162}
 A.ap9.prototype={
 $1(a){var s=this.a,r=s.d
 r===$&&A.a()
-return new A.rN(r,s.as,this.c,this.d,s.at,s.db,!0,s.ay,s.fr,s.fx,s.fy,s.go,s.id,s.k1,new A.ap1(s),s.k2,new A.ap2(s),new A.ap3(s),new A.ap4(s),null)},
+return new A.rN(r,s.as,this.c,this.d,s.at,s.db,!0,s.ay,s.fr,s.fx,s.fy,s.id,s.k1,new A.ap1(s),s.k2,new A.ap2(s),new A.ap3(s),new A.ap4(s),null)},
 $S:585}
 A.ap1.prototype={
 $7$clearSeed$frequencyPenalty$maxTokens$repeatPenalty$seed$temperature$topP(a,b,c,d,e,f,g){var s,r,q,p,o,n=this.a
@@ -94961,8 +94960,8 @@ s=r.a
 r.w=s.Q
 r.x=s.as
 r.y=s.at
-r.Q=s.ay
-r.as=s.ch},
+r.z=s.ay
+r.Q=s.ch},
 aT(a){var s,r,q=this
 q.bd(a)
 if(q.a.cx.length!==a.cx.length)q.qK()
@@ -94974,9 +94973,9 @@ if(r!==a.as)q.x=r
 r=s.at
 if(r!==a.at)q.y=r
 r=s.ay
-if(r!==a.ay)q.Q=r
+if(r!==a.ay)q.z=r
 s=s.ch
-if(s!=a.ch)q.as=s},
+if(s!=a.ch)q.Q=s},
 l(){this.f.l()
 this.aE()},
 qK(){if(this.r&&this.f.f.length!==0)$.a0.p4$.push(new A.arT(this))},
@@ -95078,7 +95077,7 @@ n=d.hK("Voice Synthesis",d.a.z?"MMS-Pangasinan (Auto)":"Manual")
 m=A.b9(10)
 l=A.cS(B.aD,1)
 k=A.b9(6)
-j=d.at
+j=d.as
 i=A.d2(j?B.Io:B.Ip,B.S,c,13)
 k=A.cc(A.b([B.IG,B.j_,B.YJ,B.mr,A.fo(!1,k,!0,new A.bJ(B.oW,A.cc(A.b([i,B.iZ,A.bj(j?"Hide Guide":"Guide & Info",c,c,c,B.Xq,c,c)],q),B.x,B.p,B.aZ,0),c),c,!0,c,c,c,c,c,c,c,c,new A.arm(d),c,c,c,c,c)],q),B.x,B.p,B.w,0)
 j=d.w
@@ -95099,7 +95098,7 @@ if(Math.abs(d.w-0.7)<0.01){g=d.x
 g===$&&A.a()
 g=Math.abs(g-0.95)<0.01}else g=!1
 m=A.b([r,p,o,n,B.j0,B.Gx,B.j0,A.bx(c,A.d9(A.b([k,B.ce,A.wu(A.b([j,i,h,d.yc("Higher diversity in sentence structures and metaphors.",g,new A.arG(d),"T: 0.70 \xb7 P: 0.95","\ud83c\udfa8 Creative Chat")],q),6,8)],q),B.af,B.p,B.w),B.l,c,c,new A.bc(B.hq,c,l,m,c,c,B.y),c,c,B.oQ,c)],q)
-if(d.at){r=B.EY.bn(0.6)
+if(d.as){r=B.EY.bn(0.6)
 p=A.b9(10)
 o=A.cS(B.ay.bn(0.3),1)
 B.b.O(m,A.b([B.j0,A.bx(c,A.d9(A.b([A.cc(B.KQ,B.x,B.p,B.w,0),B.ce,d.u8("Controls randomness vs determinism. For factual questions (like PSU campuses), use 0.10\u20130.20 to prevent fabricating non-existent programs. For casual chat, 0.30 is fluent. Avoid >0.80 as Tagalog/English bleed increases sharply.","Temperature","0.00 \u2013 1.50","0.10 \u2013 0.30"),B.ce,d.u8("Restricts token candidates to the top cumulative probability. 0.90 cuts off improbable morphological word-forms. 1.00 disables nucleus filtering.","Top-P (Nucleus)","0.05 \u2013 1.00","0.90 \u2013 0.95"),B.ce,d.u8("Crucial for Pangasinan. Prevents cyclic loops of common ligature particles ('ya', 'et', 'tan'). 1.15 is ideal; 1.00 risks looping, while >1.35 can distort natural repetitive grammar.","Repeat Penalty","1.00 \u2013 2.00","1.15"),B.ce,d.u8("Caps generated length. 512 tokens accommodates a thorough 3-4 paragraph response.","Max Tokens","16 \u2013 2048","512 (standard) / 1024 (deep search)"),B.ce,d.u8("Fixes the random generator seed. With a fixed seed, you can run the same question at different temperatures to see the exact effect of sampling.","Seed","Integer / Null","Seed 42 (benchmark) / Random")],q),B.af,B.p,B.w),B.l,c,c,new A.bc(r,c,o,p,c,c,B.y),c,c,B.oQ,c)],q))}m.push(B.cO)
@@ -95131,13 +95130,13 @@ r=A.b([],q)
 for(p=[128,256,512,1024],f=0;f<4;++f){e=p[f]
 o=""+e
 if(e===512)o+=" (Default)"
-n=d.Q
+n=d.z
 n===$&&A.a()
 r.push(d.f0(n===e,o,new A.arz(d,e)))}m.push(A.cc(A.b([B.SS,A.du(A.wu(r,6,8),1)],q),B.x,B.p,B.w,0))
 m.push(B.cO)
-r=d.as
+r=d.Q
 r===$&&A.a()
-m.push(A.cc(A.b([B.SU,A.du(A.wu(A.b([d.f0(r==null,"\ud83c\udfb2 Random (Default)",new A.arA(d)),d.f0(d.as===42,"\ud83c\udfaf Seed 42 (Benchmarking)",new A.arB(d)),d.f0(d.as===123,"\ud83c\udfaf Seed 123",new A.arC(d))],q),6,8),1)],q),B.x,B.p,B.w,0))
+m.push(A.cc(A.b([B.SU,A.du(A.wu(A.b([d.f0(r==null,"\ud83c\udfb2 Random (Default)",new A.arA(d)),d.f0(d.Q===42,"\ud83c\udfaf Seed 42 (Benchmarking)",new A.arB(d)),d.f0(d.Q===123,"\ud83c\udfaf Seed 123",new A.arC(d))],q),6,8),1)],q),B.x,B.p,B.w,0))
 m.push(B.B2)
 m.push(new A.dZ(B.dP,c,c,A.aIS(B.IJ,B.YZ,new A.arD(d),A.aIU(c,c,c,c,c,c,c,c,c,B.az,c,c,B.kt,c,new A.c5(A.b9(8),B.n),B.no,c,c,c,c)),c))
 m=d.ye(B.lh,m,"3. Model Parameters & Sampling Tuning")
@@ -95180,7 +95179,7 @@ $0(){var s=this,r=s.a
 r.w=s.b
 r.x=s.c
 r.y=s.d
-r.Q=s.e},
+r.z=s.e},
 $S:0}
 A.arT.prototype={
 $1(a){var s=this.a.f,r=s.f
@@ -95269,7 +95268,7 @@ return s.P(new A.arb(s))},
 $S:0}
 A.arb.prototype={
 $0(){var s=this.a
-return s.at=!s.at},
+return s.as=!s.as},
 $S:0}
 A.arx.prototype={
 $0(){return this.a.y9(512,"Factual / RAG",1.15,0.15,0.9)},
@@ -95409,7 +95408,7 @@ s.P(new A.ard(s,r))
 s.a.aw5(r)},
 $S:0}
 A.ard.prototype={
-$0(){return this.a.Q=this.b},
+$0(){return this.a.z=this.b},
 $S:0}
 A.arA.prototype={
 $0(){var s=this.a
@@ -95417,7 +95416,7 @@ s.P(new A.arc(s))
 s.a.aw4(!0)},
 $S:0}
 A.arc.prototype={
-$0(){return this.a.as=null},
+$0(){return this.a.Q=null},
 $S:0}
 A.arB.prototype={
 $0(){var s=this.a
@@ -95425,7 +95424,7 @@ s.P(new A.ar1(s))
 s.a.a_G(42)},
 $S:0}
 A.ar1.prototype={
-$0(){return this.a.as=42},
+$0(){return this.a.Q=42},
 $S:0}
 A.arC.prototype={
 $0(){var s=this.a
@@ -95433,7 +95432,7 @@ s.P(new A.ar0(s))
 s.a.a_G(123)},
 $S:0}
 A.ar0.prototype={
-$0(){return this.a.as=123},
+$0(){return this.a.Q=123},
 $S:0}
 A.arD.prototype={
 $0(){var s=this.a
@@ -95445,8 +95444,8 @@ $0(){var s=this.a
 s.w=0.3
 s.x=0.95
 s.y=1.15
-s.Q=512
-s.as=null},
+s.z=512
+s.Q=null},
 $S:0}
 A.IB.prototype={
 bH(){this.cn()
