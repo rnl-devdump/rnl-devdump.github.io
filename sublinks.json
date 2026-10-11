@@ -1,4 +1,4 @@
-{
+﻿{
   "updatedAt": "2026-10-09T18:20:00.000Z",
   "masterSwitch": true,
   "adminAnnouncement": {
@@ -18,6 +18,13 @@
     "tawir-dev": {
       "name": "TAWIR Beta Web App",
       "path": "/tawir-dev",
+      "category": "AI Assistant",
+      "enabled": true,
+      "message": "TAWIR Beta is currently undergoing maintenance."
+    },
+    "tawir-beta": {
+      "name": "TAWIR Beta",
+      "path": "/tawir-beta",
       "category": "AI Assistant",
       "enabled": true,
       "message": "TAWIR Beta is currently undergoing maintenance."
