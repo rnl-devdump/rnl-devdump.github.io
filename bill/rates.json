@@ -1,10 +1,14 @@
 {
-    "updated_at": "2026-10-12T04:34:08.796173+00:00",
-    "billing_month": "Sep 01, 2026 - Sep 30, 2026",
-    "billperiod_id": 5451,
+    "updated_at": "2026-10-12T20:57:43.082897+00:00",
+    "billing_month": "Oct 01, 2026 - Oct 31, 2026",
+    "billperiod_id": 5474,
     "status": "Active - Lock for Billing",
     "source": "https://cmbis.cenpelco.com/public/rates/billrates.jsp",
     "available_periods": [
+        {
+            "id": 5474,
+            "name": "October 2026"
+        },
         {
             "id": 5451,
             "name": "September 2026"
@@ -192,94 +196,49 @@
         {
             "id": 4453,
             "name": "November 2022"
-        },
-        {
-            "id": 4433,
-            "name": "October 2022"
         }
     ],
-    "generation_breakdown": [
-        {
-            "source": "WESM",
-            "pct_kwh": "38.99%",
-            "kwh_purchased": 23885575.49,
-            "pct_cost": "42.39%",
-            "basic_cost": 173027327.92,
-            "other_adjust": 0.0,
-            "discounts": 29686.28,
-            "total_cost": 172997641.64,
-            "oga": 0.0,
-            "avg_cost": 7.242766317789901
-        },
-        {
-            "source": "TLI",
-            "pct_kwh": "30.36%",
-            "kwh_purchased": 18600000.0,
-            "pct_cost": "29.18%",
-            "basic_cost": 119098622.24,
-            "other_adjust": 0.0,
-            "discounts": 0.0,
-            "total_cost": 119098622.24,
-            "oga": 0.0,
-            "avg_cost": 6.403151733333333
-        },
-        {
-            "source": "MPCL",
-            "pct_kwh": "30.36%",
-            "kwh_purchased": 18600000.0,
-            "pct_cost": "28.10%",
-            "basic_cost": 114703643.32,
-            "other_adjust": 0.0,
-            "discounts": 0.0,
-            "total_cost": 114703643.32,
-            "oga": 0.0,
-            "avg_cost": 6.166862544086021
-        },
-        {
-            "source": "Net Metering",
-            "pct_kwh": "0.30%",
-            "kwh_purchased": 181769.0,
-            "pct_cost": "0.34%",
-            "basic_cost": 1371010.86,
-            "other_adjust": 0.0,
-            "discounts": 0.0,
-            "total_cost": 1371010.86,
-            "oga": 0.0,
-            "avg_cost": 7.542600003300893
-        }
-    ],
+    "generation_breakdown": [],
     "unbundled_rates": [
         {
             "category": "Generation & Transmission",
             "group": "Generation Charges",
             "name": "Generation Charge (PhP/kWh)",
             "type": "Rate x Consumption",
-            "rate_val": 6.9244,
-            "raw_rate_str": "\u20b16.9244"
+            "rate_val": 7.4919,
+            "raw_rate_str": "\u20b17.4919"
+        },
+        {
+            "category": "Generation & Transmission",
+            "group": "Generation Charges",
+            "name": "SAGR Adjustment",
+            "type": "Rate x Consumption",
+            "rate_val": 0.0,
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Generation & Transmission",
             "group": "Transmission Charges",
             "name": "Transmission Delivery Charge (PhP/kWh)",
             "type": "Rate x Consumption",
-            "rate_val": 0.5587,
-            "raw_rate_str": "\u20b10.5587"
+            "rate_val": 0.5467,
+            "raw_rate_str": "\u20b10.5467"
         },
         {
             "category": "Generation & Transmission",
             "group": "Transmission Charges",
             "name": "Ancillary Service Charge (PhP/kWh)",
             "type": "Rate x Consumption",
-            "rate_val": 0.7197,
-            "raw_rate_str": "\u20b10.7197"
+            "rate_val": 0.5845,
+            "raw_rate_str": "\u20b10.5845"
         },
         {
             "category": "Generation & Transmission",
             "group": "System Loss Charge",
             "name": "System Loss Charge (PhP/kWh)",
             "type": "Rate x Consumption",
-            "rate_val": 1.1594,
-            "raw_rate_str": "\u20b11.1594"
+            "rate_val": 1.2152,
+            "raw_rate_str": "\u20b11.2152"
         },
         {
             "category": "Distribution Revenues",
@@ -350,16 +309,16 @@
             "group": "Pass-Through Value-Added Tax",
             "name": "Generation Tax",
             "type": "Rate x Consumption",
-            "rate_val": 0.7196,
-            "raw_rate_str": "\u20b10.7196"
+            "rate_val": 0.6488,
+            "raw_rate_str": "\u20b10.6488"
         },
         {
             "category": "Government Revenues",
             "group": "Pass-Through Value-Added Tax",
             "name": "Transmission Tax",
             "type": "Rate x Consumption",
-            "rate_val": 0.0748,
-            "raw_rate_str": "\u20b10.0748"
+            "rate_val": 0.0728,
+            "raw_rate_str": "\u20b10.0728"
         },
         {
             "category": "Government Revenues",
@@ -374,8 +333,8 @@
             "group": "Pass-Through Value-Added Tax",
             "name": "Ancillary Service Tax",
             "type": "Rate x Consumption",
-            "rate_val": 0.0789,
-            "raw_rate_str": "\u20b10.0789"
+            "rate_val": 0.0589,
+            "raw_rate_str": "\u20b10.0589"
         },
         {
             "category": "Government Revenues",
@@ -398,16 +357,16 @@
             "group": "Universal Charges",
             "name": "NPC SPUG",
             "type": "Rate x Consumption",
-            "rate_val": 0.0,
-            "raw_rate_str": "\u20b10.0000"
+            "rate_val": 0.3296,
+            "raw_rate_str": "\u20b10.3296"
         },
         {
             "category": "Government Revenues",
             "group": "Universal Charges",
             "name": "Missionary Electrification",
             "type": "Rate x Consumption",
-            "rate_val": 0.2763,
-            "raw_rate_str": "\u20b10.2763"
+            "rate_val": 0.0,
+            "raw_rate_str": "\u20b10.0000"
         },
         {
             "category": "Government Revenues",
@@ -429,6 +388,22 @@
             "category": "Government Revenues",
             "group": "Universal Charges",
             "name": "GEA-ALL",
+            "type": "Rate x Consumption",
+            "rate_val": 0.0,
+            "raw_rate_str": "\u20b10.0000"
+        },
+        {
+            "category": "Government Revenues",
+            "group": "Universal Charges",
+            "name": "REDCI",
+            "type": "Rate x Consumption",
+            "rate_val": 0.0101,
+            "raw_rate_str": "\u20b10.0101"
+        },
+        {
+            "category": "Government Revenues",
+            "group": "Universal Charges",
+            "name": "REC Rate",
             "type": "Rate x Consumption",
             "rate_val": 0.0,
             "raw_rate_str": "\u20b10.0000"
