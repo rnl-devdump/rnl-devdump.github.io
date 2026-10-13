@@ -33,26 +33,52 @@
 
   <title>TAWIR - Salitan Pangasinan</title>
   <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0A1B15">
   <style>
     html, body {
-      background-color: #020508;
       margin: 0;
       padding: 0;
       width: 100%;
       height: 100%;
       overflow: hidden;
+      background: #0A1B15;
+    }
+    #boot {
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0A1B15;
+      transition: opacity .25s ease;
+    }
+    #boot i {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #C8FFE1;
+      box-shadow: 0 0 18px 8px rgba(200,255,225,.55);
+      animation: boot-pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes boot-pulse {
+      50% {
+        transform: scale(1.6);
+        opacity: .7;
+      }
     }
   </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <div id="boot"><i></i></div>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var b = document.getElementById('boot');
+      if (!b) return;
+      b.style.opacity = 0;
+      setTimeout(function () { b.remove(); }, 300);
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
