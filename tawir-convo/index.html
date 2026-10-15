@@ -1549,15 +1549,15 @@
       <div class="env-tracker-bar" id="topbarEnvTracker" role="radiogroup" aria-label="Tracking Environment Target">
         <span class="env-tracker-title">TRACKING:</span>
         <div class="env-tracker-pills">
-          <button type="button" class="env-pill-btn" id="pillEnvDev" onclick="selectPresetEndpoint('v6')" title="Track Tawir-DEV (v6 Dual-Model Staging)">
+          <button type="button" class="env-pill-btn" id="pillEnvDev" onclick="selectPresetEndpoint('v6')" title="Track Tawir-DEV (v6 backend)">
             <span class="env-pill-dot"></span>
             <span class="env-pill-name">Tawir-DEV</span>
           </button>
-          <button type="button" class="env-pill-btn active" id="pillEnvProd" onclick="selectPresetEndpoint('exa')" title="Track Tawir (Main Exa RAG Production)">
+          <button type="button" class="env-pill-btn active" id="pillEnvProd" onclick="selectPresetEndpoint('exa')" title="Track Tawir (v5 backend)">
             <span class="env-pill-dot"></span>
             <span class="env-pill-name">Tawir</span>
           </button>
-          <button type="button" class="env-pill-btn" id="pillEnvLegacy" onclick="selectPresetEndpoint('tavily')" title="Track Tawir-Legacy (Tavily Search Backend)">
+          <button type="button" class="env-pill-btn" id="pillEnvLegacy" onclick="selectPresetEndpoint('tavily')" title="Track Tawir-Legacy (v3 legacy backend)">
             <span class="env-pill-dot"></span>
             <span class="env-pill-name">Tawir-Legacy</span>
           </button>
@@ -1816,21 +1816,21 @@
               <span class="material-symbols-rounded icon-xs" style="color: var(--emerald-accent);">bolt</span>
               <span class="opening-chip-label">Tawir-DEV</span>
             </div>
-            <span class="opening-chip-meta">v6 Staging (Dual-Model)</span>
+            <span class="opening-chip-meta">v6 backend</span>
           </button>
           <button type="button" class="opening-env-chip active" id="openingChipProd" onclick="selectPresetEndpoint('exa')">
             <div class="opening-chip-top">
               <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">verified</span>
               <span class="opening-chip-label">Tawir</span>
             </div>
-            <span class="opening-chip-meta">Main Exa RAG</span>
+            <span class="opening-chip-meta">v5 backend</span>
           </button>
           <button type="button" class="opening-env-chip" id="openingChipLegacy" onclick="selectPresetEndpoint('tavily')">
             <div class="opening-chip-top">
               <span class="material-symbols-rounded icon-xs" style="color: var(--amber-accent);">history</span>
               <span class="opening-chip-label">Tawir-Legacy</span>
             </div>
-            <span class="opening-chip-meta">Tavily Backend</span>
+            <span class="opening-chip-meta">v3 legacy backend</span>
           </button>
         </div>
       </div>
@@ -1969,9 +1969,9 @@
     // =========================================================================
     // Core Admin State & Authentication
     // Presets:
-    // - Tawir-DEV: v6 Dual-Model Staging (Llama 3.1 + NLLB-200)
-    // - Tawir: Main Exa RAG Production
-    // - Tawir-Legacy: Tavily Search Backend
+    // - Tawir-DEV: v6 backend
+    // - Tawir: v5 backend
+    // - Tawir-Legacy: v3 legacy backend
     // =========================================================================
     const V6_STAGING_SERVER_URL = "https://iamk1ruu--tawir-agent-v6-staging.modal.run";
     const EXA_SERVER_URL = "https://iamk1ruu--tawir-agent-exa.modal.run";
@@ -2552,7 +2552,7 @@
         if (hasSearch) {
           tagClass = "tag-rag";
           tagIcon = "travel_explore";
-          tagText = "EXA RAG";
+          tagText = "v5 backend";
         } else if (c.mode === "direct" || c.version === "v3") {
           tagClass = "tag-direct";
           tagIcon = "chat_bubble";
@@ -2622,7 +2622,7 @@
             <td style="font-family: var(--font-mono); font-size: 11.5px;">${new Date(c.timestamp).toLocaleTimeString()}</td>
             <td>
               <span class="tag-badge ${hasSearch ? 'tag-rag' : 'tag-agent'}">
-                ${hasSearch ? 'EXA RAG' : (c.mode || 'AGENT').toUpperCase()}
+                ${hasSearch ? 'v5 backend' : (c.mode || 'AGENT').toUpperCase()}
               </span>
             </td>
             <td><div class="table-text-cell" title="${escapeHtml(prompt)}">${escapeHtml(prompt)}</div></td>
@@ -2732,7 +2732,7 @@
             <div class="dialogue-card-header">
               <span class="dialogue-title" style="color: var(--amber-accent);">
                 <span class="material-symbols-rounded icon-sm">travel_explore</span>
-                Exa Live Search Retrieval Telemetry
+                Web Search Retrieval Telemetry
               </span>
               <span class="tag-badge tag-rag">EXTERNAL RAG</span>
             </div>
