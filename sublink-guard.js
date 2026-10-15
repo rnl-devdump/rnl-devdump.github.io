@@ -597,18 +597,6 @@
                 <div class="kiruu-notice-box">
                   <p class="kiruu-notice" id="kiruu-notice-text"></p>
                 </div>
-
-                <div class="kiruu-actions-wrap">
-                  <a href="/" class="button-rn" role="button">
-                    Return to Homepage
-                  </a>
-                </div>
-
-                <div class="kiruu-admin-links">
-                  <a href="/dashboard/">Console Login</a>
-                  <span class="kiruu-admin-divider" aria-hidden="true">&bull;</span>
-                  <button id="admin-bypass-trigger" type="button">Admin Unlock</button>
-                </div>
               </div>
 
               <div class="kiruu-visual-col">
