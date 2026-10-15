@@ -166,6 +166,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
+            margin-top: clamp(28px, 5.5vh, 64px);
             margin-bottom: clamp(16px, 3vw, 28px);
             z-index: 10;
           }
@@ -386,6 +387,7 @@
 
             header.kiruu-header {
               justify-content: center;
+              margin-top: clamp(16px, 3.5vh, 32px);
               margin-bottom: 8px;
             }
 

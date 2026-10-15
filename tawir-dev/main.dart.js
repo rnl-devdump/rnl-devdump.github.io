@@ -95233,21 +95233,21 @@ return A.hb(!1,r,!0,A.by(s,A.bv(b,s,s,s,A.c1(s,s,n,s,s,s,s,s,"monospace",s,s,10,
 a8V(){var s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d=this,c=null,b="serverUrl",a="v6-staging",a0="-exa",a1="1.00 (Off)",a2=d.a.e.h(0,b)
 a2=d.hO("Server Root",a2==null?"Unknown":a2)
 s=d.a.e.h(0,b)
-if(B.c.q(s==null?"":s,a))s="\u26a1 v6 Staging (Dual-Model NLLB)"
+if(B.c.q(s==null?"":s,a))s="\u26a1 Tawir-DEV (v6 Dual-Model NLLB)"
 else{s=d.a.e.h(0,b)
-s=B.c.q(s==null?"":s,a0)?"\u26a1 Exa (Deep Search Mode)":"\ud83d\udd0d Tavily Search Mode"}r=d.a.e.h(0,b)
+s=B.c.q(s==null?"":s,a0)?"\u2726 Tawir (Exa RAG Mode)":"\ud83d\udd0d Tawir-Legacy (Tavily Search Mode)"}r=d.a.e.h(0,b)
 if(B.c.q(r==null?"":r,a))r=B.bs
 else{r=d.a.e.h(0,b)
 r=B.c.q(r==null?"":r,a0)?B.K:B.hw}q=t.p
 r=A.b([a2,d.yk("Active Architecture",s,r)],q)
 a2=d.a.e.h(0,b)
-a2=d.em(B.c.q(a2==null?"":a2,a),"\u26a1 v6 (Staging)",new A.arE(d))
+a2=d.em(B.c.q(a2==null?"":a2,a),"\u26a1 Tawir-DEV",new A.arE(d))
 s=d.a.e.h(0,b)
-s=d.em(B.c.q(s==null?"":s,a0),"\u26a1 Exa (v5)",new A.arF(d))
+s=d.em(B.c.q(s==null?"":s,a0),"\u2726 Tawir",new A.arF(d))
 p=d.a.e.h(0,b)
 if(!B.c.q(p==null?"":p,a0)){p=d.a.e.h(0,b)
 p=!B.c.q(p==null?"":p,a)}else p=!1
-B.b.O(r,A.b([B.mr,A.cj(A.b([B.T_,A.EE(A.b([a2,s,d.em(p,"\ud83d\udd0d Tavily",new A.arG(d))],q),0,8)],q),B.w,B.u,B.D,0),B.mr],q))
+B.b.O(r,A.b([B.mr,A.cj(A.b([B.T_,A.EE(A.b([a2,s,d.em(p,"\ud83d\udd0d Tawir-Legacy",new A.arG(d))],q),0,8)],q),B.w,B.u,B.D,0),B.mr],q))
 a2=d.a.e.h(0,b)
 r.push(d.hO("Chat Endpoint",A.y2(a2==null?"":a2)+"/v1/chat/completions"))
 a2=d.a.e.h(0,b)

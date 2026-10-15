@@ -5,7 +5,7 @@
   <script src="/sublink-guard.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>TAWIR Admin — Conversation & Telemetry Console</title>
-  <link rel="icon" type="image/png" href="./tawir_logo_transparent.png">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230ea5e9'><path d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -155,54 +155,257 @@
     .brand-cluster {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       text-decoration: none;
       color: inherit;
     }
 
-    .brand-logo-disc {
-      width: 32px;
-      height: 32px;
+    .brand-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-name {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    /* Redesigned Audit Console Widget */
+    .audit-console-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(16, 185, 129, 0.06));
+      border: 1px solid rgba(14, 165, 233, 0.35);
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+    .audit-console-pill:hover {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(16, 185, 129, 0.12));
+      border-color: rgba(14, 165, 233, 0.65);
+      box-shadow: 0 0 12px rgba(14, 165, 233, 0.25);
+    }
+    .audit-pill-icon-box {
       display: flex;
       align-items: center;
       justify-content: center;
+      color: var(--cyan-accent);
+    }
+    .audit-pill-icon {
+      font-size: 16px;
+    }
+    .audit-pill-content {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+    .audit-pill-text {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--cyan-accent);
+      text-transform: uppercase;
+      font-family: var(--font-sans);
+    }
+    .audit-pill-sub {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      letter-spacing: 0.02em;
+    }
+    .audit-pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--emerald-accent);
+      box-shadow: 0 0 6px var(--emerald-accent);
+      flex-shrink: 0;
+    }
+    .audit-pill-dot.status-polling {
+      background: var(--amber-accent);
+      box-shadow: 0 0 6px var(--amber-accent);
+    }
+    .audit-pill-dot.status-error {
+      background: var(--rose-accent);
+      box-shadow: 0 0 6px var(--rose-accent);
+    }
+
+    /* Target Backend Tracker Bar (Visible in Topbar) */
+    .env-tracker-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 6px;
       background: var(--bg-surface-elevated);
       border: 1px solid var(--border-default);
       border-radius: var(--radius-sm);
     }
-
-    .brand-logo-img {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
-    }
-
-    .brand-title-wrap {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-    }
-
-    .brand-name {
-      font-size: 16px;
+    .env-tracker-title {
+      font-size: 9.5px;
       font-weight: 800;
-      letter-spacing: -0.02em;
-      color: #ffffff;
-    }
-
-    .brand-badge {
-      font-size: 10.5px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: var(--radius-sm);
-      background: var(--cyan-subtle);
-      color: var(--cyan-accent);
-      border: 1px solid rgba(14, 165, 233, 0.3);
-      letter-spacing: 0.04em;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      padding: 0 4px;
+      font-family: var(--font-mono);
       text-transform: uppercase;
-      display: inline-flex;
+    }
+    .env-tracker-pills {
+      display: flex;
       align-items: center;
       gap: 4px;
+    }
+    .env-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .env-pill-btn:hover {
+      background: var(--bg-surface-hover);
+      color: var(--text-main);
+    }
+    .env-pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .env-pill-btn.active {
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .env-pill-btn#pillEnvDev.active {
+      background: rgba(16, 185, 129, 0.14);
+      border-color: rgba(16, 185, 129, 0.45);
+    }
+    .env-pill-btn#pillEnvDev.active .env-pill-dot {
+      background: var(--emerald-accent);
+      box-shadow: 0 0 6px var(--emerald-accent);
+    }
+    .env-pill-btn#pillEnvProd.active {
+      background: rgba(14, 165, 233, 0.14);
+      border-color: rgba(14, 165, 233, 0.45);
+    }
+    .env-pill-btn#pillEnvProd.active .env-pill-dot {
+      background: var(--cyan-accent);
+      box-shadow: 0 0 6px var(--cyan-accent);
+    }
+    .env-pill-btn#pillEnvLegacy.active {
+      background: rgba(245, 158, 11, 0.14);
+      border-color: rgba(245, 158, 11, 0.45);
+    }
+    .env-pill-btn#pillEnvLegacy.active .env-pill-dot {
+      background: var(--amber-accent);
+      box-shadow: 0 0 6px var(--amber-accent);
+    }
+
+    /* Opening Screen Environment Selector */
+    .auth-icon-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(14, 165, 233, 0.1);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      color: var(--cyan-accent);
+      margin-bottom: 10px;
+    }
+    .auth-icon-badge .material-symbols-rounded {
+      font-size: 26px;
+    }
+    .opening-env-selector {
+      margin-top: 14px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    .opening-env-heading {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .opening-env-chips {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+    .opening-env-chip {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-align: left;
+      font-family: inherit;
+    }
+    .opening-env-chip:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--cyan-accent);
+      color: #ffffff;
+    }
+    .opening-env-chip.active {
+      color: #ffffff;
+    }
+    .opening-env-chip#openingChipDev.active {
+      background: rgba(16, 185, 129, 0.14);
+      border-color: var(--emerald-accent);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+    }
+    .opening-env-chip#openingChipProd.active {
+      background: rgba(14, 165, 233, 0.14);
+      border-color: var(--cyan-accent);
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.25);
+    }
+    .opening-env-chip#openingChipLegacy.active {
+      background: rgba(245, 158, 11, 0.14);
+      border-color: var(--amber-accent);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+    }
+    .opening-chip-top {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .opening-chip-meta {
+      font-size: 9.5px;
+      color: var(--text-dim);
+      line-height: 1.2;
     }
 
     .topbar-telemetry-strip {
@@ -1038,6 +1241,9 @@
     @media (max-width: 899px) {
       .topbar-telemetry-strip { display: none; }
       .btn-label-hide { display: none; }
+      .env-tracker-title { display: none; }
+      .audit-pill-sub { display: none; }
+      .opening-env-chips { grid-template-columns: 1fr; }
 
       .workspace-area { flex-direction: column; }
       .feed-column { width: 100%; max-width: 100%; border-right: none; height: 100%; }
@@ -1046,6 +1252,12 @@
       .workspace-area.mobile-detail-open .feed-column { display: none; }
       .workspace-area.mobile-detail-open .inspector-column { display: flex; }
       .mobile-back-action { display: inline-flex !important; }
+    }
+
+    @media (max-width: 600px) {
+      .env-tracker-bar { padding: 2px 4px; }
+      .env-pill-btn { padding: 3px 6px; font-size: 10px; }
+      .audit-pill-text { font-size: 9px; }
     }
 
     .mobile-back-action { display: none; }
@@ -1122,11 +1334,13 @@
       animation: sync-spin 1s linear infinite;
     }
 
-    .sync-spinner-logo {
-      width: 34px;
-      height: 34px;
-      object-fit: contain;
+    .sync-spinner-icon {
+      font-size: 26px;
+      color: var(--cyan-accent);
       z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       filter: drop-shadow(0 2px 8px rgba(14, 165, 233, 0.5));
     }
 
@@ -1316,15 +1530,37 @@
     <!-- Topbar Navigation -->
     <header class="admin-topbar">
       <div class="brand-cluster">
-        <div class="brand-logo-disc">
-          <img src="./tawir_logo_transparent.png" alt="Tawir Logo" class="brand-logo-img">
-        </div>
         <div class="brand-title-wrap">
           <span class="brand-name">TAWIR</span>
-          <span class="brand-badge">
-            <span class="material-symbols-rounded icon-xs">admin_panel_settings</span>
-            Audit Console
-          </span>
+          <div class="audit-console-pill" id="auditConsoleWidget" title="TAWIR Audit Console — Click for Diagnostics & Settings" onclick="openConfigModal()">
+            <div class="audit-pill-icon-box">
+              <span class="material-symbols-rounded audit-pill-icon">security</span>
+            </div>
+            <div class="audit-pill-content">
+              <span class="audit-pill-text">AUDIT CONSOLE</span>
+              <span class="audit-pill-sub" id="auditActiveEnvSub">Tawir</span>
+            </div>
+            <div class="audit-pill-dot" id="auditConsoleStatusDot"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visible Target Backend Tracker Selector -->
+      <div class="env-tracker-bar" id="topbarEnvTracker" role="radiogroup" aria-label="Tracking Environment Target">
+        <span class="env-tracker-title">TRACKING:</span>
+        <div class="env-tracker-pills">
+          <button type="button" class="env-pill-btn" id="pillEnvDev" onclick="selectPresetEndpoint('v6')" title="Track Tawir-DEV (v6 Dual-Model Staging)">
+            <span class="env-pill-dot"></span>
+            <span class="env-pill-name">Tawir-DEV</span>
+          </button>
+          <button type="button" class="env-pill-btn active" id="pillEnvProd" onclick="selectPresetEndpoint('exa')" title="Track Tawir (Main Exa RAG Production)">
+            <span class="env-pill-dot"></span>
+            <span class="env-pill-name">Tawir</span>
+          </button>
+          <button type="button" class="env-pill-btn" id="pillEnvLegacy" onclick="selectPresetEndpoint('tavily')" title="Track Tawir-Legacy (Tavily Search Backend)">
+            <span class="env-pill-dot"></span>
+            <span class="env-pill-name">Tawir-Legacy</span>
+          </button>
         </div>
       </div>
 
@@ -1558,16 +1794,48 @@
   <!-- Passcode Auth Modal -->
   <div class="modal-backdrop" id="authGateModal" style="display: flex;">
     <div class="modal-box">
-      <div style="text-align: center;">
-        <img src="./tawir_logo_transparent.png" alt="Tawir Logo" style="width: 48px; height: 48px; margin-bottom: 12px;">
-        <h2 class="modal-title-text" style="justify-content: center; font-size: 19px;">
-          <span class="material-symbols-rounded icon-md" style="color: var(--cyan-accent);">admin_panel_settings</span>
-          Tawir Admin Access
+      <div style="text-align: center; margin-bottom: 6px;">
+        <div class="auth-icon-badge">
+          <span class="material-symbols-rounded">security</span>
+        </div>
+        <h2 class="modal-title-text" style="justify-content: center; font-size: 19px; letter-spacing: -0.01em;">
+          TAWIR Audit Console
         </h2>
-        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Enter administrator passcode to track and audit dialogues.</p>
+        <p style="font-size: 12.5px; color: var(--text-muted); margin-top: 4px;">Choose target backend to audit & enter administrator passcode.</p>
       </div>
 
-      <form id="authGateForm" onsubmit="handleAuthGateSubmit(event)">
+      <!-- Opening Target Backend Selector -->
+      <div class="opening-env-selector">
+        <div class="opening-env-heading">
+          <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">lan</span>
+          Select Backend to Track
+        </div>
+        <div class="opening-env-chips">
+          <button type="button" class="opening-env-chip" id="openingChipDev" onclick="selectPresetEndpoint('v6')">
+            <div class="opening-chip-top">
+              <span class="material-symbols-rounded icon-xs" style="color: var(--emerald-accent);">bolt</span>
+              <span class="opening-chip-label">Tawir-DEV</span>
+            </div>
+            <span class="opening-chip-meta">v6 Staging (Dual-Model)</span>
+          </button>
+          <button type="button" class="opening-env-chip active" id="openingChipProd" onclick="selectPresetEndpoint('exa')">
+            <div class="opening-chip-top">
+              <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">verified</span>
+              <span class="opening-chip-label">Tawir</span>
+            </div>
+            <span class="opening-chip-meta">Main Exa RAG</span>
+          </button>
+          <button type="button" class="opening-env-chip" id="openingChipLegacy" onclick="selectPresetEndpoint('tavily')">
+            <div class="opening-chip-top">
+              <span class="material-symbols-rounded icon-xs" style="color: var(--amber-accent);">history</span>
+              <span class="opening-chip-label">Tawir-Legacy</span>
+            </div>
+            <span class="opening-chip-meta">Tavily Backend</span>
+          </button>
+        </div>
+      </div>
+
+      <form id="authGateForm" onsubmit="handleAuthGateSubmit(event)" style="margin-top: 10px;">
         <input type="password" id="authGateInput" class="search-input-field" style="height: 44px; padding-left: 14px;" placeholder="Admin Passcode" autofocus required>
         <div id="authGateError" style="display: none; color: var(--rose-accent); font-size: 12px; font-weight: 600; margin-top: 6px; text-align: center;">
           Incorrect passcode. Access denied.
@@ -1627,16 +1895,16 @@
         <span style="font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">Quick Presets</span>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
           <button class="btn" type="button" onclick="selectPresetEndpoint('v6')" id="btnPresetV6" style="justify-content: flex-start; padding: 7px 8px; font-size: 11px;">
-            <span class="material-symbols-rounded icon-xs" style="color: var(--emerald-accent);">verified</span>
-            <span>v6 (Staging)</span>
+            <span class="material-symbols-rounded icon-xs" style="color: var(--emerald-accent);">bolt</span>
+            <span>Tawir-DEV</span>
           </button>
           <button class="btn" type="button" onclick="selectPresetEndpoint('exa')" id="btnPresetExa" style="justify-content: flex-start; padding: 7px 8px; font-size: 11px;">
-            <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">bolt</span>
-            <span>Exa v5</span>
+            <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">verified</span>
+            <span>Tawir</span>
           </button>
           <button class="btn" type="button" onclick="selectPresetEndpoint('tavily')" id="btnPresetTavily" style="justify-content: flex-start; padding: 7px 8px; font-size: 11px;">
-            <span class="material-symbols-rounded icon-xs" style="color: var(--amber-accent);">search</span>
-            <span>Standard</span>
+            <span class="material-symbols-rounded icon-xs" style="color: var(--amber-accent);">history</span>
+            <span>Tawir-Legacy</span>
           </button>
         </div>
       </div>
@@ -1655,7 +1923,7 @@
             Test Ping
           </button>
         </div>
-        <button class="btn" onclick="resetServerConfig()">Reset to Default (Exa v5)</button>
+        <button class="btn" onclick="resetServerConfig()">Reset to Default (Tawir)</button>
       </div>
 
       <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
@@ -1686,7 +1954,7 @@
       <div class="sync-loading-spinner-wrap">
         <div class="sync-pulse-ring"></div>
         <div class="sync-spinner"></div>
-        <img src="./tawir_logo_transparent.png" class="sync-spinner-logo" alt="Tawir Logo">
+        <span class="material-symbols-rounded sync-spinner-icon">security</span>
       </div>
       <div class="sync-loading-title" id="syncLoadingTitle">Syncing Conversations...</div>
       <div class="sync-loading-subtitle" id="syncLoadingSubtitle">Retrieving dialogues and telemetry from server</div>
@@ -1700,6 +1968,10 @@
   <script>
     // =========================================================================
     // Core Admin State & Authentication
+    // Presets:
+    // - Tawir-DEV: v6 Dual-Model Staging (Llama 3.1 + NLLB-200)
+    // - Tawir: Main Exa RAG Production
+    // - Tawir-Legacy: Tavily Search Backend
     // =========================================================================
     const V6_STAGING_SERVER_URL = "https://iamk1ruu--tawir-agent-v6-staging.modal.run";
     const EXA_SERVER_URL = "https://iamk1ruu--tawir-agent-exa.modal.run";
@@ -1710,10 +1982,9 @@
     const AUTH_KEY = "tawir_convo_auth_session";
     const STORAGE_KEY_LOGS = "tawir_admin_audit_logs_v5";
 
-    // Auto-migrate legacy 404 URL if previously stored in localStorage
     let storedUrl = localStorage.getItem("tawir_convo_server_url");
-    if (!storedUrl || storedUrl === TAVILY_SERVER_URL || storedUrl === "https://iamk1ruu--tawir-agent.modal.run" || (storedUrl.includes("--tawir-agent.modal.run") && !storedUrl.includes("-exa") && !storedUrl.includes("-v6-staging"))) {
-      storedUrl = EXA_SERVER_URL;
+    if (!storedUrl) {
+      storedUrl = DEFAULT_SERVER_URL;
       localStorage.setItem("tawir_convo_server_url", storedUrl);
     }
     let serverUrl = storedUrl;
@@ -1725,6 +1996,65 @@
     let sortAscending = false; // newest first
     let pollIntervalTimer = null;
     let isSpeaking = false;
+
+    function getActiveEnvName(url = serverUrl) {
+      if (!url) return "Tawir";
+      if (url.includes("v6-staging") || url.includes("v6")) return "Tawir-DEV";
+      if (url.includes("-exa")) return "Tawir";
+      return "Tawir-Legacy";
+    }
+
+    function updateActiveEnvUI() {
+      const env = getActiveEnvName();
+
+      // Topbar audit console widget subtitle
+      const subEl = document.getElementById("auditActiveEnvSub");
+      if (subEl) subEl.textContent = env;
+
+      // Topbar environment tracking pill buttons
+      const pillDev = document.getElementById("pillEnvDev");
+      const pillProd = document.getElementById("pillEnvProd");
+      const pillLegacy = document.getElementById("pillEnvLegacy");
+      if (pillDev) pillDev.classList.toggle("active", env === "Tawir-DEV");
+      if (pillProd) pillProd.classList.toggle("active", env === "Tawir");
+      if (pillLegacy) pillLegacy.classList.toggle("active", env === "Tawir-Legacy");
+
+      // Opening screen environment selection chips
+      const openDev = document.getElementById("openingChipDev");
+      const openProd = document.getElementById("openingChipProd");
+      const openLegacy = document.getElementById("openingChipLegacy");
+      if (openDev) openDev.classList.toggle("active", env === "Tawir-DEV");
+      if (openProd) openProd.classList.toggle("active", env === "Tawir");
+      if (openLegacy) openLegacy.classList.toggle("active", env === "Tawir-Legacy");
+
+      // Config modal preset buttons
+      const btnDev = document.getElementById("btnPresetV6");
+      const btnProd = document.getElementById("btnPresetExa");
+      const btnLegacy = document.getElementById("btnPresetTavily");
+      if (btnDev) btnDev.classList.toggle("btn-primary", env === "Tawir-DEV");
+      if (btnProd) btnProd.classList.toggle("btn-primary", env === "Tawir");
+      if (btnLegacy) btnLegacy.classList.toggle("btn-primary", env === "Tawir-Legacy");
+    }
+
+    function setTrackedBackend(preset) {
+      if (preset === 'v6') {
+        serverUrl = V6_STAGING_SERVER_URL;
+      } else if (preset === 'exa') {
+        serverUrl = EXA_SERVER_URL;
+      } else if (preset === 'tavily') {
+        serverUrl = TAVILY_SERVER_URL;
+      }
+      localStorage.setItem("tawir_convo_server_url", serverUrl);
+      const input = document.getElementById("configUrlInput");
+      if (input) input.value = serverUrl;
+
+      updateActiveEnvUI();
+      showAdminToast(`Tracking target: ${getActiveEnvName()}`);
+
+      if (isBooted) {
+        fetchServerLogs(false);
+      }
+    }
 
     // Sync Loading Screen Helpers
     function showSyncLoader(title = "Syncing Conversations...", subtitle = "") {
@@ -1782,6 +2112,7 @@
     function setConnectionStatus(status, label, titleText = "") {
       const badge = document.getElementById("liveListenerBadge");
       const labelSpan = document.getElementById("liveListenerLabel");
+      const auditDot = document.getElementById("auditConsoleStatusDot");
       if (!badge) return;
 
       badge.classList.remove("status-connected", "status-polling", "status-error");
@@ -1793,12 +2124,17 @@
         badge.classList.add("status-error");
       }
 
+      if (auditDot) {
+        auditDot.className = "audit-pill-dot" + (status === "syncing" ? " status-polling" : (status === "error" ? " status-error" : ""));
+      }
+
       if (labelSpan) labelSpan.textContent = label;
       const cleanServer = serverUrl.replace(/^https?:\/\//, '');
+      const envName = getActiveEnvName();
       if (titleText) {
         badge.title = `${titleText} • Click to configure backend`;
       } else {
-        badge.title = `Connected to ${cleanServer} • Click to configure backend`;
+        badge.title = `Tracking ${envName} (${cleanServer}) • Click to configure backend`;
       }
     }
 
@@ -1816,6 +2152,7 @@
     function verifyAuthGate() {
       const isAuthed = sessionStorage.getItem(AUTH_KEY) === "true";
       const modal = document.getElementById("authGateModal");
+      updateActiveEnvUI();
       if (isAuthed) {
         modal.style.display = "none";
         bootAdminApp();
@@ -1859,6 +2196,7 @@
         isBooted = true;
       }
 
+      updateActiveEnvUI();
       loadCachedLogs();
       if (conversations.length === 0) {
         seedHighFidelitySampleLogs();
@@ -1976,7 +2314,8 @@
                 serverUrl = fallbackUrl;
                 localStorage.setItem("tawir_convo_server_url", serverUrl);
                 res = fallbackRes;
-                showAdminToast(`Auto-switched to active backend: ${serverUrl.includes("v6") ? "v6 Staging" : (serverUrl.includes("-exa") ? "Exa v5" : "Standard")}`);
+                updateActiveEnvUI();
+                showAdminToast(`Auto-switched to active backend: ${getActiveEnvName()}`);
                 break;
               }
             } catch (_) {}
@@ -1989,12 +2328,14 @@
             conversations = data.conversations;
             saveCachedLogs();
           }
-          const isV6 = serverUrl.includes("v6");
-          const isExa = serverUrl.includes("-exa");
-          const label = isV6 ? "CONNECTED (v6)" : (isExa ? "CONNECTED (v5)" : "CONNECTED");
+          const envName = getActiveEnvName();
+          const label = `CONNECTED (${envName})`;
+          updateActiveEnvUI();
           setConnectionStatus("connected", label, `Active: ${serverUrl} (${conversations.length} dialogues)`);
         } else {
-          setConnectionStatus("error", `ERR (${res.status})`, `Backend error HTTP ${res.status}`);
+          const envName = getActiveEnvName();
+          updateActiveEnvUI();
+          setConnectionStatus("error", `ERR (${res.status})`, `Backend error HTTP ${res.status} on ${envName}`);
         }
       } catch (err) {
         // Fallback on network/CORS error
@@ -2011,10 +2352,10 @@
               }
               serverUrl = fallbackUrl;
               localStorage.setItem("tawir_convo_server_url", serverUrl);
-              const isV6 = serverUrl.includes("v6");
-              const isExa = serverUrl.includes("-exa");
-              const label = isV6 ? "CONNECTED (v6)" : (isExa ? "CONNECTED (v5)" : "CONNECTED");
-              setConnectionStatus("connected", label, `Auto-recovered to ${serverUrl}`);
+              const envName = getActiveEnvName();
+              const label = `CONNECTED (${envName})`;
+              updateActiveEnvUI();
+              setConnectionStatus("connected", label, `Auto-recovered to ${envName} (${serverUrl})`);
               recovered = true;
               break;
             }
@@ -2022,7 +2363,9 @@
         }
 
         if (!recovered) {
-          setConnectionStatus("error", "OFFLINE", `Failed to connect to ${serverUrl}`);
+          const envName = getActiveEnvName();
+          updateActiveEnvUI();
+          setConnectionStatus("error", `OFFLINE (${envName})`, `Failed to connect to ${serverUrl}`);
         }
       } finally {
         if (!quiet) {
@@ -2920,15 +3263,11 @@
     }
 
     function selectPresetEndpoint(preset) {
-      const input = document.getElementById("configUrlInput");
-      if (preset === 'v6') {
-        input.value = V6_STAGING_SERVER_URL;
-      } else if (preset === 'exa') {
-        input.value = EXA_SERVER_URL;
-      } else if (preset === 'tavily') {
-        input.value = TAVILY_SERVER_URL;
+      setTrackedBackend(preset);
+      const modal = document.getElementById("serverConfigModal");
+      if (modal && modal.style.display === "flex") {
+        testCurrentEndpoint();
       }
-      testCurrentEndpoint();
     }
 
     async function testCurrentEndpoint() {
@@ -2958,9 +3297,7 @@
         if (res.ok) {
           const json = await res.json();
           const count = json.count !== undefined ? json.count : (json.conversations ? json.conversations.length : 0);
-          const isV6 = url.includes("v6");
-          const isExa = url.includes("-exa");
-          const envName = isV6 ? "v6 Staging" : (isExa ? "Exa v5" : "Standard");
+          const envName = getActiveEnvName(url);
           resultBox.style.background = "rgba(16, 185, 129, 0.15)";
           resultBox.style.color = "var(--emerald-accent)";
           resultBox.textContent = `✓ 200 OK (${latency}ms) — Active ${envName} backend with ${count} dialogue records.`;
@@ -2979,6 +3316,7 @@
     }
 
     function openConfigModal() {
+      updateActiveEnvUI();
       document.getElementById("configUrlInput").value = serverUrl;
       const resultBox = document.getElementById("connectionTestResult");
       if (resultBox) resultBox.style.display = "none";
@@ -2994,8 +3332,9 @@
       if (!val) return;
       serverUrl = val;
       localStorage.setItem("tawir_convo_server_url", serverUrl);
+      updateActiveEnvUI();
       closeConfigModal();
-      showAdminToast("Saved endpoint. Re-syncing...");
+      showAdminToast(`Saved target: ${getActiveEnvName()}. Re-syncing...`);
       fetchServerLogs(false);
     }
 
@@ -3003,8 +3342,9 @@
       serverUrl = DEFAULT_SERVER_URL;
       localStorage.setItem("tawir_convo_server_url", serverUrl);
       document.getElementById("configUrlInput").value = DEFAULT_SERVER_URL;
+      updateActiveEnvUI();
       closeConfigModal();
-      showAdminToast("Reset to default Exa v5 backend");
+      showAdminToast("Reset to default Tawir backend");
       fetchServerLogs(false);
     }
 
