@@ -1049,6 +1049,265 @@
     }
 
     .mobile-back-action { display: none; }
+
+    /* ==========================================================================
+       Sync Loading Screen Overlay
+       ========================================================================== */
+    .sync-loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 13, 22, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sync-loading-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sync-loading-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(14, 165, 233, 0.35);
+      border-radius: var(--radius-md);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(14, 165, 233, 0.18);
+      padding: 32px 36px;
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transform: scale(0.95);
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sync-loading-overlay.active .sync-loading-card {
+      transform: scale(1);
+    }
+
+    .sync-loading-spinner-wrap {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+
+    .sync-pulse-ring {
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid rgba(14, 165, 233, 0.4);
+      animation: sync-ring-pulse 2s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+    }
+
+    .sync-spinner {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 3px solid rgba(14, 165, 233, 0.15);
+      border-top-color: var(--cyan-accent);
+      border-right-color: var(--emerald-accent);
+      animation: sync-spin 1s linear infinite;
+    }
+
+    .sync-spinner-logo {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      z-index: 2;
+      filter: drop-shadow(0 2px 8px rgba(14, 165, 233, 0.5));
+    }
+
+    @keyframes sync-spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes sync-ring-pulse {
+      0% { transform: scale(0.85); opacity: 0.8; }
+      50% { transform: scale(1.22); opacity: 0.1; }
+      100% { transform: scale(0.85); opacity: 0.8; }
+    }
+
+    .sync-loading-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+    }
+
+    .sync-loading-subtitle {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: -4px;
+    }
+
+    .sync-progress-bar-track {
+      width: 100%;
+      height: 4px;
+      background: var(--bg-input);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .sync-progress-bar-fill {
+      width: 45%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan-accent), var(--emerald-accent), var(--cyan-accent));
+      background-size: 200% 100%;
+      border-radius: 999px;
+      animation: sync-progress-anim 1.4s ease-in-out infinite;
+    }
+
+    @keyframes sync-progress-anim {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(250%); }
+    }
+
+    .sync-loading-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--cyan-accent);
+      background: var(--cyan-subtle);
+      padding: 4px 10px;
+      border-radius: 999px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       Multi-Selection Controls & Action Bar
+       ========================================================================== */
+    .multi-select-bar {
+      background: linear-gradient(90deg, rgba(14, 165, 233, 0.14), rgba(15, 22, 38, 0.96));
+      border-bottom: 1px solid rgba(14, 165, 233, 0.35);
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      animation: slide-down-fade 0.2s ease-out;
+      position: sticky;
+      top: 0;
+      z-index: 25;
+      backdrop-filter: blur(8px);
+    }
+
+    @keyframes slide-down-fade {
+      from { transform: translateY(-8px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .multi-select-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .selected-count-badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--cyan-accent);
+      background: rgba(14, 165, 233, 0.18);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .multi-select-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Custom Checkbox Design */
+    .custom-checkbox-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      width: 18px;
+      height: 18px;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+
+    .custom-checkbox-wrap input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .custom-checkbox-mark {
+      width: 17px;
+      height: 17px;
+      border-radius: 4px;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border-default);
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .custom-checkbox-wrap:hover .custom-checkbox-mark {
+      border-color: var(--cyan-accent);
+      box-shadow: 0 0 8px rgba(14, 165, 233, 0.25);
+    }
+
+    .custom-checkbox-wrap input[type="checkbox"]:checked ~ .custom-checkbox-mark {
+      background: var(--cyan-accent);
+      border-color: var(--cyan-accent);
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.35);
+    }
+
+    .custom-checkbox-wrap input[type="checkbox"]:checked ~ .custom-checkbox-mark::after {
+      content: "";
+      width: 4px;
+      height: 8px;
+      border: solid #ffffff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg) translate(-1px, -1px);
+    }
+
+    /* Multi-selected visual styling */
+    .convo-item-card.multi-selected {
+      border-color: rgba(14, 165, 233, 0.65) !important;
+      background: rgba(14, 165, 233, 0.08) !important;
+      box-shadow: inset 3px 0 0 var(--cyan-accent);
+    }
+
+    .admin-data-table tr.multi-selected td {
+      background: rgba(14, 165, 233, 0.12) !important;
+      border-bottom-color: rgba(14, 165, 233, 0.4);
+    }
+
+    .btn-sm {
+      min-height: 28px;
+      padding: 3px 10px;
+      font-size: 11.5px;
+    }
   </style>
 </head>
 <body>
@@ -1175,9 +1434,36 @@
       <!-- 1. Left Feed Column (Split View) -->
       <div class="feed-column" id="feedColumn">
         <div class="feed-summary-header">
-          <span id="filteredResultsLabel">Showing 0 logs</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label class="custom-checkbox-wrap" title="Select / deselect all visible">
+              <input type="checkbox" id="feedMasterSelectCheckbox" onchange="toggleSelectAllVisible(this.checked)">
+              <span class="custom-checkbox-mark"></span>
+            </label>
+            <span id="filteredResultsLabel">Showing 0 logs</span>
+          </div>
           <span style="cursor: pointer;" onclick="toggleSortOrder()" id="sortOrderLabel">Sort: Newest ↓</span>
         </div>
+
+        <!-- Feed Multi-Select Action Bar -->
+        <div class="multi-select-bar" id="multiSelectBarFeed" style="display: none;">
+          <div class="multi-select-left">
+            <span id="selectedCountLabelFeed" class="selected-count-badge">0 selected</span>
+          </div>
+          <div class="multi-select-actions">
+            <button class="btn btn-sm" onclick="selectAllFiltered()" title="Select all filtered logs">
+              <span class="material-symbols-rounded icon-xs">select_all</span>
+              <span>All</span>
+            </button>
+            <button class="btn btn-sm" onclick="clearSelection()" title="Clear selection">
+              <span class="material-symbols-rounded icon-xs">close</span>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteSelectedConvos()" title="Delete all selected records">
+              <span class="material-symbols-rounded icon-xs">delete_sweep</span>
+              <span class="multi-delete-btn-label">Delete</span>
+            </button>
+          </div>
+        </div>
+
         <div class="convo-list-flow" id="convoCardList">
           <!-- Populated dynamically -->
         </div>
@@ -1219,10 +1505,37 @@
 
       <!-- 3. Full-Width Data Table (Table View) -->
       <div class="table-view-container" id="tableViewContainer">
+        <!-- Table Multi-Select Action Bar -->
+        <div class="multi-select-bar" id="multiSelectBarTable" style="display: none;">
+          <div class="multi-select-left">
+            <span id="selectedCountLabelTable" class="selected-count-badge">0 selected</span>
+          </div>
+          <div class="multi-select-actions">
+            <button class="btn btn-sm" onclick="selectAllFiltered()" title="Select all filtered logs">
+              <span class="material-symbols-rounded icon-xs">select_all</span>
+              <span>Select All</span>
+            </button>
+            <button class="btn btn-sm" onclick="clearSelection()" title="Clear selection">
+              <span class="material-symbols-rounded icon-xs">close</span>
+              <span>Deselect</span>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteSelectedConvos()" title="Delete all selected records">
+              <span class="material-symbols-rounded icon-xs">delete_sweep</span>
+              <span class="multi-delete-btn-label">Delete Selected</span>
+            </button>
+          </div>
+        </div>
+
         <div class="table-scroll-wrap">
           <table class="admin-data-table">
             <thead>
               <tr>
+                <th style="width: 38px; text-align: center;">
+                  <label class="custom-checkbox-wrap" title="Select / deselect all visible">
+                    <input type="checkbox" id="tableMasterSelectCheckbox" onchange="toggleSelectAllVisible(this.checked)">
+                    <span class="custom-checkbox-mark"></span>
+                  </label>
+                </th>
                 <th>Time</th>
                 <th>Mode</th>
                 <th>User Query</th>
@@ -1312,14 +1625,18 @@
       <!-- Quick Switch Presets -->
       <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
         <span style="font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">Quick Presets</span>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-          <button class="btn" type="button" onclick="selectPresetEndpoint('exa')" id="btnPresetExa" style="justify-content: flex-start; padding: 7px 10px; font-size: 11.5px;">
-            <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">bolt</span>
-            <span>Exa v5 (Live)</span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+          <button class="btn" type="button" onclick="selectPresetEndpoint('v6')" id="btnPresetV6" style="justify-content: flex-start; padding: 7px 8px; font-size: 11px;">
+            <span class="material-symbols-rounded icon-xs" style="color: var(--emerald-accent);">verified</span>
+            <span>v6 (Staging)</span>
           </button>
-          <button class="btn" type="button" onclick="selectPresetEndpoint('tavily')" id="btnPresetTavily" style="justify-content: flex-start; padding: 7px 10px; font-size: 11.5px;">
+          <button class="btn" type="button" onclick="selectPresetEndpoint('exa')" id="btnPresetExa" style="justify-content: flex-start; padding: 7px 8px; font-size: 11px;">
+            <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">bolt</span>
+            <span>Exa v5</span>
+          </button>
+          <button class="btn" type="button" onclick="selectPresetEndpoint('tavily')" id="btnPresetTavily" style="justify-content: flex-start; padding: 7px 8px; font-size: 11px;">
             <span class="material-symbols-rounded icon-xs" style="color: var(--amber-accent);">search</span>
-            <span>Standard Backend</span>
+            <span>Standard</span>
           </button>
         </div>
       </div>
@@ -1363,10 +1680,28 @@
     <span id="adminToastText">Operation successful</span>
   </div>
 
+  <!-- Sync Loading Screen Overlay -->
+  <div class="sync-loading-overlay" id="syncLoadingOverlay">
+    <div class="sync-loading-card">
+      <div class="sync-loading-spinner-wrap">
+        <div class="sync-pulse-ring"></div>
+        <div class="sync-spinner"></div>
+        <img src="./tawir_logo_transparent.png" class="sync-spinner-logo" alt="Tawir Logo">
+      </div>
+      <div class="sync-loading-title" id="syncLoadingTitle">Syncing Conversations...</div>
+      <div class="sync-loading-subtitle" id="syncLoadingSubtitle">Retrieving dialogues and telemetry from server</div>
+      <div class="sync-progress-bar-track">
+        <div class="sync-progress-bar-fill"></div>
+      </div>
+      <div class="sync-loading-meta" id="syncLoadingMeta">Connecting to backend...</div>
+    </div>
+  </div>
+
   <script>
     // =========================================================================
     // Core Admin State & Authentication
     // =========================================================================
+    const V6_STAGING_SERVER_URL = "https://iamk1ruu--tawir-agent-v6-staging.modal.run";
     const EXA_SERVER_URL = "https://iamk1ruu--tawir-agent-exa.modal.run";
     const TAVILY_SERVER_URL = "https://iamk1ruu--tawir-agent.modal.run";
     const DEFAULT_SERVER_URL = EXA_SERVER_URL;
@@ -1377,18 +1712,45 @@
 
     // Auto-migrate legacy 404 URL if previously stored in localStorage
     let storedUrl = localStorage.getItem("tawir_convo_server_url");
-    if (!storedUrl || storedUrl === TAVILY_SERVER_URL || storedUrl === "https://iamk1ruu--tawir-agent.modal.run" || (storedUrl.includes("--tawir-agent.modal.run") && !storedUrl.includes("-exa"))) {
+    if (!storedUrl || storedUrl === TAVILY_SERVER_URL || storedUrl === "https://iamk1ruu--tawir-agent.modal.run" || (storedUrl.includes("--tawir-agent.modal.run") && !storedUrl.includes("-exa") && !storedUrl.includes("-v6-staging"))) {
       storedUrl = EXA_SERVER_URL;
       localStorage.setItem("tawir_convo_server_url", storedUrl);
     }
     let serverUrl = storedUrl;
     let conversations = [];
     let selectedId = null;
+    let selectedConvoIds = new Set(); // Multi-deletion selection tracking
     let activeFilter = "all";
     let currentViewMode = "split"; // 'split' | 'table'
     let sortAscending = false; // newest first
     let pollIntervalTimer = null;
     let isSpeaking = false;
+
+    // Sync Loading Screen Helpers
+    function showSyncLoader(title = "Syncing Conversations...", subtitle = "") {
+      const overlay = document.getElementById("syncLoadingOverlay");
+      const titleEl = document.getElementById("syncLoadingTitle");
+      const subEl = document.getElementById("syncLoadingSubtitle");
+      const metaEl = document.getElementById("syncLoadingMeta");
+      if (titleEl) titleEl.textContent = title;
+      if (subEl) subEl.textContent = subtitle || `Retrieving dialogues from ${serverUrl.replace(/^https?:\/\//, '')}`;
+      if (metaEl) metaEl.textContent = serverUrl.replace(/^https?:\/\//, '');
+      if (overlay) {
+        overlay.style.display = "flex";
+        requestAnimationFrame(() => overlay.classList.add("active"));
+      }
+    }
+
+    function hideSyncLoader() {
+      const overlay = document.getElementById("syncLoadingOverlay");
+      if (!overlay) return;
+      overlay.classList.remove("active");
+      setTimeout(() => {
+        if (!overlay.classList.contains("active")) {
+          overlay.style.display = "none";
+        }
+      }, 230);
+    }
 
     // Cross-tab broadcast listener for instant sync with /tawir & /tawir-dev
     try {
@@ -1593,7 +1955,10 @@
     // =========================================================================
     async function fetchServerLogs(quiet = false) {
       const btn = document.getElementById("btnLiveRefresh");
-      if (!quiet) btn.classList.add("loading");
+      if (!quiet) {
+        btn.classList.add("loading");
+        showSyncLoader("Syncing Conversations...", `Retrieving dialogues from ${serverUrl.replace(/^https?:\/\//, '')}`);
+      }
       setConnectionStatus("syncing", "SYNCING...");
 
       const endpoint = `${serverUrl.replace(/\/+$/, '')}/conversations`;
@@ -1603,16 +1968,19 @@
 
         // Auto-fallback resolution: if 404, probe alternative backend endpoint
         if (!res.ok && res.status === 404) {
-          const fallbackUrl = serverUrl === EXA_SERVER_URL ? TAVILY_SERVER_URL : EXA_SERVER_URL;
-          try {
-            const fallbackRes = await fetch(`${fallbackUrl.replace(/\/+$/, '')}/conversations`, { cache: "no-store" });
-            if (fallbackRes.ok) {
-              serverUrl = fallbackUrl;
-              localStorage.setItem("tawir_convo_server_url", serverUrl);
-              res = fallbackRes;
-              showAdminToast(`Auto-switched to active backend: ${serverUrl.includes("-exa") ? "Exa v5" : "Standard"}`);
-            }
-          } catch (_) {}
+          const fallbackCandidates = [V6_STAGING_SERVER_URL, EXA_SERVER_URL, TAVILY_SERVER_URL].filter(u => u !== serverUrl);
+          for (const fallbackUrl of fallbackCandidates) {
+            try {
+              const fallbackRes = await fetch(`${fallbackUrl.replace(/\/+$/, '')}/conversations`, { cache: "no-store" });
+              if (fallbackRes.ok) {
+                serverUrl = fallbackUrl;
+                localStorage.setItem("tawir_convo_server_url", serverUrl);
+                res = fallbackRes;
+                showAdminToast(`Auto-switched to active backend: ${serverUrl.includes("v6") ? "v6 Staging" : (serverUrl.includes("-exa") ? "Exa v5" : "Standard")}`);
+                break;
+              }
+            } catch (_) {}
+          }
         }
 
         if (res.ok) {
@@ -1621,38 +1989,49 @@
             conversations = data.conversations;
             saveCachedLogs();
           }
+          const isV6 = serverUrl.includes("v6");
           const isExa = serverUrl.includes("-exa");
-          setConnectionStatus("connected", isExa ? "CONNECTED (v5)" : "CONNECTED", `Active: ${serverUrl} (${conversations.length} dialogues)`);
+          const label = isV6 ? "CONNECTED (v6)" : (isExa ? "CONNECTED (v5)" : "CONNECTED");
+          setConnectionStatus("connected", label, `Active: ${serverUrl} (${conversations.length} dialogues)`);
         } else {
           setConnectionStatus("error", `ERR (${res.status})`, `Backend error HTTP ${res.status}`);
         }
       } catch (err) {
         // Fallback on network/CORS error
-        const fallbackUrl = serverUrl === EXA_SERVER_URL ? TAVILY_SERVER_URL : EXA_SERVER_URL;
+        const fallbackCandidates = [V6_STAGING_SERVER_URL, EXA_SERVER_URL, TAVILY_SERVER_URL].filter(u => u !== serverUrl);
         let recovered = false;
-        try {
-          const fallbackRes = await fetch(`${fallbackUrl.replace(/\/+$/, '')}/conversations`, { cache: "no-store" });
-          if (fallbackRes.ok) {
-            const data = await fallbackRes.json();
-            if (Array.isArray(data.conversations)) {
-              conversations = data.conversations;
-              saveCachedLogs();
+        for (const fallbackUrl of fallbackCandidates) {
+          try {
+            const fallbackRes = await fetch(`${fallbackUrl.replace(/\/+$/, '')}/conversations`, { cache: "no-store" });
+            if (fallbackRes.ok) {
+              const data = await fallbackRes.json();
+              if (Array.isArray(data.conversations)) {
+                conversations = data.conversations;
+                saveCachedLogs();
+              }
+              serverUrl = fallbackUrl;
+              localStorage.setItem("tawir_convo_server_url", serverUrl);
+              const isV6 = serverUrl.includes("v6");
+              const isExa = serverUrl.includes("-exa");
+              const label = isV6 ? "CONNECTED (v6)" : (isExa ? "CONNECTED (v5)" : "CONNECTED");
+              setConnectionStatus("connected", label, `Auto-recovered to ${serverUrl}`);
+              recovered = true;
+              break;
             }
-            serverUrl = fallbackUrl;
-            localStorage.setItem("tawir_convo_server_url", serverUrl);
-            const isExa = serverUrl.includes("-exa");
-            setConnectionStatus("connected", isExa ? "CONNECTED (v5)" : "CONNECTED", `Auto-recovered to ${serverUrl}`);
-            recovered = true;
-          }
-        } catch (_) {}
+          } catch (_) {}
+        }
 
         if (!recovered) {
           setConnectionStatus("error", "OFFLINE", `Failed to connect to ${serverUrl}`);
         }
       } finally {
-        if (!quiet) btn.classList.remove("loading");
+        if (!quiet) {
+          btn.classList.remove("loading");
+          hideSyncLoader();
+        }
         document.getElementById("teleLastSync").textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         updateTelemetryStats();
+        updateMultiSelectBars();
         renderAllViews();
       }
     }
@@ -1817,6 +2196,7 @@
 
       container.innerHTML = list.map(c => {
         const isSelected = c.id === selectedId;
+        const isMultiSelected = selectedConvoIds.has(c.id);
         const prompt = c.query || c.user_message || "Empty prompt";
         const response = c.response || c.response_text || "No response recorded";
         const hasSearch = Boolean(c.search_query || (c.tool_calls && c.tool_calls.length > 0) || c.mode === "web" || c.mode === "rag");
@@ -1837,12 +2217,18 @@
         }
 
         return `
-          <div class="convo-item-card ${isSelected ? 'selected' : ''}" onclick="selectConvo('${c.id}')">
+          <div class="convo-item-card ${isSelected ? 'selected' : ''} ${isMultiSelected ? 'multi-selected' : ''}" onclick="selectConvo('${c.id}')">
             <div class="card-meta-line">
-              <span class="tag-badge ${tagClass}">
-                <span class="material-symbols-rounded icon-xs">${tagIcon}</span>
-                ${tagText}
-              </span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <label class="custom-checkbox-wrap" onclick="event.stopPropagation()" title="Select conversation">
+                  <input type="checkbox" class="convo-checkbox" ${isMultiSelected ? 'checked' : ''} onchange="toggleSelectConvo('${c.id}', this.checked, event)">
+                  <span class="custom-checkbox-mark"></span>
+                </label>
+                <span class="tag-badge ${tagClass}">
+                  <span class="material-symbols-rounded icon-xs">${tagIcon}</span>
+                  ${tagText}
+                </span>
+              </div>
               <span class="card-time-ago">${formatTimeAgo(c.timestamp)}</span>
             </div>
             <div class="card-user-query">${escapeHtml(prompt)}</div>
@@ -1870,19 +2256,26 @@
     function renderDataTableRows(list) {
       const tbody = document.getElementById("dataTableBody");
       if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-dim);">No matching log entries found</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 24px; color: var(--text-dim);">No matching log entries found</td></tr>`;
         return;
       }
 
       tbody.innerHTML = list.map(c => {
         const isSelected = c.id === selectedId;
+        const isMultiSelected = selectedConvoIds.has(c.id);
         const prompt = c.query || c.user_message || "";
         const response = c.response || c.response_text || "";
         const hasSearch = Boolean(c.search_query || (c.tool_calls && c.tool_calls.length > 0) || c.mode === "web" || c.mode === "rag");
         const durationSec = c.duration_ms ? (c.duration_ms / 1000).toFixed(1) + "s" : "-";
 
         return `
-          <tr class="${isSelected ? 'selected' : ''}" onclick="selectConvo('${c.id}')">
+          <tr class="${isSelected ? 'selected' : ''} ${isMultiSelected ? 'multi-selected' : ''}" onclick="selectConvo('${c.id}')">
+            <td style="text-align: center; width: 38px;" onclick="event.stopPropagation()">
+              <label class="custom-checkbox-wrap" title="Select conversation">
+                <input type="checkbox" class="convo-checkbox" ${isMultiSelected ? 'checked' : ''} onchange="toggleSelectConvo('${c.id}', this.checked, event)">
+                <span class="custom-checkbox-mark"></span>
+              </label>
+            </td>
             <td style="font-family: var(--font-mono); font-size: 11.5px;">${new Date(c.timestamp).toLocaleTimeString()}</td>
             <td>
               <span class="tag-badge ${hasSearch ? 'tag-rag' : 'tag-agent'}">
@@ -2321,8 +2714,147 @@
     }
 
     // =========================================================================
-    // Deletions & Raw JSON
+    // Multi-Selection & Deletions
     // =========================================================================
+    function toggleSelectConvo(id, isChecked, event) {
+      if (event) event.stopPropagation();
+      if (isChecked) {
+        selectedConvoIds.add(id);
+      } else {
+        selectedConvoIds.delete(id);
+      }
+      updateMultiSelectBars();
+      syncCheckboxVisuals();
+    }
+
+    function toggleSelectAllVisible(isChecked) {
+      const list = getFilteredLogs();
+      if (isChecked) {
+        list.forEach(c => selectedConvoIds.add(c.id));
+      } else {
+        list.forEach(c => selectedConvoIds.delete(c.id));
+      }
+      updateMultiSelectBars();
+      syncCheckboxVisuals();
+    }
+
+    function selectAllFiltered() {
+      const list = getFilteredLogs();
+      list.forEach(c => selectedConvoIds.add(c.id));
+      updateMultiSelectBars();
+      syncCheckboxVisuals();
+      showAdminToast(`Selected ${selectedConvoIds.size} conversations`);
+    }
+
+    function clearSelection() {
+      selectedConvoIds.clear();
+      updateMultiSelectBars();
+      syncCheckboxVisuals();
+    }
+
+    function updateMultiSelectBars() {
+      const count = selectedConvoIds.size;
+      const barFeed = document.getElementById("multiSelectBarFeed");
+      const barTable = document.getElementById("multiSelectBarTable");
+      const labelFeed = document.getElementById("selectedCountLabelFeed");
+      const labelTable = document.getElementById("selectedCountLabelTable");
+      const masterFeed = document.getElementById("feedMasterSelectCheckbox");
+      const masterTable = document.getElementById("tableMasterSelectCheckbox");
+
+      const text = `${count} selected`;
+      if (labelFeed) labelFeed.textContent = text;
+      if (labelTable) labelTable.textContent = text;
+
+      if (count > 0) {
+        if (barFeed) barFeed.style.display = "flex";
+        if (barTable) barTable.style.display = "flex";
+      } else {
+        if (barFeed) barFeed.style.display = "none";
+        if (barTable) barTable.style.display = "none";
+      }
+
+      const filtered = getFilteredLogs();
+      const allFilteredSelected = filtered.length > 0 && filtered.every(c => selectedConvoIds.has(c.id));
+      const someFilteredSelected = filtered.some(c => selectedConvoIds.has(c.id));
+
+      if (masterFeed) {
+        masterFeed.checked = allFilteredSelected;
+        masterFeed.indeterminate = !allFilteredSelected && someFilteredSelected;
+      }
+      if (masterTable) {
+        masterTable.checked = allFilteredSelected;
+        masterTable.indeterminate = !allFilteredSelected && someFilteredSelected;
+      }
+    }
+
+    function syncCheckboxVisuals() {
+      document.querySelectorAll(".convo-item-card").forEach(card => {
+        const onclickAttr = card.getAttribute("onclick") || "";
+        const match = onclickAttr.match(/selectConvo\('([^']+)'\)/);
+        if (match) {
+          const id = match[1];
+          const isSel = selectedConvoIds.has(id);
+          card.classList.toggle("multi-selected", isSel);
+          const cb = card.querySelector(".convo-checkbox");
+          if (cb) cb.checked = isSel;
+        }
+      });
+
+      document.querySelectorAll("#dataTableBody tr").forEach(row => {
+        const onclickAttr = row.getAttribute("onclick") || "";
+        const match = onclickAttr.match(/selectConvo\('([^']+)'\)/);
+        if (match) {
+          const id = match[1];
+          const isSel = selectedConvoIds.has(id);
+          row.classList.toggle("multi-selected", isSel);
+          const cb = row.querySelector(".convo-checkbox");
+          if (cb) cb.checked = isSel;
+        }
+      });
+    }
+
+    async function deleteSelectedConvos() {
+      const count = selectedConvoIds.size;
+      if (count === 0) {
+        showAdminToast("No conversations selected");
+        return;
+      }
+
+      const msg = count === 1
+        ? "Permanently delete 1 selected conversation record?"
+        : `Permanently delete ${count} selected conversation records?`;
+      if (!confirm(msg)) return;
+
+      const idsToDelete = Array.from(selectedConvoIds);
+      showSyncLoader("Deleting Conversations...", `Purging ${count} records from server & telemetry cache`);
+
+      try {
+        const deletePromises = idsToDelete.map(id => {
+          const endpoint = `${serverUrl.replace(/\/+$/, '')}/conversations/${id}`;
+          return fetch(endpoint, { method: "DELETE" }).catch(() => null);
+        });
+        await Promise.allSettled(deletePromises);
+
+        const idSet = new Set(idsToDelete);
+        conversations = conversations.filter(c => !idSet.has(c.id));
+        selectedConvoIds.clear();
+
+        if (idSet.has(selectedId)) {
+          selectedId = conversations.length > 0 ? conversations[0].id : null;
+        }
+
+        saveCachedLogs();
+        updateTelemetryStats();
+        updateMultiSelectBars();
+        renderAllViews();
+        showAdminToast(`Deleted ${count} conversation${count > 1 ? 's' : ''}`);
+      } catch (err) {
+        showAdminToast("Error deleting selected conversations");
+      } finally {
+        hideSyncLoader();
+      }
+    }
+
     function deleteActiveConvo() {
       if (!selectedId) return;
       deleteConvoById(selectedId);
@@ -2335,9 +2867,15 @@
       const endpoint = `${serverUrl.replace(/\/+$/, '')}/conversations/${id}`;
       fetch(endpoint, { method: "DELETE" }).catch(() => {});
 
+      selectedConvoIds.delete(id);
       conversations = conversations.filter(c => c.id !== id);
+      if (selectedId === id) {
+        selectedId = conversations.length > 0 ? conversations[0].id : null;
+      }
+
       saveCachedLogs();
       updateTelemetryStats();
+      updateMultiSelectBars();
       renderAllViews();
       showAdminToast("Record deleted");
     }
@@ -2350,9 +2888,13 @@
       fetch(endpoint, { method: "DELETE" }).catch(() => {});
 
       conversations = [];
+      selectedConvoIds.clear();
+      selectedId = null;
+
       saveCachedLogs();
       closeConfigModal();
       updateTelemetryStats();
+      updateMultiSelectBars();
       renderAllViews();
       showAdminToast("All records cleared");
     }
@@ -2379,7 +2921,9 @@
 
     function selectPresetEndpoint(preset) {
       const input = document.getElementById("configUrlInput");
-      if (preset === 'exa') {
+      if (preset === 'v6') {
+        input.value = V6_STAGING_SERVER_URL;
+      } else if (preset === 'exa') {
         input.value = EXA_SERVER_URL;
       } else if (preset === 'tavily') {
         input.value = TAVILY_SERVER_URL;
@@ -2414,9 +2958,12 @@
         if (res.ok) {
           const json = await res.json();
           const count = json.count !== undefined ? json.count : (json.conversations ? json.conversations.length : 0);
+          const isV6 = url.includes("v6");
+          const isExa = url.includes("-exa");
+          const envName = isV6 ? "v6 Staging" : (isExa ? "Exa v5" : "Standard");
           resultBox.style.background = "rgba(16, 185, 129, 0.15)";
           resultBox.style.color = "var(--emerald-accent)";
-          resultBox.textContent = `✓ 200 OK (${latency}ms) — Active v5 backend with ${count} dialogue records.`;
+          resultBox.textContent = `✓ 200 OK (${latency}ms) — Active ${envName} backend with ${count} dialogue records.`;
         } else {
           resultBox.style.background = "rgba(244, 63, 94, 0.15)";
           resultBox.style.color = "var(--rose-accent)";
