@@ -1,18 +1,27 @@
 ﻿{
-  "updatedAt": "2026-10-09T18:20:00.000Z",
+  "updatedAt": "2026-10-15T08:50:00.000Z",
   "masterSwitch": true,
   "adminAnnouncement": {
     "enabled": false,
     "message": "",
     "variant": "info",
-    "updatedAt": "2026-10-09T18:20:00.000Z"
+    "updatedAt": "2026-10-15T08:50:00.000Z"
   },
   "sublinks": {
+    "main": {
+      "name": "Main Homepage (Portal)",
+      "path": "/",
+      "category": "System Portal",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "The main portal is temporarily closed for maintenance."
+    },
     "tawir": {
       "name": "TAWIR (v3 Assistant)",
       "path": "/tawir",
       "category": "AI Assistant",
       "enabled": true,
+      "offlineType": "offline",
       "message": "TAWIR v3 is temporarily offline."
     },
     "tawir-dev": {
@@ -20,6 +29,7 @@
       "path": "/tawir-dev",
       "category": "AI Assistant",
       "enabled": true,
+      "offlineType": "offline",
       "message": "TAWIR Beta is currently undergoing maintenance."
     },
     "tawir-beta": {
@@ -27,6 +37,7 @@
       "path": "/tawir-beta",
       "category": "AI Assistant",
       "enabled": true,
+      "offlineType": "offline",
       "message": "TAWIR Beta is currently undergoing maintenance."
     },
     "tawir-convo": {
@@ -34,6 +45,7 @@
       "path": "/tawir-convo",
       "category": "AI Monitoring",
       "enabled": true,
+      "offlineType": "offline",
       "message": "TAWIR conversation monitor is currently offline."
     },
     "anime": {
@@ -41,6 +53,7 @@
       "path": "/anime",
       "category": "Media",
       "enabled": true,
+      "offlineType": "offline",
       "message": "Anime portal is under development."
     },
     "movie": {
@@ -48,6 +61,7 @@
       "path": "/movie",
       "category": "Media",
       "enabled": true,
+      "offlineType": "offline",
       "message": "Movie streaming portal is offline."
     },
     "dataset": {
@@ -55,6 +69,7 @@
       "path": "/dataset",
       "category": "Data Tool",
       "enabled": true,
+      "offlineType": "offline",
       "message": "Dataset annotation portal is undergoing maintenance."
     },
     "validation": {
@@ -62,6 +77,7 @@
       "path": "/validation",
       "category": "Quality",
       "enabled": true,
+      "offlineType": "offline",
       "message": "Validation tools are currently offline."
     },
     "bill": {
@@ -69,6 +85,7 @@
       "path": "/bill",
       "category": "Finance",
       "enabled": true,
+      "offlineType": "offline",
       "message": "Utility rates service is temporarily unavailable."
     },
     "chess": {
@@ -76,6 +93,7 @@
       "path": "/chess",
       "category": "Game",
       "enabled": true,
+      "offlineType": "offline",
       "message": "Chess game is temporarily unavailable."
     },
     "vibe": {
@@ -83,6 +101,7 @@
       "path": "/vibe",
       "category": "Media",
       "enabled": true,
+      "offlineType": "offline",
       "message": "Vibe video calling is temporarily offline."
     }
   }

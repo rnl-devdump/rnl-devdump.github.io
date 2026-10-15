@@ -1,11 +1,14 @@
 (function() {
   const currentPath = window.location.pathname.replace(/^\/|\/$/g, '');
-  const slug = currentPath.split('/')[0];
+  const rawSlug = currentPath.split('/')[0];
 
-  // Whitelist: never block the root homepage or the dashboard itself
-  if (!slug || slug === 'dashboard' || slug === 'index.html') {
+  // Whitelist: never block the dashboard itself under any circumstances
+  if (rawSlug === 'dashboard') {
     return;
   }
+
+  // When visiting root portal ("" or "index.html"), target "main" service
+  const slug = (!rawSlug || rawSlug === 'index.html') ? 'main' : rawSlug;
 
   const SALT = "kiruu_console_guard_salt_2026_x89a";
   const HASH = "78c2a001ef868e6e51e2aa5015eb6e88efe412744a62f027ebe1663853acb67f";
@@ -15,7 +18,9 @@
     return;
   }
 
-  function renderOfflineUI(customNotice) {
+  function renderOfflineUI(customNotice, mode = 'offline') {
+    const isForbidden = mode === 'forbidden';
+
     // 1. Immediately neutralize Flutter Web bootstrap, service worker, and engine loader
     try {
       window._flutter = {
@@ -48,7 +53,7 @@
         return;
       }
 
-      document.title = "Service Offline | TheKiruu";
+      document.title = isForbidden ? "Access Forbidden | TheKiruu" : "Service Offline | TheKiruu";
       
       // Ensure viewport meta tag exists for proper mobile scaling
       if (!document.querySelector('meta[name="viewport"]')) {
@@ -80,10 +85,20 @@
       const bgUrl = origin + '/bg.jpg';
       const fontUrl = origin + '/fonts/Vandelvira-Regular.ttf';
 
+      const bgLayerStyle = isForbidden
+        ? "linear-gradient(90deg, #ffe4e6 0%, #fee2e2 45%, rgba(0, 0, 0, 0.42) 100%), url('" + bgUrl + "')"
+        : "linear-gradient(90deg, #e3ffe7 0%, #d9e7ff 45%, rgba(0, 0, 0, 0.42) 100%), url('" + bgUrl + "')";
+
+      const bgMobileStyle = isForbidden
+        ? "linear-gradient(180deg, rgba(254, 226, 226, 0.95) 0%, rgba(255, 228, 230, 0.95) 50%, rgba(254, 242, 242, 0.92) 100%), url('" + bgUrl + "')"
+        : "linear-gradient(180deg, rgba(227, 255, 231, 0.94) 0%, rgba(217, 231, 255, 0.94) 50%, rgba(240, 245, 255, 0.92) 100%), url('" + bgUrl + "')";
+
+      const htmlBg = isForbidden ? '#fee2e2' : '#dceef9';
+
       // Enforce host background reset
       try {
-        document.documentElement.style.cssText = "background-color: #dceef9 !important; background: #dceef9 !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; overflow: hidden !important;";
-        document.body.style.cssText = "background-color: #dceef9 !important; background: #dceef9 !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; overflow: hidden !important;";
+        document.documentElement.style.cssText = "background-color: " + htmlBg + " !important; background: " + htmlBg + " !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; overflow: hidden !important;";
+        document.body.style.cssText = "background-color: " + htmlBg + " !important; background: " + htmlBg + " !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; overflow: hidden !important;";
       } catch (e) {}
 
       document.body.innerHTML = `
@@ -101,9 +116,7 @@
             --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --color-ink: #111827;
             --color-subtext: #475569;
-            --color-bg-base: #dceef9;
-            --color-peach: #fee6e3;
-            --color-peach-hover: #ffdeda;
+            --color-bg-base: ${htmlBg};
             --color-border: #111111;
           }
 
@@ -139,7 +152,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #e3ffe7 0%, #d9e7ff 45%, rgba(0, 0, 0, 0.42) 100%), url('${bgUrl}');
+            background: ${bgLayerStyle};
             background-size: cover;
             background-position: center;
             z-index: 0;
@@ -209,12 +222,51 @@
             text-align: left;
           }
 
+          .kiruu-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: 1.5px solid var(--color-border);
+            margin-bottom: 10px;
+            box-shadow: 2px 2px 0 var(--color-border);
+          }
+
+          .chip-offline {
+            background-color: #fef3c7;
+            color: #92400e;
+          }
+
+          .chip-forbidden {
+            background-color: #fee2e2;
+            color: #991b1b;
+          }
+
+          .chip-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+          }
+
+          .dot-offline {
+            background-color: #d97706;
+          }
+
+          .dot-forbidden {
+            background-color: #dc2626;
+          }
+
           .kiruu-subtitle {
             font-family: var(--font-display);
             font-size: clamp(1.15rem, 2.2vw, 1.35rem);
             font-weight: 600;
             margin-bottom: 6px;
-            color: #334155;
+            color: ${isForbidden ? '#991b1b' : '#334155'};
             letter-spacing: -0.01em;
           }
 
@@ -234,12 +286,16 @@
             display: block;
           }
 
+          .kiruu-title-forbidden {
+            color: #dc2626;
+          }
+
           .kiruu-notice-box {
-            background: rgba(255, 255, 255, 0.72);
+            background: rgba(255, 255, 255, 0.78);
             backdrop-filter: blur(8px);
-            border: 2px solid var(--color-border);
+            border: 2px solid ${isForbidden ? '#b91c1c' : 'var(--color-border)'};
             border-radius: 12px;
-            box-shadow: 3.5px 3.5px 0 var(--color-border);
+            box-shadow: 3.5px 3.5px 0 ${isForbidden ? '#b91c1c' : 'var(--color-border)'};
             padding: clamp(12px, 2vw, 16px) clamp(14px, 2.5vw, 20px);
             margin-bottom: clamp(20px, 3.5vw, 28px);
             max-width: 540px;
@@ -253,103 +309,6 @@
             line-height: 1.5;
             word-break: break-word;
             margin: 0;
-          }
-
-          .kiruu-actions-wrap {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: clamp(16px, 2.5vw, 22px);
-          }
-
-          .button-rn {
-            align-items: center;
-            background-color: var(--color-peach);
-            border: 2px solid var(--color-border);
-            border-radius: 10px;
-            color: #111;
-            cursor: pointer;
-            display: inline-flex;
-            font-family: var(--font-display);
-            font-weight: 700;
-            font-size: clamp(15px, 2vw, 17px);
-            min-height: 48px;
-            height: 48px;
-            justify-content: center;
-            padding: 0 clamp(20px, 3vw, 28px);
-            position: relative;
-            text-decoration: none;
-            box-shadow: 4px 4px 0 var(--color-border);
-            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-            white-space: nowrap;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            box-sizing: border-box;
-          }
-
-          .button-rn:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 var(--color-border);
-            background-color: var(--color-peach-hover);
-          }
-
-          .button-rn:active {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0 var(--color-border);
-            background-color: #ffd2cc;
-          }
-
-          .button-rn:focus-visible {
-            outline: 3px solid var(--color-border);
-            outline-offset: 3px;
-          }
-
-          .kiruu-admin-links {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-          }
-
-          .kiruu-admin-links a, 
-          .kiruu-admin-links button {
-            font-family: var(--font-ui);
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-            background: none;
-            border: none;
-            cursor: pointer;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-            min-height: 44px;
-            min-width: 44px;
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 8px;
-            border-radius: 6px;
-            transition: color 0.15s ease, background-color 0.15s ease;
-            -webkit-tap-highlight-color: transparent;
-          }
-
-          .kiruu-admin-links a:hover, 
-          .kiruu-admin-links button:hover {
-            color: #111;
-            background-color: rgba(255, 255, 255, 0.45);
-          }
-
-          .kiruu-admin-links a:focus-visible, 
-          .kiruu-admin-links button:focus-visible {
-            outline: 2px solid var(--color-border);
-            outline-offset: 2px;
-          }
-
-          .kiruu-admin-divider {
-            color: #9ca3af;
-            font-size: 14px;
-            user-select: none;
-            padding: 0 4px;
           }
 
           .kiruu-visual-col {
@@ -373,10 +332,9 @@
             height: 100%;
           }
 
-          /* Reflow for Tablet & Mobile portrait */
           @media (max-width: 860px) {
             #kiruu-bg-layer {
-              background: linear-gradient(180deg, rgba(227, 255, 231, 0.94) 0%, rgba(217, 231, 255, 0.94) 50%, rgba(240, 245, 255, 0.92) 100%), url('${bgUrl}');
+              background: ${bgMobileStyle};
               background-size: cover;
             }
 
@@ -413,8 +371,8 @@
               text-align: center;
             }
 
-            .kiruu-status-chip {
-              margin-bottom: 8px;
+            .kiruu-chip {
+              margin-bottom: 6px;
             }
 
             .kiruu-subtitle {
@@ -447,69 +405,38 @@
               width: clamp(130px, 34vw, 175px);
               height: clamp(130px, 34vw, 175px);
             }
-
-            .kiruu-actions-wrap {
-              width: 100%;
-              justify-content: center;
-              margin-bottom: 16px;
-            }
-
-            .button-rn {
-              width: 100%;
-              max-width: 340px;
-            }
-
-            .kiruu-admin-links {
-              justify-content: center;
-            }
           }
 
-          /* Small mobile adjustments */
           @media (max-width: 380px) {
             .kiruu-viewport-container {
               padding: 14px 12px 18px 12px;
             }
-
             .kiruu-logo {
               height: 42px;
             }
-
             .kiruu-lottie-wrap {
               width: 120px;
               height: 120px;
             }
-
             .kiruu-title {
               font-size: 2.15rem;
             }
-
             .kiruu-notice {
               font-size: 0.95rem;
             }
-
-            .button-rn {
-              font-size: 15px;
-              min-height: 46px;
-              height: 46px;
-              width: 100%;
-            }
           }
 
-          /* Landscape mobile adjustments */
           @media (max-height: 520px) and (orientation: landscape) {
             .kiruu-viewport-container {
               padding: 12px 20px;
             }
-
             header.kiruu-header {
               margin-bottom: 6px;
               justify-content: flex-start;
             }
-
             .kiruu-logo {
               height: 36px;
             }
-
             main.kiruu-main {
               flex-direction: row;
               align-items: center;
@@ -519,26 +446,22 @@
               padding: 2px 0;
               text-align: left;
             }
-
             .kiruu-content-col {
               align-items: flex-start;
               text-align: left;
               max-width: 60%;
             }
-
             .kiruu-subtitle {
               text-align: left;
               font-size: 1rem;
               margin-bottom: 2px;
             }
-
             .kiruu-title {
               align-items: flex-start;
               text-align: left;
               font-size: 1.85rem;
               margin: 2px 0 6px 0;
             }
-
             .kiruu-notice-box {
               margin-left: 0;
               margin-right: 0;
@@ -547,32 +470,12 @@
               max-width: 100%;
               text-align: left;
             }
-
             .kiruu-notice {
               font-size: 0.85rem;
             }
-
-            .kiruu-actions-wrap {
-              justify-content: flex-start;
-              margin-bottom: 6px;
-            }
-
-            .button-rn {
-              width: auto;
-              min-height: 42px;
-              height: 42px;
-              font-size: 14px;
-              padding: 0 16px;
-            }
-
-            .kiruu-admin-links {
-              justify-content: flex-start;
-            }
-
             .kiruu-visual-col {
               max-width: 35%;
             }
-
             .kiruu-lottie-wrap {
               width: 120px;
               height: 120px;
@@ -590,10 +493,16 @@
 
             <main class="kiruu-main">
               <div class="kiruu-content-col">
-                <p class="kiruu-subtitle">We'll be right back!</p>
+                <div class="kiruu-chip ${isForbidden ? 'chip-forbidden' : 'chip-offline'}">
+                  <span class="chip-dot ${isForbidden ? 'dot-forbidden' : 'dot-offline'}"></span>
+                  ${isForbidden ? '403 ACCESS FORBIDDEN' : '503 SERVICE OFFLINE'}
+                </div>
+                <p class="kiruu-subtitle">${isForbidden ? 'HTTP 403 · Access Denied' : "We'll be right back!"}</p>
                 <h1 class="kiruu-title">
-                  <span class="kiruu-title-line">Service</span>
-                  <span class="kiruu-title-line">Offline</span>
+                  ${isForbidden
+                    ? '<span class="kiruu-title-line">Access</span><span class="kiruu-title-line kiruu-title-forbidden">Forbidden</span>'
+                    : '<span class="kiruu-title-line">Service</span><span class="kiruu-title-line">Offline</span>'
+                  }
                 </h1>
 
                 <div class="kiruu-notice-box">
@@ -619,7 +528,6 @@
         </div>
       `;
 
-      // Prevent host frameworks from dynamically appending canvas, views, or foreign DOM nodes
       try {
         const observer = new MutationObserver((mutations) => {
           for (const m of mutations) {
@@ -636,7 +544,7 @@
 
       const noticeEl = document.getElementById("kiruu-notice-text");
       if (noticeEl) {
-        noticeEl.textContent = customNotice || "This service is turned off! Please try again later.";
+        noticeEl.textContent = customNotice || (isForbidden ? "Access to this service or resource is currently forbidden by administrator policy." : "This service is turned off! Please try again later.");
       }
 
       async function promptAdminBypass() {
@@ -660,9 +568,6 @@
           alert("Verification error: " + e.message);
         }
       }
-
-      const bypassBtn = document.getElementById("admin-bypass-trigger");
-      if (bypassBtn) bypassBtn.addEventListener("click", promptAdminBypass);
 
       const logoTrigger = document.getElementById("kiruu-logo-trigger");
       if (logoTrigger) {
@@ -715,7 +620,8 @@
       const notice = sublinkConfig
         ? (sublinkConfig.maintenanceMessage || sublinkConfig.message)
         : (config.maintenanceMessage || "All services are currently undergoing maintenance.");
-      renderOfflineUI(notice);
+      const offlineType = (sublinkConfig && sublinkConfig.offlineType === 'forbidden') ? 'forbidden' : 'offline';
+      renderOfflineUI(notice, offlineType);
     }
   }
 
@@ -769,7 +675,7 @@
         .then(rtdbItem => {
           if (rtdbItem && typeof rtdbItem.enabled === "boolean") {
             if (rtdbItem.enabled === false) {
-              renderOfflineUI(rtdbItem.maintenanceMessage || rtdbItem.message);
+              renderOfflineUI(rtdbItem.maintenanceMessage || rtdbItem.message, rtdbItem.offlineType || 'offline');
             }
           } else {
             fetchStaticFallback();
@@ -778,4 +684,3 @@
         .catch(fetchStaticFallback);
     });
 })();
-

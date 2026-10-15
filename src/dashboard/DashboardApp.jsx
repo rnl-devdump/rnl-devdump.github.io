@@ -9,12 +9,22 @@ const PWD_SALT = "kiruu_console_guard_salt_2026_x89a";
 const PWD_HASH = "78c2a001ef868e6e51e2aa5015eb6e88efe412744a62f027ebe1663853acb67f";
 
 const INITIAL_SUBLINKS = {
+  "main": {
+    name: "Main Homepage (Portal)",
+    path: "/",
+    category: "System Portal",
+    description: "Root ecosystem portal and directory (index.html)",
+    enabled: true,
+    offlineType: "offline",
+    message: "The main portal is temporarily closed for maintenance."
+  },
   "tawir": {
     name: "TAWIR (Pangasinan AI Assistant)",
     path: "/tawir",
     category: "AI Assistant",
     description: "Pangasinan conversational model interface (Flutter)",
     enabled: true,
+    offlineType: "offline",
     message: "TAWIR is temporarily offline."
   },
   "tawir-dev": {
@@ -23,6 +33,7 @@ const INITIAL_SUBLINKS = {
     category: "AI Assistant",
     description: "Next-gen Salitan Pangasinan conversational AI client with neural web agent and MMS-TTS",
     enabled: true,
+    offlineType: "offline",
     message: "TAWIR Beta is currently undergoing maintenance."
   },
   "tawir-convo": {
@@ -31,6 +42,7 @@ const INITIAL_SUBLINKS = {
     category: "AI Monitoring",
     description: "Real-time dialogue telemetry inspector & analytics",
     enabled: true,
+    offlineType: "offline",
     message: "TAWIR conversation monitor is currently offline."
   },
   "anime": {
@@ -39,6 +51,7 @@ const INITIAL_SUBLINKS = {
     category: "Media",
     description: "Anime portal, search catalog, and live watch parties",
     enabled: true,
+    offlineType: "offline",
     message: "Anime portal is temporarily unavailable."
   },
   "movie": {
@@ -47,6 +60,7 @@ const INITIAL_SUBLINKS = {
     category: "Media",
     description: "TMDB media portal, trailers & community rooms",
     enabled: true,
+    offlineType: "offline",
     message: "Movie streaming portal is offline."
   },
   "dataset": {
@@ -55,6 +69,7 @@ const INITIAL_SUBLINKS = {
     category: "Data Tool",
     description: "Parallel sentence annotation pipeline for Salitan Pangasinan",
     enabled: true,
+    offlineType: "offline",
     message: "Dataset annotation portal is undergoing maintenance."
   },
   "validation": {
@@ -63,6 +78,7 @@ const INITIAL_SUBLINKS = {
     category: "Quality",
     description: "Dataset quality verification & crowd validation suite",
     enabled: true,
+    offlineType: "offline",
     message: "Validation tools are currently offline."
   },
   "bill": {
@@ -71,6 +87,7 @@ const INITIAL_SUBLINKS = {
     category: "Finance",
     description: "Automated electricity rates and billing analytics",
     enabled: true,
+    offlineType: "offline",
     message: "Utility rates service is temporarily unavailable."
   },
   "chess": {
@@ -79,6 +96,7 @@ const INITIAL_SUBLINKS = {
     category: "Game",
     description: "A classic Java desktop chess game seamlessly ported to the web using WebAssembly and CheerpJ client-side JVM.",
     enabled: true,
+    offlineType: "offline",
     message: "Chess game is temporarily unavailable."
   },
   "vibe": {
@@ -87,6 +105,7 @@ const INITIAL_SUBLINKS = {
     category: "Media",
     description: "Peer-to-peer video calling and presentation room with passcode security and Google Meet style controls.",
     enabled: true,
+    offlineType: "offline",
     message: "Vibe video calling is temporarily offline."
   }
 };
@@ -163,6 +182,7 @@ export default function DashboardApp() {
   const [newServiceMsg, setNewServiceMsg] = useState('');
   const [newServiceCategory, setNewServiceCategory] = useState('AI Assistant');
   const [newServicePath, setNewServicePath] = useState('');
+  const [newServiceOfflineType, setNewServiceOfflineType] = useState('offline'); // 'offline' | 'forbidden'
 
   const [rtdbStatus, setRtdbStatus] = useState('disconnected'); // 'disconnected' | 'connected' | 'fallback'
 
@@ -240,6 +260,7 @@ export default function DashboardApp() {
                           ...(merged[k] || {}),
                           name: item.name || k,
                           enabled: Boolean(item.enabled),
+                          offlineType: item.offlineType === 'forbidden' ? 'forbidden' : 'offline',
                           message: item.message || item.maintenanceMessage || "Service temporarily offline.",
                           maintenanceMessage: item.maintenanceMessage || item.message,
                           category: item.category || (merged[k] && merged[k].category) || "Custom",
@@ -539,6 +560,21 @@ export default function DashboardApp() {
     });
   }
 
+  function setSublinkOfflineType(key, type) {
+    setSublinks(prev => {
+      const current = prev[key] || {};
+      const updated = {
+        ...prev,
+        [key]: {
+          ...current,
+          offlineType: type
+        }
+      };
+      saveStateLocally(masterSwitch, updated, key);
+      return updated;
+    });
+  }
+
   function toggleMasterSwitch() {
     const nextState = !masterSwitch;
     setMasterSwitch(nextState);
@@ -630,7 +666,9 @@ export default function DashboardApp() {
                 await set(ref(rtdb, `services/${updatedKey}`), {
                   name: item.name || updatedKey,
                   enabled: Boolean(item.enabled),
+                  offlineType: item.offlineType === 'forbidden' ? 'forbidden' : 'offline',
                   maintenanceMessage: item.message || item.maintenanceMessage || "This service is currently undergoing scheduled maintenance.",
+                  message: item.message || item.maintenanceMessage || "This service is currently undergoing scheduled maintenance.",
                   category: item.category || "Custom",
                   path: item.path || `/${updatedKey}`,
                   description: item.description || "",
@@ -645,7 +683,9 @@ export default function DashboardApp() {
               rtdbPayload[k] = {
                 name: item.name || k,
                 enabled: Boolean(item.enabled),
+                offlineType: item.offlineType === 'forbidden' ? 'forbidden' : 'offline',
                 maintenanceMessage: item.message || item.maintenanceMessage || "This service is currently undergoing scheduled maintenance.",
+                message: item.message || item.maintenanceMessage || "This service is currently undergoing scheduled maintenance.",
                 category: item.category || "Custom",
                 path: item.path || `/${k}`,
                 description: item.description || "",
@@ -727,6 +767,7 @@ export default function DashboardApp() {
       category: newServiceCategory || "Custom",
       description: "Dynamically registered service killswitch flag",
       enabled: true,
+      offlineType: newServiceOfflineType || "offline",
       message: newServiceMsg.trim() || "This service is currently undergoing scheduled maintenance.",
       maintenanceMessage: newServiceMsg.trim() || "This service is currently undergoing scheduled maintenance.",
       isDynamic: true
@@ -745,6 +786,7 @@ export default function DashboardApp() {
     setNewServiceName('');
     setNewServiceMsg('');
     setNewServicePath('');
+    setNewServiceOfflineType('offline');
     setShowAddForm(false);
     setSaveSuccessMsg(`Service "/${key}" successfully registered!`);
     setTimeout(() => setSaveSuccessMsg(''), 4000);
@@ -1180,6 +1222,123 @@ export default function DashboardApp() {
               </div>
             </div>
 
+            {/* Main Homepage / Root Portal Kill Switch */}
+            <div className={`p-6 sm:p-8 rounded-2xl border-2 transition-all duration-300 ${
+              (sublinks['main']?.enabled !== false && masterSwitch)
+                ? 'bg-white/95 border-[#111111] shadow-[6px_6px_0px_#111111]'
+                : (sublinks['main']?.offlineType === 'forbidden'
+                    ? 'bg-rose-100/95 border-[#991b1b] shadow-[6px_6px_0px_#991b1b]'
+                    : 'bg-amber-50/95 border-[#b45309] shadow-[6px_6px_0px_#b45309]')
+            }`}>
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+                <div className="space-y-3 flex-1">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <span className={`px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase border flex items-center gap-1.5 ${
+                      (sublinks['main']?.enabled !== false && masterSwitch)
+                        ? 'bg-emerald-100 border-emerald-700 text-emerald-900'
+                        : (sublinks['main']?.offlineType === 'forbidden'
+                            ? 'bg-rose-200 border-rose-800 text-rose-950'
+                            : 'bg-amber-100 border-amber-800 text-amber-950')
+                    }`}>
+                      <span className={`w-2 h-2 rounded-full ${(sublinks['main']?.enabled !== false && masterSwitch) ? 'bg-emerald-600' : 'bg-rose-600 animate-pulse'}`} />
+                      {(sublinks['main']?.enabled !== false && masterSwitch)
+                        ? 'MAIN PORTAL: LIVE & ACCESSIBLE'
+                        : `MAIN PORTAL: CLOSED / DOWN (${sublinks['main']?.offlineType === 'forbidden' ? '403 FORBIDDEN' : '503 OFFLINE'})`}
+                    </span>
+                    <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-100 border border-[#111111] font-mono font-bold text-[#111827]">
+                      Route: / (index.html)
+                    </span>
+                    <span className="text-[11px] px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-300 text-emerald-900 font-semibold flex items-center gap-1">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                      /dashboard/ is ALWAYS accessible
+                    </span>
+                  </div>
+
+                  <h2 className="text-xl sm:text-2xl font-bold font-['Vandelvira',Georgia,serif] text-[#111827] flex items-center gap-2">
+                    Main Homepage Status &amp; Gateway
+                  </h2>
+
+                  <p className="text-xs sm:text-sm text-[#334155] font-medium leading-relaxed max-w-2xl">
+                    {(sublinks['main']?.enabled !== false && masterSwitch)
+                      ? "The root homepage portal is currently OPEN to all visitors. You can close or take down the main page below without losing access to this admin dashboard."
+                      : `The root homepage portal is currently CLOSED. Visitors are blocked with a "${sublinks['main']?.offlineType === 'forbidden' ? 'Access Forbidden (403)' : 'Service Offline (503)'}" landing screen.`}
+                  </p>
+
+                  {/* Mode selection for Main Page: Service Offline vs Access Forbidden */}
+                  <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#111827]">
+                      When Closed, Display:
+                    </span>
+                    <div className="inline-flex p-1 rounded-xl bg-slate-100 border-2 border-[#111111] shadow-[2px_2px_0px_#111111]">
+                      <button
+                        type="button"
+                        onClick={() => setSublinkOfflineType('main', 'offline')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                          (sublinks['main']?.offlineType || 'offline') === 'offline'
+                            ? 'bg-amber-300 text-amber-950 border border-amber-600 shadow-[1px_1px_0px_#111111]'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full bg-amber-600" />
+                        Service Offline (503)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSublinkOfflineType('main', 'forbidden')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                          sublinks['main']?.offlineType === 'forbidden'
+                            ? 'bg-rose-500 text-white border border-rose-700 shadow-[1px_1px_0px_#111111]'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full bg-white" />
+                        Access Forbidden (403)
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Visitor Message */}
+                  <div className="pt-2 max-w-xl">
+                    <label className="block text-[10px] uppercase font-bold text-[#475569] mb-1">
+                      Custom Closed Notice for Main Portal
+                    </label>
+                    <input
+                      type="text"
+                      value={sublinks['main']?.message || ''}
+                      onChange={(e) => updateSublinkMessage('main', e.target.value)}
+                      placeholder="Notice displayed to visitors when main portal is closed..."
+                      className="w-full bg-white border-2 border-[#111111] rounded-xl px-3.5 py-2 text-xs text-[#111827] placeholder:text-slate-400 focus:outline-none focus:shadow-[2px_2px_0px_#111111] shadow-[2px_2px_0px_#111111]"
+                    />
+                  </div>
+                </div>
+
+                <div className="shrink-0 flex flex-col gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSublink('main')}
+                    className={`px-6 py-4 rounded-xl font-extrabold text-xs sm:text-sm tracking-wide uppercase transition border-2 border-[#111111] flex items-center justify-center gap-2 shadow-[4px_4px_0px_#111111] hover:shadow-[5px_5px_0px_#111111] active:translate-x-[2px] active:translate-y-[2px] ${
+                      (sublinks['main']?.enabled !== false && masterSwitch)
+                        ? 'bg-rose-600 hover:bg-rose-500 text-white'
+                        : 'bg-emerald-400 hover:bg-emerald-300 text-[#111827]'
+                    }`}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    {(sublinks['main']?.enabled !== false && masterSwitch) ? "Close / Take Down Main Page" : "Open / Restore Main Page"}
+                  </button>
+
+                  <a
+                    href="/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border-2 border-[#111111] text-xs font-bold text-[#111827] shadow-[2px_2px_0px_#111111] transition flex items-center justify-center gap-1.5"
+                  >
+                    Visit Main Portal (Opens New Tab)
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+
             {/* Main Page Admin Announcement Banner (Top 5s Auto-Fade) */}
             <div className={`p-6 sm:p-8 rounded-3xl border transition-all duration-300 ${
               adminBanner.enabled && adminBanner.message
@@ -1549,6 +1708,38 @@ export default function DashboardApp() {
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-[#475569] mb-1">
+                      Offline Response Screen
+                    </label>
+                    <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-300 gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setNewServiceOfflineType('offline')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                          newServiceOfflineType === 'offline'
+                            ? 'bg-amber-300 text-amber-950 border border-amber-600 shadow-[1px_1px_0px_#111111]'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full bg-amber-600" />
+                        Service Offline (503)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setNewServiceOfflineType('forbidden')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                          newServiceOfflineType === 'forbidden'
+                            ? 'bg-rose-500 text-white border border-rose-700 shadow-[1px_1px_0px_#111111]'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full bg-white" />
+                        Access Forbidden (403)
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="flex justify-end gap-2">
                     <button
                       type="button"
@@ -1747,6 +1938,47 @@ export default function DashboardApp() {
                         placeholder="Notice shown when offline..."
                         className="w-full bg-[#f8fafc] border border-[#111111] rounded-lg px-3 py-1.5 text-xs text-[#111827] placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-black"
                       />
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-slate-200">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-[10px] uppercase font-bold text-[#475569]">
+                          Offline Response Screen
+                        </label>
+                        <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded border ${
+                          (item.offlineType || 'offline') === 'forbidden'
+                            ? 'bg-rose-100 text-rose-900 border-rose-300'
+                            : 'bg-amber-100 text-amber-900 border-amber-300'
+                        }`}>
+                          {(item.offlineType || 'offline') === 'forbidden' ? '403 Forbidden' : '503 Offline'}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-300">
+                        <button
+                          type="button"
+                          onClick={() => setSublinkOfflineType(key, 'offline')}
+                          className={`py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                            (item.offlineType || 'offline') === 'offline'
+                              ? 'bg-amber-300 text-amber-950 border border-amber-500 shadow-[1px_1px_0px_#111111]'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+                          Service Offline
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSublinkOfflineType(key, 'forbidden')}
+                          className={`py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                            item.offlineType === 'forbidden'
+                              ? 'bg-rose-500 text-white border border-rose-700 shadow-[1px_1px_0px_#111111]'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                          Access Forbidden
+                        </button>
+                      </div>
                     </div>
 
                     <div className="mt-3 pt-2.5 border-t border-slate-200 flex items-center justify-between text-[11px]">
