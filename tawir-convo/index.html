@@ -354,8 +354,8 @@
     }
     .opening-env-chips {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
     }
     .opening-env-chip {
       display: flex;
@@ -379,20 +379,25 @@
     .opening-env-chip.active {
       color: #ffffff;
     }
+    .opening-env-chip#openingChipV7.active {
+      background: rgba(14, 165, 233, 0.16);
+      border-color: var(--cyan-accent);
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.28);
+    }
     .opening-env-chip#openingChipDev.active {
       background: rgba(16, 185, 129, 0.14);
       border-color: var(--emerald-accent);
       box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
     }
     .opening-env-chip#openingChipProd.active {
-      background: rgba(14, 165, 233, 0.14);
-      border-color: var(--cyan-accent);
-      box-shadow: 0 0 10px rgba(14, 165, 233, 0.25);
-    }
-    .opening-env-chip#openingChipLegacy.active {
       background: rgba(245, 158, 11, 0.14);
       border-color: var(--amber-accent);
       box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+    }
+    .opening-env-chip#openingChipLegacy.active {
+      background: rgba(244, 63, 94, 0.14);
+      border-color: var(--rose-accent);
+      box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);
     }
     .opening-chip-top {
       display: flex;
@@ -1549,13 +1554,17 @@
       <div class="env-tracker-bar" id="topbarEnvTracker" role="radiogroup" aria-label="Tracking Environment Target">
         <span class="env-tracker-title">TRACKING:</span>
         <div class="env-tracker-pills">
+          <button type="button" class="env-pill-btn active" id="pillEnvV7" onclick="selectPresetEndpoint('v7')" title="Track Tawir-v7 (v7 production backend)">
+            <span class="env-pill-dot"></span>
+            <span class="env-pill-name">Tawir-v7</span>
+          </button>
           <button type="button" class="env-pill-btn" id="pillEnvDev" onclick="selectPresetEndpoint('v6')" title="Track Tawir-DEV (v6 backend)">
             <span class="env-pill-dot"></span>
             <span class="env-pill-name">Tawir-DEV</span>
           </button>
-          <button type="button" class="env-pill-btn active" id="pillEnvProd" onclick="selectPresetEndpoint('exa')" title="Track Tawir (v5 backend)">
+          <button type="button" class="env-pill-btn" id="pillEnvProd" onclick="selectPresetEndpoint('exa')" title="Track Tawir-v5 (v5 backend)">
             <span class="env-pill-dot"></span>
-            <span class="env-pill-name">Tawir</span>
+            <span class="env-pill-name">Tawir-v5</span>
           </button>
           <button type="button" class="env-pill-btn" id="pillEnvLegacy" onclick="selectPresetEndpoint('tavily')" title="Track Tawir-Legacy (v3 legacy backend)">
             <span class="env-pill-dot"></span>
@@ -1811,6 +1820,13 @@
           Select Backend to Track
         </div>
         <div class="opening-env-chips">
+          <button type="button" class="opening-env-chip active" id="openingChipV7" onclick="selectPresetEndpoint('v7')">
+            <div class="opening-chip-top">
+              <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">verified</span>
+              <span class="opening-chip-label">Tawir-v7</span>
+            </div>
+            <span class="opening-chip-meta">v7 production</span>
+          </button>
           <button type="button" class="opening-env-chip" id="openingChipDev" onclick="selectPresetEndpoint('v6')">
             <div class="opening-chip-top">
               <span class="material-symbols-rounded icon-xs" style="color: var(--emerald-accent);">bolt</span>
@@ -1818,16 +1834,16 @@
             </div>
             <span class="opening-chip-meta">v6 backend</span>
           </button>
-          <button type="button" class="opening-env-chip active" id="openingChipProd" onclick="selectPresetEndpoint('exa')">
+          <button type="button" class="opening-env-chip" id="openingChipProd" onclick="selectPresetEndpoint('exa')">
             <div class="opening-chip-top">
-              <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">verified</span>
-              <span class="opening-chip-label">Tawir</span>
+              <span class="material-symbols-rounded icon-xs" style="color: var(--amber-accent);">history</span>
+              <span class="opening-chip-label">Tawir-v5</span>
             </div>
             <span class="opening-chip-meta">v5 backend</span>
           </button>
           <button type="button" class="opening-env-chip" id="openingChipLegacy" onclick="selectPresetEndpoint('tavily')">
             <div class="opening-chip-top">
-              <span class="material-symbols-rounded icon-xs" style="color: var(--amber-accent);">history</span>
+              <span class="material-symbols-rounded icon-xs" style="color: var(--rose-accent);">archive</span>
               <span class="opening-chip-label">Tawir-Legacy</span>
             </div>
             <span class="opening-chip-meta">v3 legacy backend</span>
@@ -1886,27 +1902,35 @@
 
       <div style="display: flex; flex-direction: column; gap: 6px;">
         <label style="font-size: 12px; font-weight: 600; color: var(--text-secondary);">Modal Server Base URL</label>
-        <input type="text" id="configUrlInput" class="search-input-field" style="height: 40px; padding-left: 12px; font-family: var(--font-mono); font-size: 12px;" placeholder="https://iamk1ruu--tawir-agent-exa.modal.run">
+        <input type="text" id="configUrlInput" class="search-input-field" style="height: 40px; padding-left: 12px; font-family: var(--font-mono); font-size: 12px;" placeholder="https://iamk1ruu--tawir-v7.modal.run">
         <span style="font-size: 11.5px; color: var(--text-dim);">Live API server hosting /conversations and /health.</span>
       </div>
 
       <!-- Quick Switch Presets -->
       <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 10px;">
         <span style="font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;">Quick Presets</span>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-          <button class="btn" type="button" onclick="selectPresetEndpoint('v6')" id="btnPresetV6" style="justify-content: flex-start; padding: 7px 8px; font-size: 11px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px;">
+          <button class="btn btn-primary" type="button" onclick="selectPresetEndpoint('v7')" id="btnPresetV7" style="justify-content: flex-start; padding: 7px 6px; font-size: 11px;">
+            <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">verified</span>
+            <span>Tawir-v7</span>
+          </button>
+          <button class="btn" type="button" onclick="selectPresetEndpoint('v6')" id="btnPresetV6" style="justify-content: flex-start; padding: 7px 6px; font-size: 11px;">
             <span class="material-symbols-rounded icon-xs" style="color: var(--emerald-accent);">bolt</span>
             <span>Tawir-DEV</span>
           </button>
-          <button class="btn" type="button" onclick="selectPresetEndpoint('exa')" id="btnPresetExa" style="justify-content: flex-start; padding: 7px 8px; font-size: 11px;">
-            <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">verified</span>
-            <span>Tawir</span>
-          </button>
-          <button class="btn" type="button" onclick="selectPresetEndpoint('tavily')" id="btnPresetTavily" style="justify-content: flex-start; padding: 7px 8px; font-size: 11px;">
+          <button class="btn" type="button" onclick="selectPresetEndpoint('exa')" id="btnPresetExa" style="justify-content: flex-start; padding: 7px 6px; font-size: 11px;">
             <span class="material-symbols-rounded icon-xs" style="color: var(--amber-accent);">history</span>
+            <span>Tawir-v5</span>
+          </button>
+          <button class="btn" type="button" onclick="selectPresetEndpoint('tavily')" id="btnPresetTavily" style="justify-content: flex-start; padding: 7px 6px; font-size: 11px;">
+            <span class="material-symbols-rounded icon-xs" style="color: var(--rose-accent);">archive</span>
             <span>Tawir-Legacy</span>
           </button>
         </div>
+        <button class="btn" type="button" onclick="autoDetectBackend(true)" style="margin-top: 6px; width: 100%; justify-content: center; font-size: 11.5px; border-color: rgba(14, 165, 233, 0.4);">
+          <span class="material-symbols-rounded icon-xs" style="color: var(--cyan-accent);">radar</span>
+          <span>Auto-Detect Live Backend</span>
+        </button>
       </div>
 
       <!-- Test Ping Result Banner -->
@@ -1969,21 +1993,23 @@
     // =========================================================================
     // Core Admin State & Authentication
     // Presets:
+    // - Tawir-v7: v7 production backend
     // - Tawir-DEV: v6 backend
-    // - Tawir: v5 backend
+    // - Tawir-v5: v5 backend
     // - Tawir-Legacy: v3 legacy backend
     // =========================================================================
+    const V7_SERVER_URL = "https://iamk1ruu--tawir-v7.modal.run";
     const V6_STAGING_SERVER_URL = "https://iamk1ruu--tawir-agent-v6-staging.modal.run";
     const EXA_SERVER_URL = "https://iamk1ruu--tawir-agent-exa.modal.run";
     const TAVILY_SERVER_URL = "https://iamk1ruu--tawir-agent.modal.run";
-    const DEFAULT_SERVER_URL = EXA_SERVER_URL;
+    const DEFAULT_SERVER_URL = V7_SERVER_URL;
     const AUTH_SALT = "mablin_tawir_salt_2026_convo";
     const AUTH_HASH = "a3532e563208ec968c4b0ec59770ca08000abbe8ec4a1cd36cfa36b285e541d6";
     const AUTH_KEY = "tawir_convo_auth_session";
     const STORAGE_KEY_LOGS = "tawir_admin_audit_logs_v5";
 
     let storedUrl = localStorage.getItem("tawir_convo_server_url");
-    if (!storedUrl) {
+    if (!storedUrl || storedUrl === EXA_SERVER_URL) {
       storedUrl = DEFAULT_SERVER_URL;
       localStorage.setItem("tawir_convo_server_url", storedUrl);
     }
@@ -1998,9 +2024,10 @@
     let isSpeaking = false;
 
     function getActiveEnvName(url = serverUrl) {
-      if (!url) return "Tawir";
+      if (!url) return "Tawir-v7";
+      if (url.includes("-v7")) return "Tawir-v7";
       if (url.includes("v6-staging") || url.includes("v6")) return "Tawir-DEV";
-      if (url.includes("-exa")) return "Tawir";
+      if (url.includes("-exa")) return "Tawir-v5";
       return "Tawir-Legacy";
     }
 
@@ -2012,32 +2039,40 @@
       if (subEl) subEl.textContent = env;
 
       // Topbar environment tracking pill buttons
+      const pillV7 = document.getElementById("pillEnvV7");
       const pillDev = document.getElementById("pillEnvDev");
       const pillProd = document.getElementById("pillEnvProd");
       const pillLegacy = document.getElementById("pillEnvLegacy");
+      if (pillV7) pillV7.classList.toggle("active", env === "Tawir-v7");
       if (pillDev) pillDev.classList.toggle("active", env === "Tawir-DEV");
-      if (pillProd) pillProd.classList.toggle("active", env === "Tawir");
+      if (pillProd) pillProd.classList.toggle("active", env === "Tawir-v5");
       if (pillLegacy) pillLegacy.classList.toggle("active", env === "Tawir-Legacy");
 
       // Opening screen environment selection chips
+      const openV7 = document.getElementById("openingChipV7");
       const openDev = document.getElementById("openingChipDev");
       const openProd = document.getElementById("openingChipProd");
       const openLegacy = document.getElementById("openingChipLegacy");
+      if (openV7) openV7.classList.toggle("active", env === "Tawir-v7");
       if (openDev) openDev.classList.toggle("active", env === "Tawir-DEV");
-      if (openProd) openProd.classList.toggle("active", env === "Tawir");
+      if (openProd) openProd.classList.toggle("active", env === "Tawir-v5");
       if (openLegacy) openLegacy.classList.toggle("active", env === "Tawir-Legacy");
 
       // Config modal preset buttons
+      const btnV7 = document.getElementById("btnPresetV7");
       const btnDev = document.getElementById("btnPresetV6");
       const btnProd = document.getElementById("btnPresetExa");
       const btnLegacy = document.getElementById("btnPresetTavily");
+      if (btnV7) btnV7.classList.toggle("btn-primary", env === "Tawir-v7");
       if (btnDev) btnDev.classList.toggle("btn-primary", env === "Tawir-DEV");
-      if (btnProd) btnProd.classList.toggle("btn-primary", env === "Tawir");
+      if (btnProd) btnProd.classList.toggle("btn-primary", env === "Tawir-v5");
       if (btnLegacy) btnLegacy.classList.toggle("btn-primary", env === "Tawir-Legacy");
     }
 
     function setTrackedBackend(preset) {
-      if (preset === 'v6') {
+      if (preset === 'v7') {
+        serverUrl = V7_SERVER_URL;
+      } else if (preset === 'v6') {
         serverUrl = V6_STAGING_SERVER_URL;
       } else if (preset === 'exa') {
         serverUrl = EXA_SERVER_URL;
@@ -2054,6 +2089,43 @@
       if (isBooted) {
         fetchServerLogs(false);
       }
+    }
+
+    async function autoDetectBackend(forceToast = false) {
+      const candidates = [
+        { name: "Tawir-v7", url: V7_SERVER_URL, preset: "v7" },
+        { name: "Tawir-DEV", url: V6_STAGING_SERVER_URL, preset: "v6" },
+        { name: "Tawir-v5", url: EXA_SERVER_URL, preset: "exa" },
+        { name: "Tawir-Legacy", url: TAVILY_SERVER_URL, preset: "tavily" }
+      ];
+
+      for (const cand of candidates) {
+        try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 3500);
+          const res = await fetch(`${cand.url}/health`, { cache: "no-store", signal: ctrl.signal });
+          clearTimeout(timer);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.status === "online" || res.status === 200) {
+              serverUrl = cand.url;
+              localStorage.setItem("tawir_convo_server_url", serverUrl);
+              const input = document.getElementById("configUrlInput");
+              if (input) input.value = serverUrl;
+              updateActiveEnvUI();
+              if (forceToast) {
+                showAdminToast(`Auto-detected: ${cand.name} (${data.version || 'online'})`);
+              }
+              if (isBooted) {
+                fetchServerLogs(false);
+              }
+              return cand;
+            }
+          }
+        } catch (_) {}
+      }
+      if (forceToast) showAdminToast("Auto-detect: No live backend responded");
+      return null;
     }
 
     // Sync Loading Screen Helpers
@@ -2306,7 +2378,7 @@
 
         // Auto-fallback resolution: if 404, probe alternative backend endpoint
         if (!res.ok && res.status === 404) {
-          const fallbackCandidates = [V6_STAGING_SERVER_URL, EXA_SERVER_URL, TAVILY_SERVER_URL].filter(u => u !== serverUrl);
+          const fallbackCandidates = [V7_SERVER_URL, V6_STAGING_SERVER_URL, EXA_SERVER_URL, TAVILY_SERVER_URL].filter(u => u !== serverUrl);
           for (const fallbackUrl of fallbackCandidates) {
             try {
               const fallbackRes = await fetch(`${fallbackUrl.replace(/\/+$/, '')}/conversations`, { cache: "no-store" });
@@ -2339,7 +2411,7 @@
         }
       } catch (err) {
         // Fallback on network/CORS error
-        const fallbackCandidates = [V6_STAGING_SERVER_URL, EXA_SERVER_URL, TAVILY_SERVER_URL].filter(u => u !== serverUrl);
+        const fallbackCandidates = [V7_SERVER_URL, V6_STAGING_SERVER_URL, EXA_SERVER_URL, TAVILY_SERVER_URL].filter(u => u !== serverUrl);
         let recovered = false;
         for (const fallbackUrl of fallbackCandidates) {
           try {
@@ -3344,7 +3416,7 @@
       document.getElementById("configUrlInput").value = DEFAULT_SERVER_URL;
       updateActiveEnvUI();
       closeConfigModal();
-      showAdminToast("Reset to default Tawir backend");
+      showAdminToast("Reset to default Tawir-v7 backend");
       fetchServerLogs(false);
     }
 
