@@ -103,6 +103,14 @@
       "enabled": true,
       "offlineType": "offline",
       "message": "Vibe video calling is temporarily offline."
+    },
+    "vl-assist": {
+      "name": "VL Assist (Vision-Language Assistant)",
+      "path": "/vl-assist",
+      "category": "AI Assistant",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "VL Assist visual assistant is currently offline."
     }
   }
 }
