@@ -91431,7 +91431,7 @@ p=A.cY("TAWIR",m,m,m,A.cJ(m,m,k?B.dA:B.bw,m,m,m,m,m,m,m,m,34,m,m,B.kM,m,1,!0,m,9
 o=t.p
 return A.aGV(B.nv,A.k1(B.aD,A.hU(B.bY,A.b([B.mC,h,A.qS(!0,A.fL(A.jR(A.b([new A.CW(i,B.C,j,j/1.3473684210526315,m),s,new A.c5(r,!1,A.hu(q,new A.arJ(n),A.jR(A.b([p,B.QU,new A.c9(B.FR,A.cY("A Conversational Agent for Pangasinan Language Preservation",m,m,m,A.cJ(m,m,k?B.c2:B.c3,m,m,m,m,m,m,m,m,12,m,m,B.a_,m,1.45,!0,m,0.8,m,m,m,m,m,m),B.cg,m),m)],o),B.Z,B.T,B.ak)),m)],o),B.Z,B.T,B.bU),m,m,m),B.ac,!0),A.aeL(28,new A.c5(r,!1,A.cY("PANGASINAN",m,m,m,A.cJ(m,m,B.j.dW(0.2),m,m,m,m,m,m,m,m,7,m,m,B.c6,m,m,!0,m,3.5,m,m,m,m,m,m),B.cg,m),m),m,m,0,0,m,m)],o),B.H,B.A_),B.ap,!1,m,m,m,m,m,m,m,m,m,m,m,m,m,m,i,m,m,m,m,m,m),m,m)}}
 A.arH.prototype={
-$1(a){var s=null,r=A.a2(a).ax.a===B.a5,q=r?B.Dm:B.j,p=A.cr(16),o=r?B.dD:B.cX,n=A.cY('Si Tawir et walay balon backend architecture to, kayan nayarin wala ni "bugs" to.\n\nSay panagusar yo et makatulog pian napabali-bali so response ya model.',s,s,s,A.cJ(s,s,r?B.cX:B.dD,s,s,s,s,s,"Poppins",s,s,14,s,s,B.p,s,1.5,!0,s,s,s,s,s,s,s,s),s,s),m=r?B.eC:B.dB
+$1(a){var s=null,r=A.a2(a).ax.a===B.a5,q=r?B.Dm:B.j,p=A.cr(16),o=r?B.dD:B.cX,n=A.cY('Si Tawir et walay balon backend architecture to, kayan nayarin wala ni "bugs" to.\n\nSay panagusar yo et makatulong pian napabali-bali so response ya model.',s,s,s,A.cJ(s,s,r?B.cX:B.dD,s,s,s,s,s,"Poppins",s,s,14,s,s,B.p,s,1.5,!0,s,s,s,s,s,s,s,s),s,s),m=r?B.eC:B.dB
 return A.azo(A.b([A.aEE(B.WC,new A.arG(this.a,a),A.aEF(s,s,m,s,s,s,s,s,s,B.j,s,s,s,s,new A.bW(A.cr(10),B.n),s,s,s,s,s))],t.p),q,n,new A.bW(p,new A.aP(o,1,B.r,-1)),s)},
 $S:212}
 A.arG.prototype={
