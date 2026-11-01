@@ -37,7 +37,8 @@ All models are formatted in **glTF 2.0 Binary (`.glb`)** with embedded PBR mater
 
 | Model | File Path | File Size | Triangles | Vertices | Bounding Dimensions (W×H×D) | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Purple Flower Bouquet** | [`assets/bouquet/purple_flower_bouquet.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/bouquet/purple_flower_bouquet.glb) | `22.5 MB` | `52,109` | `45,415` | `0.27 × 0.72 × 0.24 m` | Pre-assembled 24-flower hand-tied bouquet featuring purple roses, irises, eustomas, and tulips in radiating rings, bound with a satin ribbon. |
+| **Wrapped Purple Flower Bouquet** | [`assets/bouquet/purple_wrapped_bouquet.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/bouquet/purple_wrapped_bouquet.glb) | `22.6 MB` | `58,493` | `49,001` | `0.55 × 0.72 × 0.58 m` | Deluxe 24-stem floral bouquet wrapped in multi-layered royal purple florist paper, pastel lavender lining, and satin ribbon bow. |
+| **Hand-Tied Purple Bouquet** | [`assets/bouquet/purple_flower_bouquet.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/bouquet/purple_flower_bouquet.glb) | `22.5 MB` | `52,109` | `45,415` | `0.27 × 0.72 × 0.24 m` | Pre-assembled 24-flower hand-tied bouquet featuring purple roses, irises, eustomas, and tulips in radiating rings, bound with a satin ribbon. |
 | **Glass Vase Purple Bouquet** | [`assets/bouquet/glass_vase_purple_flowers.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/bouquet/glass_vase_purple_flowers.glb) | `1.82 MB` | `10,218` | `5,989` | `0.10 × 0.20 × 0.22 m` | Bouquet in a transparent glass vase demonstrating PBR `KHR_materials_transmission` and optical volume. |
 
 ### 2. Individual Flowers
