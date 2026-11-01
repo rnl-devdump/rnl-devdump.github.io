@@ -1,6 +1,6 @@
 # 3D Purple Flower & Bouquet Assets for Web Rendering
 
-A curated, production-ready collection of **9 high-quality 3D assets** in binary glTF format (`.glb`), featuring **individual purple flower species** and **complete bouquets**, optimized specifically for real-time web rendering in **Three.js**, **React Three Fiber (R3F)**, **Babylon.js**, and Google **`<model-viewer>`**.
+A curated, production-ready collection of **12 high-quality 3D purple flower assets** in binary glTF format (`.glb`), featuring **individual purple botanical species** (water lilies, wild orchids, garden roses, faceted low-poly roses, Dutch tulips, irises, lavender, and coneflowers) and **complete bouquets**, optimized specifically for real-time web rendering in **Three.js**, **React Three Fiber (R3F)**, **Babylon.js**, and Google **`<model-viewer>`**.
 
 ---
 
@@ -10,7 +10,10 @@ A curated, production-ready collection of **9 high-quality 3D assets** in binary
 tulip/
 ├── assets/
 │   ├── individual/                        # Standalone purple flowers (standardized meter scale, base at Y=0)
-│   │   ├── purple_rose.glb                # Velvet purple garden rose (0.50m)
+│   │   ├── purple_water_lily.glb          # Water lily (Nymphaea) on lilypad (0.40m)
+│   │   ├── purple_orchid.glb              # Wild exotic purple orchid stem (0.48m)
+│   │   ├── purple_rose.glb                # High-detail velvet purple garden rose (0.50m)
+│   │   ├── lowpoly_purple_rose.glb        # Faceted low-poly purple rose (0.46m)
 │   │   ├── purple_iris.glb                # Siberian violet iris (0.70m)
 │   │   ├── purple_eustoma.glb             # Bell-shaped lisianthus / eustoma (0.50m)
 │   │   ├── purple_tulip.glb               # Royal purple Dutch tulip (0.55m)
@@ -21,17 +24,14 @@ tulip/
 │       ├── purple_flower_bouquet.glb      # Hand-tied 24-stem multi-species purple bouquet
 │       └── glass_vase_purple_flowers.glb  # Bouquet in transparent PBR refractive glass vase
 ├── index.html                             # Interactive 3D WebGL preview gallery & inspector
-├── serve.js                               # Lightweight local HTTP server with glTF MIME types
-├── build_bouquet.js                       # Node.js procedural bouquet assembly generator
-├── process_individual.js                  # Model normalization and tinting pipeline
-└── inspect_all.js                         # Asset inspection & polygon validation utility
+└── serve.js                               # Lightweight local HTTP server with glTF MIME types
 ```
 
 ---
 
 ## 🌸 3D Asset Catalog & Specifications
 
-All models are formatted in **glTF 2.0 Binary (`.glb`)** with embedded PBR materials (metallic/roughness), textures, normals, and sRGB color encoding.
+All models are formatted in **glTF 2.0 Binary (`.glb`)** with embedded PBR materials, textures, and sRGB color encoding.
 
 ### 1. Bouquets
 
@@ -44,7 +44,10 @@ All models are formatted in **glTF 2.0 Binary (`.glb`)** with embedded PBR mater
 
 | Flower Name | File Path | File Size | Triangles | Vertices | Dimensions (W×H×D) | Visual Characteristics |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Purple Rose** | [`assets/individual/purple_rose.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/individual/purple_rose.glb) | `2.99 MB` | `9,940` | `11,031` | `0.21 × 0.50 × 0.22 m` | Lush spiraling velvet purple petals with leafy stem, ideal for close-up inspection. |
+| **Purple Water Lily (Nymphaea)** | [`assets/individual/purple_water_lily.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/individual/purple_water_lily.glb) | `2.27 MB` | `728` | `1,604` | `0.40 × 0.12 × 0.38 m` | Floating water lily flower on a green lilypad tinted in gentle violet-purple petals. |
+| **Purple Orchid** | [`assets/individual/purple_orchid.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/individual/purple_orchid.glb) | `2.44 MB` | `3,497` | `7,478` | `0.22 × 0.48 × 0.24 m` | Wild exotic orchid stem with vibrant purple-violet petals and leafy base. |
+| **Velvet Purple Rose** | [`assets/individual/purple_rose.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/individual/purple_rose.glb) | `2.99 MB` | `9,940` | `11,031` | `0.21 × 0.50 × 0.22 m` | Lush spiraling velvet purple petals with leafy stem, ideal for close-up inspection. |
+| **Low-Poly Purple Rose** | [`assets/individual/lowpoly_purple_rose.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/individual/lowpoly_purple_rose.glb) | `200 KB` | `1,910` | `5,730` | `0.18 × 0.46 × 0.18 m` | Lightweight faceted low-poly rose with royal purple petals and green stem. |
 | **Purple Siberian Iris** | [`assets/individual/purple_iris.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/individual/purple_iris.glb) | `8.28 MB` | `9,808` | `9,314` | `0.27 × 0.70 × 0.24 m` | Vivid royal purple blossom with ruffled standards, drooping falls, and tall upright stem. |
 | **Purple Eustoma (Lisianthus)** | [`assets/individual/purple_eustoma.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/individual/purple_eustoma.glb) | `8.88 MB` | `29,314` | `22,243` | `0.19 × 0.50 × 0.21 m` | Bell-shaped delicate petals in rich royal purple, smooth natural shading. |
 | **Purple Dutch Tulip** | [`assets/individual/purple_tulip.glb`](file:///c:/Users/Neil/Desktop/tulip/assets/individual/purple_tulip.glb) | `2.32 MB` | `2,999` | `2,777` | `0.15 × 0.55 × 0.15 m` | Classic cup-shaped blossom tinted in deep purple with upright stem. |
@@ -54,136 +57,16 @@ All models are formatted in **glTF 2.0 Binary (`.glb`)** with embedded PBR mater
 
 ---
 
-## 🚀 Live Interactive 3D Web Viewer
+## 🚀 Live Deployment
 
-An interactive WebGL showcase application is included in [`index.html`](file:///c:/Users/Neil/Desktop/tulip/index.html).
-
-### Starting the Local Server
-
-```powershell
-node serve.js
-```
-Then navigate to: **`http://localhost:3000/`** in any modern web browser.
-
-### Features
-- **Real-time 3D Viewport**: Orbit, zoom, and pan controls via Three.js `OrbitControls`.
-- **Auto-Rotation & Wireframe**: One-click toggles for auto-spinning and topology inspection.
-- **Lighting & Tone Control**: Switch between dark studio mode and bright natural lighting.
-- **Dynamic Stats Inspector**: Live readouts for triangle count, vertex count, bounding box, and file size.
-- **Direct GLB Download**: One-click download buttons for each asset.
-- **Code Snippet Generator**: Copy-paste integration snippets for Three.js, React Three Fiber, and `<model-viewer>`.
-
----
-
-## 💻 Web Integration Code Examples
-
-### 1. Three.js (Vanilla JavaScript)
-
-```javascript
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-
-// Setup Scene, Camera, Renderer
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0.6, 0.5, 0.9);
-
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-document.body.appendChild(renderer.domElement);
-
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-// Lighting
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444455, 0.8);
-scene.add(hemiLight);
-
-const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-dirLight.position.set(2, 4, 2);
-scene.add(dirLight);
-
-// Load 3D Purple Flower Bouquet
-const loader = new GLTFLoader();
-loader.load('assets/bouquet/purple_flower_bouquet.glb', (gltf) => {
-    const bouquet = gltf.scene;
-    bouquet.position.set(0, 0, 0);
-    scene.add(bouquet);
-});
-
-// Render Loop
-function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-}
-animate();
-```
-
----
-
-### 2. React Three Fiber (R3F)
-
-```tsx
-import React, { Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
-
-function PurpleBouquet(props) {
-  const { scene } = useGLTF('/assets/bouquet/purple_flower_bouquet.glb');
-  return <primitive object={scene} {...props} />;
-}
-
-export default function FlowerScene() {
-  return (
-    <Canvas camera={{ position: [0.6, 0.5, 0.9], fov: 45 }}>
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[3, 5, 2]} intensity={1.2} />
-      <Suspense fallback={null}>
-        <PurpleBouquet position={[0, -0.2, 0]} />
-        <Environment preset="city" />
-      </Suspense>
-      <OrbitControls autoRotate autoRotateSpeed={1.5} />
-    </Canvas>
-  );
-}
-
-useGLTF.preload('/assets/bouquet/purple_flower_bouquet.glb');
-```
-
----
-
-### 3. Google `<model-viewer>` (HTML Web Component)
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-</head>
-<body>
-  <!-- 3D Flower Bouquet Viewer -->
-  <model-viewer
-    src="assets/bouquet/purple_flower_bouquet.glb"
-    alt="3D Purple Flower Bouquet"
-    auto-rotate
-    camera-controls
-    shadow-intensity="1"
-    exposure="1.1"
-    style="width: 100vw; height: 100vh; background: #12131a;"
-  ></model-viewer>
-</body>
-</html>
-```
+The gallery is live at:
+👉 **[https://kiruu.xyz/dev/bouquet/](https://kiruu.xyz/dev/bouquet/)**
 
 ---
 
 ## 📜 Licenses & Attribution
 
-- **Glass Vase with Flowers**: The Khronos Group glTF Sample Assets ([CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)). Models by Rico Cilliers (Flowers) and Eric Chadwick (Vase).
-- **Stylized Blossom**: Kenney ([CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)), Nature Pack. Modified by Don McCurdy.
-- **Roses, Irises, Eustomas, Tulips**: Open source floral 3D models curated and arranged into standardized Y-up meter-scale glTF binary assets with PBR texturing.
-
+- **Water Lily & Orchid**: Poly by Google ([CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/)).
+- **Low-Poly Rose**: M Smith Jonn via Poly Pizza ([CC-BY 3.0](https://creativecommons.org/licenses/by/3.0/)).
+- **Glass Vase with Flowers**: The Khronos Group glTF Sample Assets ([CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)).
+- **Stylized Blossom**: Kenney ([CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/)).
