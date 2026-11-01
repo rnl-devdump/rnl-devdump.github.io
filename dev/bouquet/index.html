@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Purple Flowers & Bouquet — Web 3D Asset Showcase</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b0c10;
+            --bg-card: rgba(22, 24, 34, 0.78);
+            --bg-card-hover: rgba(35, 38, 54, 0.9);
+            --accent-purple: #9d4edd;
+            --accent-glow: rgba(157, 78, 221, 0.35);
+            --text-main: #f0f2f8;
+            --text-sub: #9499ad;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(157, 78, 221, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* 3D Canvas Area */
+        #canvas-container {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            background: radial-gradient(circle at 50% 40%, #1e172a 0%, #0b0c10 80%);
+        }
+
+        #three-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Floating Overlay Controls on Top Left */
+        .viewer-brand {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            padding: 10px 18px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .brand-badge {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-purple);
+            box-shadow: 0 0 12px var(--accent-purple);
+        }
+
+        .brand-title {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        /* Loading Spinner */
+        #loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            z-index: 30;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(157, 78, 221, 0.2);
+            border-top-color: var(--accent-purple);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 13px;
+            color: var(--text-sub);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Viewport Controls at Bottom Center */
+        .viewport-toolbar {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            padding: 6px 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .tool-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .tool-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .tool-btn.active {
+            color: #fff;
+            background: var(--accent-purple);
+            box-shadow: 0 0 14px var(--accent-glow);
+        }
+
+        /* Sidebar Asset Selector on Right */
+        #sidebar {
+            width: 380px;
+            height: 100%;
+            background: #10121a;
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 30;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-desc {
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.4;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            padding: 12px 20px 0;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px 0;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-sub);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-purple);
+            border-bottom-color: var(--accent-purple);
+        }
+
+        .asset-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .asset-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .asset-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+        }
+
+        .asset-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .asset-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .asset-card.active {
+            border-color: var(--border-active);
+            background: rgba(157, 78, 221, 0.12);
+            box-shadow: 0 4px 20px rgba(157, 78, 221, 0.15);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-badge {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--text-sub);
+        }
+
+        .card-desc {
+            font-size: 12px;
+            color: var(--text-sub);
+            line-height: 1.4;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 4px;
+            font-size: 11px;
+            color: var(--text-sub);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Asset Details / Inspector Panel */
+        .inspector-panel {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(11, 12, 16, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-main);
+            margin-top: 2px;
+        }
+
+        .actions-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: var(--accent-purple);
+            color: #fff;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            background: #b166f0;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        /* Modal for Code Snippets */
+        #code-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-box {
+            background: #141620;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 640px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+        }
+
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        pre {
+            background: #090a0f;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #d1d5db;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+
+        .copy-pill {
+            align-self: flex-end;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+
+        .copy-pill:hover {
+            background: var(--accent-purple);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 3D Canvas Area -->
+    <div id="canvas-container">
+        <div class="viewer-brand">
+            <div class="brand-badge"></div>
+            <div class="brand-title">Purple Floral 3D Gallery</div>
+        </div>
+
+        <div id="loader">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loader-text">Loading 3D asset...</div>
+        </div>
+
+        <div class="viewport-toolbar">
+            <button class="tool-btn active" id="btn-autorotate" title="Toggle Auto-Rotation">
+                🔄 Rotate
+            </button>
+            <button class="tool-btn" id="btn-wireframe" title="Toggle Wireframe">
+                🕸️ Wireframe
+            </button>
+            <button class="tool-btn" id="btn-reset" title="Reset Camera View">
+                🎯 Reset
+            </button>
+            <button class="tool-btn" id="btn-bg" title="Toggle Environment Lighting / Tone">
+                🌓 Tone
+            </button>
+        </div>
+
+        <canvas id="three-canvas"></canvas>
+    </div>
+
+    <!-- Sidebar Control Panel -->
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <h1 class="sidebar-title">Purple Flowers & Bouquets</h1>
+            <p class="sidebar-desc">Production-ready glTF/GLB 3D assets for WebGL, Three.js, R3F & Model-Viewer.</p>
+        </div>
+
+        <div class="sidebar-tabs">
+            <button class="tab-btn active" data-tab="all">All Models</button>
+            <button class="tab-btn" data-tab="bouquets">Bouquets</button>
+            <button class="tab-btn" data-tab="individuals">Individual</button>
+        </div>
+
+        <div class="asset-list" id="asset-list">
+            <!-- Populated by JavaScript -->
+        </div>
+
+        <div class="inspector-panel">
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Triangles</div>
+                    <div class="stat-value" id="stat-triangles">—</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Vertices</div>
+                    <div class="stat-value" id="stat-vertices">—</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Dimensions</div>
+                    <div class="stat-value" id="stat-dimensions">—</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">File Size</div>
+                    <div class="stat-value" id="stat-filesize">—</div>
+                </div>
+            </div>
+
+            <div class="actions-row">
+                <a class="btn-primary" id="btn-download" href="#" download>
+                    ⬇️ Download GLB
+                </a>
+                <button class="btn-secondary" id="btn-code">
+                    💻 Code Snippet
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Snippet Modal -->
+    <div id="code-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="code-modal-title">Web Integration Code</div>
+                <button class="modal-close" id="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h4 style="font-size:13px; margin-bottom:6px; color:var(--text-sub);">Three.js (Vanilla JS)</h4>
+                    <pre id="code-threejs"></pre>
+                    <button class="copy-pill" onclick="copySnippet('code-threejs')">Copy</button>
+                </div>
+                <div>
+                    <h4 style="font-size:13px; margin-bottom:6px; color:var(--text-sub);">React Three Fiber (@react-three/drei)</h4>
+                    <pre id="code-r3f"></pre>
+                    <button class="copy-pill" onclick="copySnippet('code-r3f')">Copy</button>
+                </div>
+                <div>
+                    <h4 style="font-size:13px; margin-bottom:6px; color:var(--text-sub);">Google &lt;model-viewer&gt; (HTML Web Component)</h4>
+                    <pre id="code-mv"></pre>
+                    <button class="copy-pill" onclick="copySnippet('code-mv')">Copy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js + OrbitControls + GLTFLoader CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <script>
+        // Assets Catalog Data
+        const ASSETS = [
+            {
+                id: 'purple_flower_bouquet',
+                name: 'Purple Flower Bouquet',
+                category: 'bouquets',
+                emoji: '💐',
+                file: 'assets/bouquet/purple_flower_bouquet.glb',
+                size: '22.5 MB',
+                desc: '24-stem hand-tied bouquet combining purple roses, irises, eustomas, and tulips bound with a satin ribbon.',
+                triangles: '52,109',
+                vertices: '45,415',
+                dimensions: '0.27 × 0.72 × 0.24 m'
+            },
+            {
+                id: 'glass_vase_purple_flowers',
+                name: 'Glass Vase Bouquet',
+                category: 'bouquets',
+                emoji: '🏺',
+                file: 'assets/bouquet/glass_vase_purple_flowers.glb',
+                size: '1.8 MB',
+                desc: 'Bouquet in a transparent glass vase showcasing PBR transmission, optical thickness, and refraction.',
+                triangles: '10,218',
+                vertices: '5,989',
+                dimensions: '0.10 × 0.20 × 0.22 m'
+            },
+            {
+                id: 'purple_rose',
+                name: 'Purple Rose',
+                category: 'individuals',
+                emoji: '🌹',
+                file: 'assets/individual/purple_rose.glb',
+                size: '2.99 MB',
+                desc: 'High-detail velvet purple rose with spiraling petals, leaves, and realistic stem.',
+                triangles: '9,940',
+                vertices: '11,031',
+                dimensions: '0.21 × 0.50 × 0.22 m'
+            },
+            {
+                id: 'purple_iris',
+                name: 'Purple Siberian Iris',
+                category: 'individuals',
+                emoji: '🪻',
+                file: 'assets/individual/purple_iris.glb',
+                size: '8.28 MB',
+                desc: 'Deep violet iris blossom with botanical ruffled falls, standards, and upright stem.',
+                triangles: '9,808',
+                vertices: '9,314',
+                dimensions: '0.27 × 0.70 × 0.24 m'
+            },
+            {
+                id: 'purple_eustoma',
+                name: 'Purple Eustoma (Lisianthus)',
+                category: 'individuals',
+                emoji: '🌸',
+                file: 'assets/individual/purple_eustoma.glb',
+                size: '8.88 MB',
+                desc: 'Elegant purple bell-shaped blossom with lush layered petals and slender stem.',
+                triangles: '29,314',
+                vertices: '22,243',
+                dimensions: '0.19 × 0.50 × 0.21 m'
+            },
+            {
+                id: 'purple_tulip',
+                name: 'Purple Dutch Tulip',
+                category: 'individuals',
+                emoji: '🌷',
+                file: 'assets/individual/purple_tulip.glb',
+                size: '2.32 MB',
+                desc: 'Classic cup-shaped Dutch tulip tinted in rich royal purple with smooth waxy petals.',
+                triangles: '2,999',
+                vertices: '2,777',
+                dimensions: '0.15 × 0.55 × 0.15 m'
+            },
+            {
+                id: 'lavender',
+                name: 'French Lavender',
+                category: 'individuals',
+                emoji: '🌿',
+                file: 'assets/individual/lavender.glb',
+                size: '9.42 MB',
+                desc: 'Botanical French lavender stem clustered with soft purple florets and slender foliage.',
+                triangles: '63,984',
+                vertices: '130,288',
+                dimensions: '0.45 × 0.56 × 0.38 m'
+            },
+            {
+                id: 'purple_echinacea',
+                name: 'Purple Coneflower (Echinacea)',
+                category: 'individuals',
+                emoji: '🌼',
+                file: 'assets/individual/purple_echinacea.glb',
+                size: '10.8 MB',
+                desc: 'Botanical echinacea with a spiky orange-brown central cone and drooping purple ray petals.',
+                triangles: '14,554',
+                vertices: '12,878',
+                dimensions: '0.64 × 0.78 × 0.71 m'
+            },
+            {
+                id: 'stylized_purple_blossom',
+                name: 'Stylized Low-Poly Blossom',
+                category: 'individuals',
+                emoji: '✨',
+                file: 'assets/individual/stylized_purple_blossom.glb',
+                size: '4.8 KB',
+                desc: 'Ultra-lightweight low-poly blossom (Kenney CC0) optimized for mobile and web games.',
+                triangles: '80',
+                vertices: '218',
+                dimensions: '0.12 × 0.11 × 0.17 m'
+            }
+        ];
+
+        let currentAsset = ASSETS[0];
+        let currentModel = null;
+        let autoRotate = true;
+        let wireframeMode = false;
+        let darkTone = true;
+
+        // Three.js Scene Setup
+        const container = document.getElementById('canvas-container');
+        const canvas = document.getElementById('three-canvas');
+
+        const scene = new THREE.Scene();
+
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.05, 50);
+        camera.position.set(0.6, 0.5, 0.9);
+
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.15;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxDistance = 10;
+        controls.minDistance = 0.2;
+        controls.target.set(0, 0.3, 0);
+
+        // Lighting Rig
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x222233, 0.8);
+        scene.add(hemiLight);
+
+        const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        keyLight.position.set(2, 3, 2);
+        keyLight.castShadow = true;
+        keyLight.shadow.mapSize.width = 1024;
+        keyLight.shadow.mapSize.height = 1024;
+        scene.add(keyLight);
+
+        const fillLight = new THREE.DirectionalLight(0xd4b8ff, 0.6); // Soft lavender fill
+        fillLight.position.set(-2, 1, -1);
+        scene.add(fillLight);
+
+        const rimLight = new THREE.DirectionalLight(0xb388ff, 0.7); // Purple rim
+        rimLight.position.set(0, -2, -2);
+        scene.add(rimLight);
+
+        // Subtle Shadow Receiver Floor
+        const shadowPlaneGeo = new THREE.PlaneGeometry(5, 5);
+        const shadowPlaneMat = new THREE.ShadowMaterial({ opacity: 0.25 });
+        const shadowPlane = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat);
+        shadowPlane.rotation.x = -Math.PI / 2;
+        shadowPlane.position.y = 0;
+        shadowPlane.receiveShadow = true;
+        scene.add(shadowPlane);
+
+        // GLTF Loader
+        const loader = new THREE.GLTFLoader();
+        const loaderEl = document.getElementById('loader');
+        const loaderText = document.getElementById('loader-text');
+
+        function loadAsset(asset) {
+            currentAsset = asset;
+            loaderEl.style.opacity = '1';
+            loaderText.textContent = `Loading ${asset.name}...`;
+
+            // Update UI list active state
+            document.querySelectorAll('.asset-card').forEach(card => {
+                card.classList.toggle('active', card.dataset.id === asset.id);
+            });
+
+            // Update stats
+            document.getElementById('stat-triangles').textContent = asset.triangles;
+            document.getElementById('stat-vertices').textContent = asset.vertices;
+            document.getElementById('stat-dimensions').textContent = asset.dimensions;
+            document.getElementById('stat-filesize').textContent = asset.size;
+            document.getElementById('btn-download').href = asset.file;
+            document.getElementById('btn-download').setAttribute('download', asset.file.split('/').pop());
+
+            loader.load(
+                asset.file,
+                (gltf) => {
+                    if (currentModel) {
+                        scene.remove(currentModel);
+                    }
+
+                    currentModel = gltf.scene;
+
+                    // Compute bounding box and center
+                    const box = new THREE.Box3().setFromObject(currentModel);
+                    const size = box.getSize(new THREE.Vector3());
+                    const center = box.getCenter(new THREE.Vector3());
+
+                    // Center model so its base rests on the shadow floor (Y = 0)
+                    currentModel.position.x -= center.x;
+                    currentModel.position.z -= center.z;
+                    currentModel.position.y -= box.min.y;
+
+                    // Enable shadows
+                    currentModel.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            if (wireframeMode && child.material) {
+                                child.material.wireframe = true;
+                            }
+                        }
+                    });
+
+                    scene.add(currentModel);
+
+                    // Reposition camera to frame model nicely
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const fov = camera.fov * (Math.PI / 180);
+                    let cameraDist = Math.abs(maxDim / Math.sin(fov / 2)) * 0.75;
+                    cameraDist = Math.max(cameraDist, 0.6);
+
+                    controls.target.set(0, size.y * 0.45, 0);
+                    camera.position.set(cameraDist * 0.7, size.y * 0.6, cameraDist * 0.9);
+                    controls.update();
+
+                    loaderEl.style.opacity = '0';
+                },
+                (xhr) => {
+                    if (xhr.total > 0) {
+                        const pct = Math.round((xhr.loaded / xhr.total) * 100);
+                        loaderText.textContent = `Loading ${asset.name} (${pct}%)...`;
+                    }
+                },
+                (err) => {
+                    console.error(err);
+                    loaderText.textContent = `Error loading model`;
+                }
+            );
+        }
+
+        // Render Sidebar Cards
+        const assetListEl = document.getElementById('asset-list');
+
+        function renderAssetList(category = 'all') {
+            assetListEl.innerHTML = '';
+            const filtered = category === 'all' ? ASSETS : ASSETS.filter(a => a.category === category);
+
+            filtered.forEach(asset => {
+                const card = document.createElement('div');
+                card.className = `asset-card ${asset.id === currentAsset.id ? 'active' : ''}`;
+                card.dataset.id = asset.id;
+                card.innerHTML = `
+                    <div class="card-top">
+                        <div class="card-title">${asset.emoji} ${asset.name}</div>
+                        <div class="card-badge">${asset.size}</div>
+                    </div>
+                    <div class="card-desc">${asset.desc}</div>
+                    <div class="card-meta">
+                        <span>▲ ${asset.triangles} tris</span>
+                        <span>📏 ${asset.dimensions.split('×')[1] || ''}</span>
+                    </div>
+                `;
+                card.addEventListener('click', () => loadAsset(asset));
+                assetListEl.appendChild(card);
+            });
+        }
+
+        // Category Tab Buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderAssetList(btn.dataset.tab);
+            });
+        });
+
+        // Toolbar Buttons
+        const btnAutoRotate = document.getElementById('btn-autorotate');
+        btnAutoRotate.addEventListener('click', () => {
+            autoRotate = !autoRotate;
+            btnAutoRotate.classList.toggle('active', autoRotate);
+        });
+
+        const btnWireframe = document.getElementById('btn-wireframe');
+        btnWireframe.addEventListener('click', () => {
+            wireframeMode = !wireframeMode;
+            btnWireframe.classList.toggle('active', wireframeMode);
+            if (currentModel) {
+                currentModel.traverse((child) => {
+                    if (child.isMesh && child.material) {
+                        child.material.wireframe = wireframeMode;
+                    }
+                });
+            }
+        });
+
+        const btnReset = document.getElementById('btn-reset');
+        btnReset.addEventListener('click', () => {
+            if (currentAsset) loadAsset(currentAsset);
+        });
+
+        const btnBg = document.getElementById('btn-bg');
+        btnBg.addEventListener('click', () => {
+            darkTone = !darkTone;
+            btnBg.classList.toggle('active', !darkTone);
+            if (darkTone) {
+                container.style.background = 'radial-gradient(circle at 50% 40%, #1e172a 0%, #0b0c10 80%)';
+            } else {
+                container.style.background = 'radial-gradient(circle at 50% 40%, #e9e3f3 0%, #c4b9dc 80%)';
+            }
+        });
+
+        // Code Snippet Modal
+        const codeModal = document.getElementById('code-modal');
+        const btnCode = document.getElementById('btn-code');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        btnCode.addEventListener('click', () => {
+            document.getElementById('code-modal-title').textContent = `${currentAsset.name} — Web Code Snippets`;
+            
+            // Three.js code
+            document.getElementById('code-threejs').textContent = 
+`import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
+const loader = new GLTFLoader();
+loader.load('${currentAsset.file}', (gltf) => {
+  const flower = gltf.scene;
+  flower.position.set(0, 0, 0);
+  scene.add(flower);
+});`;
+
+            // R3F code
+            document.getElementById('code-r3f').textContent = 
+`import { useGLTF } from '@react-three/drei';
+
+export function PurpleFlower() {
+  const { scene } = useGLTF('${currentAsset.file}');
+  return <primitive object={scene} scale={1} />;
+}
+
+useGLTF.preload('${currentAsset.file}');`;
+
+            // Model Viewer code
+            document.getElementById('code-mv').textContent = 
+`<!-- Include Google Model-Viewer in your <head> -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+<!-- Render 3D Model -->
+<model-viewer
+  src="${currentAsset.file}"
+  alt="${currentAsset.name}"
+  auto-rotate
+  camera-controls
+  shadow-intensity="1"
+  style="width: 100%; height: 500px;"
+></model-viewer>`;
+
+            codeModal.style.display = 'flex';
+        });
+
+        modalCloseBtn.addEventListener('click', () => {
+            codeModal.style.display = 'none';
+        });
+
+        codeModal.addEventListener('click', (e) => {
+            if (e.target === codeModal) codeModal.style.display = 'none';
+        });
+
+        function copySnippet(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Code snippet copied to clipboard!');
+            });
+        }
+
+        // Window Resize Handling
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (autoRotate && currentModel) {
+                currentModel.rotation.y += 0.006;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Initialize
+        renderAssetList('all');
+        loadAsset(ASSETS[0]);
+        animate();
+    </script>
+</body>
+</html>
+
