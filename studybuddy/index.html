@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <!-- Frame-busting clickjacking defense for static hosts (GitHub Pages) -->
+  <script>
+    if (window.top !== window.self) {
+      window.top.location = window.self.location;
+    }
+  </script>
   <script src="/sublink-guard.js"></script>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -20,25 +26,28 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Upload your lecture notes, then chat with a grounded tutor, build flashcards, take quizzes, and track your progress.">
+  <meta name="description" content="Where knowledge is forged through learning. Upload lecture notes, chat with a grounded tutor, build flashcards, take quizzes, and track your progress.">
   <meta name="theme-color" content="#5146E5">
 
+  <!-- Content Security Policy for GitHub Pages -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com; connect-src 'self' https: wss: http://localhost:8000; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';">
+
   <!-- Open Graph -->
-  <meta property="og:title" content="StudyBuddy">
-  <meta property="og:description" content="A citation-grounded study companion. Upload notes, chat with a tutor, review flashcards, and track progress.">
+  <meta property="og:title" content="Anvil">
+  <meta property="og:description" content="Where knowledge is forged through learning. A citation-grounded study companion.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://rnl-devdump.github.io">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="StudyBuddy">
+  <meta name="apple-mobile-web-app-title" content="Anvil">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>StudyBuddy</title>
+  <title>Anvil</title>
   <link rel="manifest" href="manifest.json">
 
   <style>
@@ -73,16 +82,18 @@
 <body>
   <div class="loading" id="loading">
     <div class="loading-spinner"></div>
-    <span>Loading StudyBuddy…</span>
+    <span>Loading Anvil…</span>
   </div>
 
   <script>
-    // Restore path after 404.html SPA redirect
+    // Restore path after 404.html SPA redirect with boundary verification
     (function() {
       var params = new URLSearchParams(window.location.search);
       var redirect = params.get('p');
-      if (redirect) {
-        window.history.replaceState(null, '', decodeURIComponent(redirect));
+      if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
+        try {
+          window.history.replaceState(null, '', decodeURIComponent(redirect));
+        } catch (_) {}
       }
     })();
 

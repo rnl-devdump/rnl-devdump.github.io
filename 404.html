@@ -77,7 +77,12 @@
         }
 
         if (path.indexOf("/studybuddy") === 0) {
-          window.location.replace("/studybuddy/" + hash);
+          var studySub = path.substring("/studybuddy".length);
+          if (studySub && studySub !== "/") {
+            window.location.replace("/studybuddy/?p=" + encodeURIComponent(studySub + search + hash));
+            return;
+          }
+          window.location.replace("/studybuddy/" + search + hash);
           return;
         }
 

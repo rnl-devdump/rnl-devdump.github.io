@@ -1,11 +1,11 @@
 {
-    "name": "StudyBuddy",
-    "short_name": "StudyBuddy",
+    "name": "Anvil",
+    "short_name": "Anvil",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#F4EFE4",
     "theme_color": "#5146E5",
-    "description": "A citation-grounded study companion. Upload notes, chat with a tutor, review flashcards, and track progress.",
+    "description": "Where knowledge is forged through learning. A citation-grounded study companion.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

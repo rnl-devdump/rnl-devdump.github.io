@@ -2,16 +2,18 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>StudyBuddy</title>
+  <title>Anvil</title>
   <script>
-    // GitHub Pages SPA redirect: converts the path into a query parameter
-    // so index.html can restore it. This handles direct navigation and
-    // page refreshes on path-based routes.
-    var path = window.location.pathname;
-    var search = window.location.search;
-    var hash = window.location.hash;
-    window.location.replace(
-      window.location.origin + '/?p=' + encodeURIComponent(path + search + hash)
+    // GitHub Pages SPA redirect: preserves subpaths for repo-based deployments
+    // while redirecting cleanly on custom domains.
+    var l = window.location;
+    var pathSegments = l.pathname.split('/').filter(Boolean);
+    var isUserRepo = l.hostname.endsWith('github.io') && pathSegments.length > 0;
+    var repoPrefix = isUserRepo ? '/' + pathSegments[0] : '';
+    var redirectPath = isUserRepo ? '/' + pathSegments.slice(1).join('/') : l.pathname;
+
+    l.replace(
+      l.origin + repoPrefix + '/?p=' + encodeURIComponent(redirectPath + l.search + l.hash)
     );
   </script>
 </head>
