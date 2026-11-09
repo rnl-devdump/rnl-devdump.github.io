@@ -76,6 +76,11 @@
           return;
         }
 
+        if (path.indexOf("/studybuddy") === 0) {
+          window.location.replace("/studybuddy/" + hash);
+          return;
+        }
+
         // Default fallback route.
         window.location.replace("/dataset/");
       })();

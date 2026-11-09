@@ -111,6 +111,14 @@
       "enabled": true,
       "offlineType": "offline",
       "message": "VL Assist visual assistant is currently offline."
+    },
+    "studybuddy": {
+      "name": "StudyBuddy",
+      "path": "/studybuddy",
+      "category": "AI Assistant",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "StudyBuddy is temporarily offline."
     }
   }
 }
