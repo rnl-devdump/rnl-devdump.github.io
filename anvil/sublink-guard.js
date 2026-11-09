@@ -1,4 +1,9 @@
 (function() {
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host.endsWith('.local')) {
+    return;
+  }
+
   const currentPath = window.location.pathname.replace(/^\/|\/$/g, '');
   const rawSlug = currentPath.split('/')[0];
 
@@ -927,6 +932,16 @@
 
   function checkConfig(config, isCached) {
     if (!config) return;
+
+    // Anvil operates independently of the global portal maintenance switch
+    if (slug === 'anvil' || slug === 'studybuddy') {
+      const sublinkConfig = (config.services && config.services[slug]) || (config.sublinks && config.sublinks[slug]);
+      if (sublinkConfig && sublinkConfig.enabled === false) {
+        const notice = sublinkConfig.maintenanceMessage || sublinkConfig.message || "Anvil is currently offline.";
+        renderOfflineUI(notice, sublinkConfig.offlineType || 'offline');
+      }
+      return;
+    }
 
     const isMasterOff = config.masterSwitch === false;
     const sublinkConfig = (config.services && (config.services[slug] || (slug === "tawir-dev" ? (config.services["tawir-dev"] || config.services["tawir-beta"]) : null))) || 
