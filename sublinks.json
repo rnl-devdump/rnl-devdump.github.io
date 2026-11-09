@@ -112,9 +112,9 @@
       "offlineType": "offline",
       "message": "VL Assist visual assistant is currently offline."
     },
-    "studybuddy": {
+    "anvil": {
       "name": "Anvil",
-      "path": "/studybuddy",
+      "path": "/anvil",
       "category": "AI Assistant",
       "enabled": true,
       "offlineType": "offline",

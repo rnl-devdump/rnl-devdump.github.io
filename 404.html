@@ -76,13 +76,23 @@
           return;
         }
 
-        if (path.indexOf("/studybuddy") === 0) {
-          var studySub = path.substring("/studybuddy".length);
-          if (studySub && studySub !== "/") {
-            window.location.replace("/studybuddy/?p=" + encodeURIComponent(studySub + search + hash));
+        if (path.indexOf("/anvil") === 0) {
+          var anvilSub = path.substring("/anvil".length);
+          if (anvilSub && anvilSub !== "/") {
+            window.location.replace("/anvil/?p=" + encodeURIComponent(anvilSub + search + hash));
             return;
           }
-          window.location.replace("/studybuddy/" + search + hash);
+          window.location.replace("/anvil/" + search + hash);
+          return;
+        }
+
+        if (path.indexOf("/studybuddy") === 0) {
+          var legacySub = path.substring("/studybuddy".length);
+          if (legacySub && legacySub !== "/") {
+            window.location.replace("/anvil/?p=" + encodeURIComponent(legacySub + search + hash));
+            return;
+          }
+          window.location.replace("/anvil/" + search + hash);
           return;
         }
 
