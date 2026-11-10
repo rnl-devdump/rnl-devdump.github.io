@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <base href="/anvil/">
+
   <!-- Frame-busting clickjacking defense for static hosts (GitHub Pages) -->
   <script>
     if (window.top !== window.self) {
       window.top.location = window.self.location;
     }
+    // Clear stale portal cache that could block Anvil when masterSwitch is off
+    try {
+      ['kiruu_services_status', 'kiruu_sublinks_status'].forEach(function(key) {
+        var raw = localStorage.getItem(key);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          var anvilCfg = (parsed.services && parsed.services.anvil) || (parsed.sublinks && parsed.sublinks.anvil);
+          if (!anvilCfg || anvilCfg.enabled !== false) {
+            localStorage.removeItem(key);
+          }
+        }
+      });
+    } catch (_) {}
   </script>
-  <script src="sublink-guard.js"></script>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="/anvil/">
+  <script src="sublink-guard.js?v=20261110"></script>
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -36,7 +37,7 @@
   <meta property="og:title" content="Anvil">
   <meta property="og:description" content="Where knowledge is forged through learning. A citation-grounded study companion.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://rnl-devdump.github.io">
+  <meta property="og:url" content="https://rnl-devdump.github.io/anvil/">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -62,6 +63,9 @@
       color: #6C6A68;
       flex-direction: column;
       gap: 16px;
+      padding: 24px;
+      box-sizing: border-box;
+      text-align: center;
     }
     @media (prefers-color-scheme: dark) {
       .loading { background: #0D1014; color: #A7A29A; }
@@ -76,6 +80,35 @@
     @media (prefers-color-scheme: dark) {
       .loading-spinner { border-color: #2A3039; border-top-color: #8E88FF; }
     }
+    .loading-notice {
+      max-width: 420px;
+      margin-top: 8px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(242, 210, 75, 0.14);
+      border: 1px solid rgba(242, 210, 75, 0.4);
+      font-size: 13px;
+      line-height: 1.45;
+      color: #17181D;
+    }
+    @media (prefers-color-scheme: dark) {
+      .loading-notice {
+        background: rgba(230, 196, 81, 0.12);
+        border-color: rgba(230, 196, 81, 0.35);
+        color: #F3EFE6;
+      }
+    }
+    .loading-retry {
+      display: none;
+      margin-top: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid #8E88FF;
+      background: transparent;
+      color: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
@@ -83,6 +116,12 @@
   <div class="loading" id="loading">
     <div class="loading-spinner"></div>
     <span>Loading Anvil…</span>
+    <div class="loading-notice">
+      <strong>Free Serverless GPU Volume:</strong> We are using a free serverless GPU volume so it needs a cold start when waking from idle (typically 30–60 seconds).
+    </div>
+    <button class="loading-retry" id="loading-retry" type="button">
+      Taking longer than expected? Reload fresh
+    </button>
   </div>
 
   <script>
@@ -92,16 +131,47 @@
       var redirect = params.get('p');
       if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
         try {
-          window.history.replaceState(null, '', decodeURIComponent(redirect));
+          var basePath = new URL(document.baseURI).pathname.replace(/\/$/, '');
+          var decoded = decodeURIComponent(redirect);
+          var target = (basePath && !decoded.startsWith(basePath))
+            ? (basePath + '/#' + decoded)
+            : decoded;
+          window.history.replaceState(null, '', target);
         } catch (_) {}
       }
     })();
 
-    window.addEventListener('flutter-first-frame', function() {
+    function dismissLoading() {
       var loading = document.getElementById('loading');
       if (loading) loading.remove();
-    });
+    }
+
+    window.addEventListener('flutter-first-frame', dismissLoading);
+
+    // Fallback observer in case flutter-first-frame fires early or is missed
+    var checkInterval = setInterval(function() {
+      var view = document.querySelector('flutter-view, flt-glass-pane');
+      if (view && view.clientHeight > 0) {
+        clearInterval(checkInterval);
+        setTimeout(dismissLoading, 150);
+      }
+    }, 300);
+
+    setTimeout(function() {
+      var retryBtn = document.getElementById('loading-retry');
+      if (retryBtn) {
+        retryBtn.style.display = 'inline-block';
+        retryBtn.onclick = function() {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              regs.forEach(function(r) { r.unregister(); });
+            });
+          }
+          window.location.href = window.location.pathname + '?v=' + Date.now() + window.location.hash;
+        };
+      }
+    }, 10000);
   </script>
-  <script src="flutter_bootstrap.js" async></script>
+  <script src="flutter_bootstrap.js?v=20261110" async></script>
 </body>
 </html>
