@@ -3,101 +3,87 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Redirecting...</title>
+    <title>Redirecting... | The Kiruu</title>
     <script>
       (function () {
         var path = window.location.pathname || "/";
         var search = window.location.search || "";
         var hash = window.location.hash || "";
 
-        if (path.indexOf("/directory") === 0) {
-          window.location.replace("/directory/");
+        var SUBDOMAIN_MAP = {
+          "dashboard": "https://console.kiruu.xyz",
+          "console": "https://console.kiruu.xyz",
+          "tawir-convo": "https://console.kiruu.xyz/#conversations",
+          "tawir-beta": "https://tawir.kiruu.xyz/beta",
+          "tawir-dev": "https://tawir.kiruu.xyz/beta",
+          "tawir": "https://tawir.kiruu.xyz",
+          "vl-assist": "https://vl-assist.kiruu.xyz",
+          "anvil": "https://anvil.kiruu.xyz",
+          "studybuddy": "https://anvil.kiruu.xyz",
+          "asksight": "https://asksight.kiruu.xyz",
+          "anime": "https://anime.kiruu.xyz",
+          "movie": "https://movie.kiruu.xyz",
+          "chess": "https://chess.kiruu.xyz",
+          "vibe": "https://vibe.kiruu.xyz",
+          "dataset": "https://dataset.kiruu.xyz",
+          "validation": "https://validation.kiruu.xyz",
+          "validator": "https://validation.kiruu.xyz",
+          "bill": "https://bill.kiruu.xyz",
+          "directory": "https://directory.kiruu.xyz",
+          "forum": "https://forum.kiruu.xyz",
+          "faerie": "https://faerie.kiruu.xyz",
+          "letter": "https://letter.kiruu.xyz",
+          "letterx": "https://letterx.kiruu.xyz",
+          "letterhelper": "https://letterhelper.kiruu.xyz",
+          "helper": "https://letterhelper.kiruu.xyz"
+        };
+
+        var parts = path.split("/").filter(Boolean);
+        var firstSeg = (parts[0] || "").toLowerCase();
+
+        if (firstSeg === "tawir-convo") {
+          window.location.replace("https://console.kiruu.xyz/#conversations");
           return;
         }
 
-        // GitHub Pages fallback for deep links under /letter/<documentId>.
-        if (path.indexOf("/letter/") === 0) {
-          var parts = path.split("/").filter(Boolean);
+        // Preserve deep links for /letter/<documentId> and /letterx/<documentId>
+        if (firstSeg === "letter" || firstSeg === "letterx") {
           var docId = parts.length >= 2 ? parts[1] : "";
+          var letterHost = firstSeg === "letterx" ? "https://letterx.kiruu.xyz" : "https://letter.kiruu.xyz";
           if (docId === "entries") {
-            window.location.replace("/letter/entries/");
+            window.location.replace("https://letter.kiruu.xyz/entries/" + search + hash);
             return;
           }
           if (docId === "helper") {
-            window.location.replace("/letterhelper/");
+            window.location.replace("https://letterhelper.kiruu.xyz/" + search + hash);
             return;
           }
           if (docId) {
-            var target = "/letter/?id=" + encodeURIComponent(docId);
+            var target = letterHost + "/?id=" + encodeURIComponent(docId);
             if (search) target += "&" + search.replace(/^\?/, "");
             if (hash) target += hash;
             window.location.replace(target);
             return;
           }
-          window.location.replace("/letter/");
+          window.location.replace(letterHost + "/" + search + hash);
           return;
         }
 
-        if (path.indexOf("/letterx/") === 0) {
-          var partsX = path.split("/").filter(Boolean);
-          var segX = partsX.length >= 2 ? partsX[1] : "";
-          if (segX === "entries") {
-            window.location.replace("/letter/entries/");
-            return;
+        if (firstSeg && SUBDOMAIN_MAP[firstSeg]) {
+          var targetOrigin = SUBDOMAIN_MAP[firstSeg];
+          var restPath = "/" + parts.slice(1).join("/");
+          if (restPath === "/" && path.endsWith("/")) {
+            restPath = "/";
           }
-          if (segX) {
-            var targetX = "/letterx/?id=" + encodeURIComponent(segX);
-            if (search) targetX += "&" + search.replace(/^\?/, "");
-            if (hash) targetX += hash;
-            window.location.replace(targetX);
-            return;
-          }
-          window.location.replace("/letterx/");
+          var dest = targetOrigin.endsWith("/beta")
+            ? targetOrigin + (restPath === "/" ? "/" : restPath) + search + hash
+            : targetOrigin + restPath + search + hash;
+          window.location.replace(dest);
           return;
         }
 
-        if (path.indexOf("/movie") === 0) {
-          window.location.replace("/movie/" + hash);
-          return;
-        }
-
-        if (path.indexOf("/faerie") === 0) {
-          window.location.replace("/faerie/" + hash);
-          return;
-        }
-
-        if (path.indexOf("/dashboard") === 0) {
-          window.location.replace("/dashboard/" + hash);
-          return;
-        }
-
-        if (path.indexOf("/anime") === 0) {
-          window.location.replace("/anime/" + hash);
-          return;
-        }
-
-        if (path.indexOf("/anvil") === 0) {
-          var anvilSub = path.substring("/anvil".length);
-          if (anvilSub && anvilSub !== "/") {
-            window.location.replace("/anvil/?p=" + encodeURIComponent(anvilSub + search + hash));
-            return;
-          }
-          window.location.replace("/anvil/" + search + hash);
-          return;
-        }
-
-        if (path.indexOf("/studybuddy") === 0) {
-          var legacySub = path.substring("/studybuddy".length);
-          if (legacySub && legacySub !== "/") {
-            window.location.replace("/anvil/?p=" + encodeURIComponent(legacySub + search + hash));
-            return;
-          }
-          window.location.replace("/anvil/" + search + hash);
-          return;
-        }
-
-        // Default fallback route.
-        window.location.replace("/dataset/");
+        // Default fallback to root portal
+        window.location.replace("https://kiruu.xyz/");
       })();
     </script>
   </head>

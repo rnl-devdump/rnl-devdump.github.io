@@ -2,26 +2,75 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    // Verified admin check: requires explicit custom claim OR verified allowlisted email.
+    // Wildcard domain regex is intentionally prohibited to prevent unverified email spoofing.
     function isAdmin() {
       return isAuthenticated() && (
         request.auth.token.admin == true ||
-        request.auth.token.email.matches('.*@kiruu\\.xyz$') ||
-        request.auth.token.email in ['admin@kiruu.xyz', 'iamk1ruu@gmail.com']
+        (
+          request.auth.token.email_verified == true &&
+          request.auth.token.email in ['admin@kiruu.xyz', 'iamk1ruu@gmail.com']
+        )
       );
     }
 
-    // 1. System status & Killswitch: Anyone can read status, only authenticated admins can write
+    function isValidator() {
+      return isAdmin() || (
+        isAuthenticated() && (
+          request.auth.token.validator == true ||
+          request.auth.token.email_verified == true
+        )
+      );
+    }
+
+    function isValidSiteStatus(data) {
+      return data.keys().hasAll(['masterSwitch', 'services', 'version', 'updatedAt'])
+        && data.masterSwitch is bool
+        && data.services is map
+        && data.services.size() <= 64
+        && data.version is int
+        && data.version >= 1;
+    }
+
+    // 1. Canonical structured ecosystem status & append-only audit log
+    match /site_config/status {
+      allow read: if true;
+      allow create: if isAdmin() && isValidSiteStatus(request.resource.data);
+      allow update: if isAdmin()
+                    && isValidSiteStatus(request.resource.data)
+                    && (!('version' in resource.data) || request.resource.data.version == resource.data.version + 1);
+      allow delete: if false;
+
+      match /audit/{auditId} {
+        allow read: if isAdmin();
+        allow create: if isAdmin()
+                      && request.resource.data.actorUid == request.auth.uid
+                      && request.resource.data.action is string
+                      && request.resource.data.action.size() > 0
+                      && request.resource.data.action.size() <= 160;
+        allow update, delete: if false;
+      }
+    }
+
+    // 2. Legacy system_status mirror (read-open for client guards, admin-only write)
     match /validations/system_status {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // 2. Forum posts: Anyone can read, validated creation allowed, updates/deletions restricted to admin
+    // 3. Vibe WebRTC signaling rooms (scoped strictly to vibe_room_* documents)
+    match /validations/{roomDoc} {
+      allow read: if roomDoc.matches('^vibe_room_[A-Za-z0-9_-]{3,64}$');
+      allow create, update: if roomDoc.matches('^vibe_room_[A-Za-z0-9_-]{3,64}$')
+                            && request.resource.data.keys().size() <= 25;
+      allow delete: if isAdmin();
+    }
+
+    // 4. Forum posts: public read, length-validated create, admin moderation
     match /forum_posts/{postId} {
       allow read: if true;
       allow create: if request.resource.data.title is string
@@ -33,46 +82,64 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
-    // 3. Telemetry logs (device_logs and ai_usage_logs): Public write with length caps, Admin read-only
+    // 5. Telemetry logs (create-only with field/size bounds; admin read/delete)
     match /device_logs/{logId} {
-      allow create: if request.resource.data.page is string;
+      allow create: if request.resource.data.page is string
+                    && request.resource.data.page.size() > 0
+                    && request.resource.data.page.size() <= 64
+                    && request.resource.data.keys().size() <= 16;
       allow read, update, delete: if isAdmin();
     }
 
     match /ai_usage_logs/{logId} {
       allow create: if request.resource.data.prompt is string
-                    && request.resource.data.prompt.size() <= 250;
+                    && request.resource.data.prompt.size() <= 250
+                    && request.resource.data.keys().size() <= 16;
       allow read, update, delete: if isAdmin();
     }
 
-    // 4. WebRTC Signaling Rooms (Faerie & Vibe)
+    // 6. WebRTC Signaling Rooms (Faerie)
     match /rooms/{roomId} {
-      allow read, write: if true;
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create, update: if request.resource.data.keys().size() <= 20;
+      allow delete: if isAdmin();
       match /callerCandidates/{candidateId} {
-        allow read, write: if true;
+        allow read, create: if true;
+        allow update, delete: if isAdmin();
       }
       match /calleeCandidates/{candidateId} {
-        allow read, write: if true;
+        allow read, create: if true;
+        allow update, delete: if isAdmin();
       }
     }
 
-    // 5. Watch Parties (Movie & Anime)
+    // 7. Watch Parties (Movie & Anime)
     match /watchParties/{partyId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create, update: if request.resource.data.keys().size() <= 25;
+      allow delete: if isAdmin();
     }
 
-    // 6. Dataset and Translations
+    // 8. Dataset and Validated Translations (requires verified validator or admin)
     match /translations/{transId} {
       allow read: if true;
-      allow write: if isAuthenticated() || isAdmin();
+      allow write: if isValidator();
     }
 
     match /validations/{valId}/validated_translations/{entryId} {
       allow read: if true;
-      allow write: if isAuthenticated() || isAdmin();
+      allow write: if isValidator();
     }
 
-    // Default deny for unmatched collections
+    // 9. Letter entries
+    match /letterC/{letterId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().size() <= 16;
+      allow update, delete: if isAdmin();
+    }
+
+    // Default deny for all unmatched collections
     match /{document=**} {
       allow read, write: if false;
     }

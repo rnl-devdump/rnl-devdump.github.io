@@ -1588,7 +1588,7 @@ function setupEventListeners() {
   });
 
   elements.btnReturnLobby.addEventListener("click", () => {
-    window.location.href = "/";
+    window.location.href = "https://kiruu.xyz/";
   });
 
   // Global Keyboard Shortcuts (Escape closes drawer or unpins)

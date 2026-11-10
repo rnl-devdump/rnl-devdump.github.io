@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { serveAssetsPicsPlugin } from "./scripts/vite-serve-assets-pics.mjs";
 
 export default defineConfig({
-  base: "/letterx/",
+  base: "/",
   publicDir: resolve(__dirname, "letter-public"),
   plugins: [react(), tailwindcss(), serveAssetsPicsPlugin()],
   build: {

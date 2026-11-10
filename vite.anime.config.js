@@ -31,7 +31,7 @@ function devRewritePlugin() {
 }
 
 export default defineConfig({
-  base: "/anime/",
+  base: "/",
   plugins: [react(), tailwindcss(), devRewritePlugin()],
   build: {
     outDir: "anime",

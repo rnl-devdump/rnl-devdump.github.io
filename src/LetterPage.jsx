@@ -8,7 +8,7 @@ import {
   mapFirestoreData,
 } from "./lib/letterConfig";
 
-const LETTER_HELPER_URL = "/letterhelper/";
+const LETTER_HELPER_URL = "https://letterhelper.kiruu.xyz/";
 
 function getLetterSlug() {
   if (typeof window === "undefined") return "my-love";
@@ -17,9 +17,8 @@ function getLetterSlug() {
   if (idParam) return idParam;
   const parts = window.location.pathname.split("/").filter(Boolean);
   const letterIndex = parts.findIndex((p) => p === "letter" || p === "letterx");
-  if (letterIndex === -1) return "my-love";
-  const segment = parts[letterIndex + 1] || "my-love";
-  if (segment === "entries" || segment === "helper") return "my-love";
+  const segment = letterIndex === -1 ? (parts[0] || "my-love") : (parts[letterIndex + 1] || "my-love");
+  if (segment === "entries" || segment === "helper" || segment === "index.html") return "my-love";
   return segment;
 }
 

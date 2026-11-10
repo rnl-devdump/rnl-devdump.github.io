@@ -19,7 +19,7 @@ function devRewritePlugin() {
 }
 
 export default defineConfig({
-  base: "/faerie/",
+  base: "/",
   plugins: [react(), tailwindcss(), serveAssetsPicsPlugin(), devRewritePlugin()],
   build: {
     outDir: "faerie",

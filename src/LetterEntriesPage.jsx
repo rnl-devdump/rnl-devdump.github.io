@@ -68,7 +68,7 @@ export default function LetterEntriesPage() {
     window.location.href = letterOpenPath(id);
   };
 
-  const helperHref = "/letterhelper/";
+  const helperHref = "https://letterhelper.kiruu.xyz/";
 
   if (!isUnlocked) {
     return (

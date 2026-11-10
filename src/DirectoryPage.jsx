@@ -4,15 +4,15 @@ import { hasDirectoryAccess, unlockDirectoryAccess } from "./directoryAccess";
 const CORE_SITES = [
   {
     title: "Dataset Annotation Tool",
-    path: "/dataset/",
+    path: "https://dataset.kiruu.xyz/",
     category: "DATASET",
     summary: "Create Pangasinan translation entries and save them to Firestore.",
     source: "src/DatasetAnnotationPage.jsx",
   },
   {
     title: "Dataset Validation Dashboard",
-    path: "/validation/",
-    aliases: ["/validator"],
+    path: "https://validation.kiruu.xyz/",
+    aliases: ["validation.kiruu.xyz"],
     category: "VALIDATION",
     summary: "Review translation entries, approve or deny them, and finalize validated data.",
     source: "src/ValidatorDashboardPage.jsx",
@@ -22,33 +22,33 @@ const CORE_SITES = [
 const OTHER_SITES = [
   {
     title: "Community Forum",
-    path: "/forum/",
+    path: "https://forum.kiruu.xyz/",
     summary: "Publish team posts and keep shared notes visible.",
     source: "src/ForumPage.jsx",
   },
   {
     title: "Kiruu Letter",
-    path: "/letter/",
-    links: [{ label: "Entries", path: "/letter/entries/" }],
+    path: "https://letter.kiruu.xyz/",
+    links: [{ label: "Entries", path: "https://letter.kiruu.xyz/entries/" }],
     summary: "Open pin-locked letters from Firestore or URL settings.",
     source: "src/LetterPage.jsx",
   },
   {
     title: "Letter Helper Tool",
-    path: "/letterhelper/",
-    aliases: ["/helper"],
+    path: "https://letterhelper.kiruu.xyz/",
+    aliases: ["letterhelper.kiruu.xyz"],
     summary: "Generate and publish letter links, including picture-enabled versions.",
     source: "src/LetterHelperPage.jsx",
   },
   {
     title: "Kiruu Letter X",
-    path: "/letterx/",
+    path: "https://letterx.kiruu.xyz/",
     summary: "Open the picture-enabled letter experience.",
     source: "src/LetterPage.jsx",
   },
   {
     title: "Misc Easter Egg",
-    path: "/misc/easteregg.html",
+    path: "https://kiruu.xyz/misc/easteregg.html",
     summary: "A small standalone static page.",
     source: "misc/easteregg.html",
   },
@@ -177,7 +177,7 @@ export default function DirectoryPage() {
       <div className="mx-auto max-w-6xl">
         <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-4">
-            <img src="/logo.png" alt="" className="h-14 w-14 object-contain" />
+            <img src="https://kiruu.xyz/logo.png" alt="" className="h-14 w-14 object-contain" />
             <div>
               <p className="text-xs font-bold uppercase text-teal-700">Kiruu Space</p>
               <h1 className="text-2xl font-semibold text-slate-950 md:text-3xl">Site Directory</h1>
@@ -185,7 +185,7 @@ export default function DirectoryPage() {
             </div>
           </div>
           <a
-            href="/"
+            href="https://kiruu.xyz/"
             className="w-fit rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-teal-500 hover:text-teal-800"
           >
             Open Root

@@ -1,0 +1,18 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "masterSwitch": {
+      ".read": true,
+      ".write": "auth != null && (auth.token.admin === true || (auth.token.email_verified === true && (auth.token.email === 'admin@kiruu.xyz' || auth.token.email === 'iamk1ruu@gmail.com')))"
+    },
+    "adminAnnouncement": {
+      ".read": true,
+      ".write": "auth != null && (auth.token.admin === true || (auth.token.email_verified === true && (auth.token.email === 'admin@kiruu.xyz' || auth.token.email === 'iamk1ruu@gmail.com')))"
+    },
+    "services": {
+      ".read": true,
+      ".write": "auth != null && (auth.token.admin === true || (auth.token.email_verified === true && (auth.token.email === 'admin@kiruu.xyz' || auth.token.email === 'iamk1ruu@gmail.com')))"
+    }
+  }
+}

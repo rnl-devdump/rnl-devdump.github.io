@@ -31,13 +31,15 @@ export function resolvePicUrl(ref) {
   if (!normalized) return "";
   if (/^data:image\//i.test(normalized)) return normalized;
   if (/^https?:\/\//i.test(normalized)) return normalized;
-  if (typeof window === "undefined") return `/assets/pics/${encodeURIComponent(normalized)}`;
-  return `${window.location.origin}/assets/pics/${encodeURIComponent(normalized)}`;
+  return `https://kiruu.xyz/assets/pics/${encodeURIComponent(normalized)}`;
 }
 
 export function getLetterAppBase(pathname = "") {
-  if (/\/letterx(\/|$)/.test(pathname)) return "/letterx";
-  return "/letter";
+  if (typeof window !== "undefined" && window.location.hostname === "letterx.kiruu.xyz") {
+    return "https://letterx.kiruu.xyz";
+  }
+  if (/\/letterx(\/|$)/.test(pathname)) return "https://letterx.kiruu.xyz";
+  return "https://letter.kiruu.xyz";
 }
 
 /** Galaxy letter runtime config (new + legacy Firestore / URL fields). */
@@ -93,16 +95,16 @@ export function entryFromFirestore(id, data) {
   };
 }
 
-export function letterOpenPath(id, base = "/letter") {
-  const root = base.replace(/\/$/, "") || "/letter";
+export function letterOpenPath(id, base = "https://letter.kiruu.xyz") {
+  const root = base.replace(/\/$/, "") || "https://letter.kiruu.xyz";
   return `${root}/?id=${encodeURIComponent(id)}`;
 }
 
 export function publishedOpenPath(id, { pic1 = "", pic2 = "" } = {}) {
-  const base = pic1 || pic2 ? "/letterx" : "/letter";
+  const base = pic1 || pic2 ? "https://letterx.kiruu.xyz" : "https://letter.kiruu.xyz";
   return letterOpenPath(id, base);
 }
 
 export function isLetterEntriesRoute(pathname = "") {
-  return /\/letter\/entries\/?$/.test(pathname);
+  return /\/(?:letter\/)?entries\/?$/.test(pathname);
 }

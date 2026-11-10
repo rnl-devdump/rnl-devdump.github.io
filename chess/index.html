@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/sublink-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chess - Web Edition</title>
@@ -82,7 +83,7 @@
     <script src="https://cjrtnc.leaningtech.com/4.3/loader.js"></script>
 </head>
 <body>
-    <a href="/" class="back-btn">Back to Ecosystem</a>
+    <a href="https://kiruu.xyz/" class="back-btn">Back to Ecosystem</a>
     
     <div id="loading-screen">
         <div class="spinner"></div>
@@ -105,8 +106,9 @@
                 // Hide custom loading screen
                 document.getElementById('loading-screen').style.display = 'none';
                 
-                // Run the Java application JAR
-                await cheerpjRunJar("/app/chess/chess.jar");
+                // Run the Java application JAR (supports both chess.kiruu.xyz root and /chess/ subpath)
+                var jarPath = window.location.pathname.indexOf("/chess") === 0 ? "/app/chess/chess.jar" : "/app/chess.jar";
+                await cheerpjRunJar(jarPath);
             } catch (err) {
                 console.error("CheerpJ initialization error:", err);
                 var p = document.querySelector("#loading-screen p");

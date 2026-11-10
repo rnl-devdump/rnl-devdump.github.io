@@ -1,84 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <script src="/sublink-guard.js"></script>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="/tawir-dev/">
-
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="TAWIR - Conversational Agent for Pangasinan Language Preservation">
-
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="TAWIR">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>TAWIR - Salitan Pangasinan</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0A1B15">
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #0A1B15;
-    }
-    #boot {
-      position: fixed;
-      inset: 0;
-      z-index: 99;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0A1B15;
-      transition: opacity .25s ease;
-    }
-    #boot i {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #C8FFE1;
-      box-shadow: 0 0 18px 8px rgba(200,255,225,.55);
-      animation: boot-pulse 1.2s ease-in-out infinite;
-    }
-    @keyframes boot-pulse {
-      50% {
-        transform: scale(1.6);
-        opacity: .7;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div id="boot"><i></i></div>
-  <script>
-    window.addEventListener('flutter-first-frame', function () {
-      var b = document.getElementById('boot');
-      if (!b) return;
-      b.style.opacity = 0;
-      setTimeout(function () { b.remove(); }, 300);
-    });
-  </script>
-  <script src="flutter_bootstrap.js" async></script>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TAWIR Beta Moved &mdash; tawir.kiruu.xyz/beta/</title>
+    <link rel="canonical" href="https://tawir.kiruu.xyz/beta/" />
+    <meta http-equiv="refresh" content="0; url=https://tawir.kiruu.xyz/beta/" />
+    <script>
+      window.location.replace(
+        "https://tawir.kiruu.xyz/beta/" + (window.location.search || "") + (window.location.hash || "")
+      );
+    </script>
+  </head>
+  <body style="font-family: system-ui, sans-serif; padding: 2rem; text-align: center;">
+    <p>TAWIR Beta has moved to <a href="https://tawir.kiruu.xyz/beta/">tawir.kiruu.xyz/beta/</a>.</p>
+  </body>
 </html>

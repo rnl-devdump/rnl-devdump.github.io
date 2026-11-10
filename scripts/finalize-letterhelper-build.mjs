@@ -7,10 +7,7 @@ const outDir = resolve(root, "letterhelper");
 const builtHtml = resolve(outDir, "index.letterhelper.html");
 const html = readFileSync(builtHtml, "utf8");
 
+mkdirSync(outDir, { recursive: true });
 writeFileSync(resolve(outDir, "index.html"), html, "utf8");
 writeFileSync(resolve(outDir, "404.html"), html, "utf8");
-writeFileSync(
-  resolve(outDir, "_redirects"),
-  "/letterhelper/*    /letterhelper/index.html   200\n",
-  "utf8",
-);
+writeFileSync(resolve(outDir, "_redirects"), "/*    /index.html   200\n", "utf8");

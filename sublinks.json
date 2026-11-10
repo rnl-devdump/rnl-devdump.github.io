@@ -1,16 +1,18 @@
 {
-  "updatedAt": "2026-10-15T08:50:00.000Z",
+  "updatedAt": "2026-11-10T15:45:00.000Z",
+  "version": 1,
   "masterSwitch": true,
   "adminAnnouncement": {
     "enabled": false,
     "message": "",
     "variant": "info",
-    "updatedAt": "2026-10-15T08:50:00.000Z"
+    "updatedAt": "2026-11-10T15:45:00.000Z"
   },
   "sublinks": {
     "main": {
       "name": "Main Homepage (Portal)",
       "path": "/",
+      "url": "https://kiruu.xyz",
       "category": "System Portal",
       "enabled": true,
       "offlineType": "offline",
@@ -18,95 +20,26 @@
     },
     "tawir": {
       "name": "TAWIR (v3 Assistant)",
-      "path": "/tawir",
+      "path": "tawir.kiruu.xyz",
+      "url": "https://tawir.kiruu.xyz",
       "category": "AI Assistant",
       "enabled": true,
       "offlineType": "offline",
       "message": "TAWIR v3 is temporarily offline."
     },
-    "tawir-dev": {
-      "name": "TAWIR Beta Web App",
-      "path": "/tawir-dev",
-      "category": "AI Assistant",
-      "enabled": true,
-      "offlineType": "offline",
-      "message": "TAWIR Beta is currently undergoing maintenance."
-    },
     "tawir-beta": {
       "name": "TAWIR Beta",
-      "path": "/tawir-beta",
+      "path": "tawir.kiruu.xyz/beta",
+      "url": "https://tawir.kiruu.xyz/beta/",
       "category": "AI Assistant",
       "enabled": true,
       "offlineType": "offline",
       "message": "TAWIR Beta is currently undergoing maintenance."
-    },
-    "tawir-convo": {
-      "name": "TAWIR Conversation Monitor",
-      "path": "/tawir-convo",
-      "category": "AI Monitoring",
-      "enabled": true,
-      "offlineType": "offline",
-      "message": "TAWIR conversation monitor is currently offline."
-    },
-    "anime": {
-      "name": "Anime Hub",
-      "path": "/anime",
-      "category": "Media",
-      "enabled": true,
-      "offlineType": "offline",
-      "message": "Anime portal is under development."
-    },
-    "movie": {
-      "name": "Movie Hub",
-      "path": "/movie",
-      "category": "Media",
-      "enabled": true,
-      "offlineType": "offline",
-      "message": "Movie streaming portal is offline."
-    },
-    "dataset": {
-      "name": "Dataset Annotator",
-      "path": "/dataset",
-      "category": "Data Tool",
-      "enabled": true,
-      "offlineType": "offline",
-      "message": "Dataset annotation portal is undergoing maintenance."
-    },
-    "validation": {
-      "name": "Validation Suite",
-      "path": "/validation",
-      "category": "Quality",
-      "enabled": true,
-      "offlineType": "offline",
-      "message": "Validation tools are currently offline."
-    },
-    "bill": {
-      "name": "Utility Rates Tracker",
-      "path": "/bill",
-      "category": "Finance",
-      "enabled": true,
-      "offlineType": "offline",
-      "message": "Utility rates service is temporarily unavailable."
-    },
-    "chess": {
-      "name": "Java Chess (Web)",
-      "path": "/chess",
-      "category": "Game",
-      "enabled": true,
-      "offlineType": "offline",
-      "message": "Chess game is temporarily unavailable."
-    },
-    "vibe": {
-      "name": "Vibe Video & Screen Share",
-      "path": "/vibe",
-      "category": "Media",
-      "enabled": true,
-      "offlineType": "offline",
-      "message": "Vibe video calling is temporarily offline."
     },
     "vl-assist": {
       "name": "VL Assist (Vision-Language Assistant)",
-      "path": "/vl-assist",
+      "path": "vl-assist.kiruu.xyz",
+      "url": "https://vl-assist.kiruu.xyz",
       "category": "AI Assistant",
       "enabled": true,
       "offlineType": "offline",
@@ -114,11 +47,138 @@
     },
     "anvil": {
       "name": "Anvil",
-      "path": "/anvil",
+      "path": "anvil.kiruu.xyz",
+      "url": "https://anvil.kiruu.xyz",
       "category": "AI Assistant",
       "enabled": true,
       "offlineType": "offline",
       "message": "Anvil is temporarily offline."
+    },
+    "asksight": {
+      "name": "AskSight",
+      "path": "asksight.kiruu.xyz",
+      "url": "https://asksight.kiruu.xyz",
+      "category": "AI Assistant",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "AskSight is temporarily offline."
+    },
+    "anime": {
+      "name": "Anime Hub",
+      "path": "anime.kiruu.xyz",
+      "url": "https://anime.kiruu.xyz",
+      "category": "Media",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Anime portal is under development."
+    },
+    "movie": {
+      "name": "Movie Hub",
+      "path": "movie.kiruu.xyz",
+      "url": "https://movie.kiruu.xyz",
+      "category": "Media",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Movie streaming portal is offline."
+    },
+    "chess": {
+      "name": "Java Chess (Web)",
+      "path": "chess.kiruu.xyz",
+      "url": "https://chess.kiruu.xyz",
+      "category": "Game",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Chess game is temporarily unavailable."
+    },
+    "vibe": {
+      "name": "Vibe Video & Screen Share",
+      "path": "vibe.kiruu.xyz",
+      "url": "https://vibe.kiruu.xyz",
+      "category": "Media",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Vibe video calling is temporarily offline."
+    },
+    "dataset": {
+      "name": "Dataset Annotator",
+      "path": "dataset.kiruu.xyz",
+      "url": "https://dataset.kiruu.xyz",
+      "category": "Data Tool",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Dataset annotation portal is undergoing maintenance."
+    },
+    "validation": {
+      "name": "Validation Suite",
+      "path": "validation.kiruu.xyz",
+      "url": "https://validation.kiruu.xyz",
+      "category": "Quality",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Validation tools are currently offline."
+    },
+    "bill": {
+      "name": "Utility Rates Tracker",
+      "path": "bill.kiruu.xyz",
+      "url": "https://bill.kiruu.xyz",
+      "category": "Finance",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Utility rates service is temporarily unavailable."
+    },
+    "directory": {
+      "name": "Site Directory",
+      "path": "directory.kiruu.xyz",
+      "url": "https://directory.kiruu.xyz",
+      "category": "System Portal",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Site directory is temporarily offline."
+    },
+    "forum": {
+      "name": "Community Forum",
+      "path": "forum.kiruu.xyz",
+      "url": "https://forum.kiruu.xyz",
+      "category": "Social",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Community forum is temporarily offline."
+    },
+    "faerie": {
+      "name": "Faerie Photobooth",
+      "path": "faerie.kiruu.xyz",
+      "url": "https://faerie.kiruu.xyz",
+      "category": "Media",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Faerie photobooth is temporarily offline."
+    },
+    "letter": {
+      "name": "Kiruu Letter",
+      "path": "letter.kiruu.xyz",
+      "url": "https://letter.kiruu.xyz",
+      "category": "Social",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Letter service is temporarily offline."
+    },
+    "letterx": {
+      "name": "Kiruu Letter X",
+      "path": "letterx.kiruu.xyz",
+      "url": "https://letterx.kiruu.xyz",
+      "category": "Social",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Letter X service is temporarily offline."
+    },
+    "letterhelper": {
+      "name": "Letter Helper",
+      "path": "letterhelper.kiruu.xyz",
+      "url": "https://letterhelper.kiruu.xyz",
+      "category": "Social",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Letter Helper is temporarily offline."
     }
   }
 }

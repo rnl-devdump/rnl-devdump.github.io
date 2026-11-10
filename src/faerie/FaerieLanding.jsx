@@ -18,7 +18,7 @@ export default function FaerieLanding() {
         const latestId = snap.docs[0].id;
         const data = snap.docs[0].data();
         const hasPics = data.pic1 || data.pic2;
-        const base = hasPics ? "/letterx" : "/letter";
+        const base = hasPics ? "https://letterx.kiruu.xyz" : "https://letter.kiruu.xyz";
         window.location.href = `${base}/?id=${encodeURIComponent(latestId)}`;
       } else {
         alert("No letters found.");
@@ -222,7 +222,7 @@ export default function FaerieLanding() {
               <p className="faerie-card-desc">Take pictures together with your babi</p>
             </a>
             
-            <a href="/letter/" className="faerie-card" onClick={handleLatestLetterClick} style={{ cursor: isLoadingLetter ? "wait" : "pointer" }}>
+            <a href="https://letter.kiruu.xyz/" className="faerie-card" onClick={handleLatestLetterClick} style={{ cursor: isLoadingLetter ? "wait" : "pointer" }}>
               <div className="faerie-card-icon">
                 <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -233,7 +233,7 @@ export default function FaerieLanding() {
               <p className="faerie-card-desc">Read the latest letter from your babi</p>
             </a>
 
-            <a href="/letterhelper/" className="faerie-card">
+            <a href="https://letterhelper.kiruu.xyz/" className="faerie-card">
               <div className="faerie-card-icon">
                 <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 20h9"></path>
@@ -244,7 +244,7 @@ export default function FaerieLanding() {
               <p className="faerie-card-desc">Write and edit your own letter and send to your babi</p>
             </a>
 
-            <a href="/movie/" className="faerie-card">
+            <a href="https://movie.kiruu.xyz/" className="faerie-card">
               <div className="faerie-card-icon">
                 <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="5 3 19 12 5 21"></polygon>

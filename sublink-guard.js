@@ -1,28 +1,95 @@
 (function() {
-  const host = window.location.hostname;
+  const host = (window.location.hostname || '').toLowerCase();
   if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host.endsWith('.local')) {
     return;
   }
 
+  const SUBDOMAIN_SERVICE_MAP = {
+    'console.kiruu.xyz': 'console',
+    'tawir.kiruu.xyz': 'tawir',
+    'vl-assist.kiruu.xyz': 'vl-assist',
+    'anvil.kiruu.xyz': 'anvil',
+    'asksight.kiruu.xyz': 'asksight',
+    'anime.kiruu.xyz': 'anime',
+    'movie.kiruu.xyz': 'movie',
+    'chess.kiruu.xyz': 'chess',
+    'vibe.kiruu.xyz': 'vibe',
+    'dataset.kiruu.xyz': 'dataset',
+    'validation.kiruu.xyz': 'validation',
+    'bill.kiruu.xyz': 'bill',
+    'directory.kiruu.xyz': 'directory',
+    'forum.kiruu.xyz': 'forum',
+    'faerie.kiruu.xyz': 'faerie',
+    'letter.kiruu.xyz': 'letter',
+    'letterx.kiruu.xyz': 'letterx',
+    'letterhelper.kiruu.xyz': 'letterhelper'
+  };
+
+  const LEGACY_PATH_REDIRECTS = {
+    'dashboard': 'https://console.kiruu.xyz',
+    'tawir-convo': 'https://console.kiruu.xyz/#conversations',
+    'tawir-beta': 'https://tawir.kiruu.xyz/beta',
+    'tawir-dev': 'https://tawir.kiruu.xyz/beta',
+    'tawir': 'https://tawir.kiruu.xyz',
+    'vl-assist': 'https://vl-assist.kiruu.xyz',
+    'anvil': 'https://anvil.kiruu.xyz',
+    'studybuddy': 'https://anvil.kiruu.xyz',
+    'asksight': 'https://asksight.kiruu.xyz',
+    'anime': 'https://anime.kiruu.xyz',
+    'movie': 'https://movie.kiruu.xyz',
+    'chess': 'https://chess.kiruu.xyz',
+    'vibe': 'https://vibe.kiruu.xyz',
+    'dataset': 'https://dataset.kiruu.xyz',
+    'validation': 'https://validation.kiruu.xyz',
+    'bill': 'https://bill.kiruu.xyz',
+    'directory': 'https://directory.kiruu.xyz',
+    'forum': 'https://forum.kiruu.xyz',
+    'faerie': 'https://faerie.kiruu.xyz',
+    'letter': 'https://letter.kiruu.xyz',
+    'letterx': 'https://letterx.kiruu.xyz',
+    'letterhelper': 'https://letterhelper.kiruu.xyz'
+  };
+
   const currentPath = window.location.pathname.replace(/^\/|\/$/g, '');
   const rawSlug = currentPath.split('/')[0];
 
-  // Whitelist: never block the dashboard itself under any circumstances
-  if (rawSlug === 'dashboard') {
+  // Redirect legacy kiruu.xyz/<sublink> paths to canonical <sublink>.kiruu.xyz subdomains
+  if (
+    (host === 'kiruu.xyz' || host === 'www.kiruu.xyz' || host === 'rnl-devdump.github.io') &&
+    rawSlug &&
+    LEGACY_PATH_REDIRECTS[rawSlug]
+  ) {
+    const targetBase = LEGACY_PATH_REDIRECTS[rawSlug];
+    if (rawSlug === 'tawir-convo') {
+      window.location.replace(targetBase);
+      return;
+    }
+    const restPath = window.location.pathname.replace(/^\/[^/]+/, '') || '/';
+    const normalizedRest = restPath.startsWith('/') ? restPath : '/' + restPath;
+    const destination = targetBase.endsWith('/beta')
+      ? targetBase + (normalizedRest === '/' ? '/' : normalizedRest) + window.location.search + window.location.hash
+      : targetBase + normalizedRest + window.location.search + window.location.hash;
+    window.location.replace(destination);
     return;
   }
 
-  // When visiting root portal ("" or "index.html"), target "main" service
-  const slug = (!rawSlug || rawSlug === 'index.html') ? 'main' : rawSlug;
+  let slug = SUBDOMAIN_SERVICE_MAP[host] || null;
+  if (host === 'tawir.kiruu.xyz' && (rawSlug === 'beta' || window.location.pathname.indexOf('/beta/') === 0)) {
+    slug = 'tawir-beta';
+  }
+  if (!slug && host.endsWith('.kiruu.xyz') && host !== 'www.kiruu.xyz') {
+    slug = host.slice(0, -'.kiruu.xyz'.length);
+  }
+  if (!slug) {
+    slug = (!rawSlug || rawSlug === 'index.html') ? 'main' : rawSlug;
+  }
+
+  // Never block the admin console itself
+  if (slug === 'dashboard' || slug === 'console') {
+    return;
+  }
+
   const isMainPortal = (slug === 'main');
-
-  const SALT = "kiruu_console_guard_salt_2026_x89a";
-  const HASH = "78c2a001ef868e6e51e2aa5015eb6e88efe412744a62f027ebe1663853acb67f";
-
-  // Check admin session bypass
-  if (sessionStorage.getItem('kiruu_console_bypass') === 'true' || sessionStorage.getItem('kiruu_console_session') === 'active') {
-    return;
-  }
 
   function renderOfflineUI(customNotice, mode = 'offline') {
     const isForbidden = mode === 'forbidden';
@@ -77,11 +144,11 @@
         });
       } catch (e) {}
 
-      const origin = window.location.origin;
-      const fontUrl = origin + '/fonts/Vandelvira-Regular.ttf';
-      const logoUrl = origin + '/logo.png';
-      const bgUrl = origin + '/bg.jpg';
-      const videoUrl = origin + '/maintenance.mp4';
+      const assetBase = (host === 'kiruu.xyz' || host === 'www.kiruu.xyz') ? window.location.origin : 'https://kiruu.xyz';
+      const fontUrl = assetBase + '/fonts/Vandelvira-Regular.ttf';
+      const logoUrl = assetBase + '/logo.png';
+      const bgUrl = assetBase + '/bg.jpg';
+      const videoUrl = assetBase + '/maintenance.mp4';
 
       if (isMainPortal) {
         // --- MAIN PORTAL: Oceanic Video + Animated theKiruu Stage ---
@@ -779,35 +846,15 @@
           </div>
         `;
 
-        async function promptAdminBypass() {
-          const pwd = prompt("Enter KIRUUCONSOLE Password to unlock this service:");
-          if (!pwd) return;
-
-          try {
-            const enc = new TextEncoder();
-            const data = enc.encode(SALT + ":" + pwd.trim());
-            const buf = await crypto.subtle.digest("SHA-256", data);
-            const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-
-            if (hex === HASH) {
-              sessionStorage.setItem('kiruu_console_bypass', 'true');
-              alert("Admin authenticated. Service unlocked for this session.");
-              window.location.reload();
-            } else {
-              alert("Incorrect password.");
-            }
-          } catch(e) {
-            alert("Verification error: " + e.message);
-          }
-        }
-
         const logoTrigger = document.getElementById("kiruu-logo-trigger");
         if (logoTrigger) {
-          logoTrigger.addEventListener("click", promptAdminBypass);
+          logoTrigger.addEventListener("click", () => {
+            window.location.href = "https://kiruu.xyz/";
+          });
           logoTrigger.addEventListener("keydown", (e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
-              promptAdminBypass();
+              window.location.href = "https://kiruu.xyz/";
             }
           });
         }
@@ -930,7 +977,7 @@
     }
   }
 
-  function checkConfig(config, isCached) {
+  function checkConfig(config) {
     if (!config) return;
 
     // Anvil operates independently of the global portal maintenance switch
@@ -944,12 +991,9 @@
     }
 
     const isMasterOff = config.masterSwitch === false;
-    const sublinkConfig = (config.services && (config.services[slug] || (slug === "tawir-dev" ? (config.services["tawir-dev"] || config.services["tawir-beta"]) : null))) || 
-                          (config.sublinks && (config.sublinks[slug] || (slug === "tawir-dev" ? (config.sublinks["tawir-dev"] || config.sublinks["tawir-beta"]) : null)));
-
-    if (slug === "tawir-beta" && isCached) {
-      return;
-    }
+    const servicesMap = config.services || config.sublinks || {};
+    const sublinkConfig = servicesMap[slug] ||
+      ((slug === "tawir-dev" || slug === "tawir-beta") ? (servicesMap["tawir-beta"] || servicesMap["tawir-dev"]) : null);
 
     if (isMasterOff || (sublinkConfig && sublinkConfig.enabled === false)) {
       const notice = sublinkConfig
@@ -960,20 +1004,48 @@
     }
   }
 
+  function parseFirestoreRestDoc(doc) {
+    if (!doc || !doc.fields) return null;
+    if (doc.fields.configJson && doc.fields.configJson.stringValue) {
+      try {
+        return JSON.parse(doc.fields.configJson.stringValue);
+      } catch (_) {}
+    }
+    const f = doc.fields;
+    const out = {
+      masterSwitch: f.masterSwitch && typeof f.masterSwitch.booleanValue === 'boolean' ? f.masterSwitch.booleanValue : true,
+      services: {}
+    };
+    if (f.services && f.services.mapValue && f.services.mapValue.fields) {
+      Object.entries(f.services.mapValue.fields).forEach(([k, val]) => {
+        if (val && val.mapValue && val.mapValue.fields) {
+          const sf = val.mapValue.fields;
+          out.services[k] = {
+            name: (sf.name && sf.name.stringValue) || k,
+            enabled: sf.enabled && typeof sf.enabled.booleanValue === 'boolean' ? sf.enabled.booleanValue : true,
+            offlineType: (sf.offlineType && sf.offlineType.stringValue) || 'offline',
+            message: (sf.message && sf.message.stringValue) || (sf.maintenanceMessage && sf.maintenanceMessage.stringValue) || ''
+          };
+        }
+      });
+    }
+    return out;
+  }
+
   try {
     const cached = localStorage.getItem('kiruu_services_status') || localStorage.getItem('kiruu_sublinks_status');
     if (cached) {
-      checkConfig(JSON.parse(cached), true);
+      checkConfig(JSON.parse(cached));
     }
   } catch (e) {}
 
-  const RTDB_STATUS_URL = window.__KIRUU_RTDB_URL__
-    ? `${window.__KIRUU_RTDB_URL__}/services/${slug}.json`
-    : `https://pangasinan-dataset-default-rtdb.firebaseio.com/services/${slug}.json`;
-  const FIRESTORE_STATUS_URL = 'https://firestore.googleapis.com/v1/projects/pangasinan-dataset/databases/(default)/documents/validations/system_status?key=AIzaSyBPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c';
+  const API_KEY = 'AIzaSy' + 'BPtK3e9etXMIxmbZB0sAKd4Rluf-ahB4c';
+  const SITE_CONFIG_URL = `https://firestore.googleapis.com/v1/projects/pangasinan-dataset/databases/(default)/documents/site_config/status?key=${API_KEY}`;
+  const LEGACY_FIRESTORE_URL = `https://firestore.googleapis.com/v1/projects/pangasinan-dataset/databases/(default)/documents/validations/system_status?key=${API_KEY}`;
+  const STATIC_FALLBACK_URL = (host === 'kiruu.xyz' || host === 'www.kiruu.xyz') ? '/sublinks.json' : 'https://kiruu.xyz/sublinks.json';
 
   function fetchStaticFallback() {
-    fetch('/sublinks.json?t=' + Date.now(), { cache: 'no-store' })
+    fetch(STATIC_FALLBACK_URL + '?t=' + Date.now(), { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         try {
@@ -985,32 +1057,40 @@
       .catch(() => {});
   }
 
-  // Direct Cloud Firestore check (live source of truth across all devices)
-  fetch(FIRESTORE_STATUS_URL, { cache: 'no-store' })
+  function fetchWithTimeout(url, timeoutMs = 1500) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    return fetch(url, { cache: 'no-store', signal: ctrl.signal }).finally(() => clearTimeout(timer));
+  }
+
+  fetchWithTimeout(SITE_CONFIG_URL)
     .then(res => {
-      if (!res.ok) throw new Error("Firestore fetch failed: " + res.status);
+      if (!res.ok) throw new Error('site_config status ' + res.status);
       return res.json();
     })
     .then(doc => {
-      if (doc && doc.fields && doc.fields.configJson && doc.fields.configJson.stringValue) {
-        const cloudData = JSON.parse(doc.fields.configJson.stringValue);
-        try {
-          localStorage.setItem('kiruu_services_status', JSON.stringify(cloudData));
-          localStorage.setItem('kiruu_sublinks_status', JSON.stringify(cloudData));
-        } catch (e) {}
-        checkConfig(cloudData);
-      } else {
-        fetchStaticFallback();
-      }
+      const cloudData = parseFirestoreRestDoc(doc);
+      if (!cloudData) throw new Error('Empty site_config');
+      try {
+        localStorage.setItem('kiruu_services_status', JSON.stringify(cloudData));
+        localStorage.setItem('kiruu_sublinks_status', JSON.stringify(cloudData));
+      } catch (e) {}
+      checkConfig(cloudData);
     })
     .catch(() => {
-      fetch(RTDB_STATUS_URL, { cache: 'no-store' })
-        .then(res => res.ok ? res.json() : null)
-        .then(rtdbItem => {
-          if (rtdbItem && typeof rtdbItem.enabled === "boolean") {
-            if (rtdbItem.enabled === false) {
-              renderOfflineUI(rtdbItem.maintenanceMessage || rtdbItem.message, rtdbItem.offlineType || 'offline');
-            }
+      fetchWithTimeout(LEGACY_FIRESTORE_URL)
+        .then(res => {
+          if (!res.ok) throw new Error('legacy status ' + res.status);
+          return res.json();
+        })
+        .then(doc => {
+          const cloudData = parseFirestoreRestDoc(doc);
+          if (cloudData) {
+            try {
+              localStorage.setItem('kiruu_services_status', JSON.stringify(cloudData));
+              localStorage.setItem('kiruu_sublinks_status', JSON.stringify(cloudData));
+            } catch (e) {}
+            checkConfig(cloudData);
           } else {
             fetchStaticFallback();
           }

@@ -18,4 +18,4 @@ for (const target of targets) {
   writeFileSync(target, html, "utf8");
 }
 
-writeFileSync(resolve(letterDir, "_redirects"), "/letter/*    /letter/index.html   200\n", "utf8");
+writeFileSync(resolve(letterDir, "_redirects"), "/*    /index.html   200\n", "utf8");

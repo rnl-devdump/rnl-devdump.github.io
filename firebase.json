@@ -1,0 +1,404 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "hosting": [
+    {
+      "target": "portal",
+      "public": ".",
+      "ignore": [
+        "firebase.json",
+        ".firebaserc",
+        "firestore.rules",
+        "database.rules.json",
+        "**/.*",
+        "**/node_modules/**",
+        "src/**",
+        "scripts/**",
+        "tests/**",
+        "vite*.config.js",
+        "package*.json",
+        "requirements.txt",
+        "*.mjs"
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+            { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+          ]
+        }
+      ],
+      "redirects": [
+        { "source": "/dashboard", "destination": "https://console.kiruu.xyz/", "type": 301 },
+        { "source": "/dashboard/:path*", "destination": "https://console.kiruu.xyz/:path", "type": 301 },
+        { "source": "/tawir-convo", "destination": "https://console.kiruu.xyz/#conversations", "type": 301 },
+        { "source": "/tawir-convo/:path*", "destination": "https://console.kiruu.xyz/#conversations", "type": 301 },
+        { "source": "/tawir-beta", "destination": "https://tawir.kiruu.xyz/beta/", "type": 301 },
+        { "source": "/tawir-beta/:path*", "destination": "https://tawir.kiruu.xyz/beta/:path", "type": 301 },
+        { "source": "/tawir-dev", "destination": "https://tawir.kiruu.xyz/beta/", "type": 301 },
+        { "source": "/tawir-dev/:path*", "destination": "https://tawir.kiruu.xyz/beta/:path", "type": 301 },
+        { "source": "/tawir", "destination": "https://tawir.kiruu.xyz/", "type": 301 },
+        { "source": "/tawir/:path*", "destination": "https://tawir.kiruu.xyz/:path", "type": 301 },
+        { "source": "/vl-assist", "destination": "https://vl-assist.kiruu.xyz/", "type": 301 },
+        { "source": "/vl-assist/:path*", "destination": "https://vl-assist.kiruu.xyz/:path", "type": 301 },
+        { "source": "/anvil", "destination": "https://anvil.kiruu.xyz/", "type": 301 },
+        { "source": "/anvil/:path*", "destination": "https://anvil.kiruu.xyz/:path", "type": 301 },
+        { "source": "/studybuddy", "destination": "https://anvil.kiruu.xyz/", "type": 301 },
+        { "source": "/studybuddy/:path*", "destination": "https://anvil.kiruu.xyz/:path", "type": 301 },
+        { "source": "/asksight", "destination": "https://asksight.kiruu.xyz/", "type": 301 },
+        { "source": "/asksight/:path*", "destination": "https://asksight.kiruu.xyz/:path", "type": 301 },
+        { "source": "/anime", "destination": "https://anime.kiruu.xyz/", "type": 301 },
+        { "source": "/anime/:path*", "destination": "https://anime.kiruu.xyz/:path", "type": 301 },
+        { "source": "/movie", "destination": "https://movie.kiruu.xyz/", "type": 301 },
+        { "source": "/movie/:path*", "destination": "https://movie.kiruu.xyz/:path", "type": 301 },
+        { "source": "/chess", "destination": "https://chess.kiruu.xyz/", "type": 301 },
+        { "source": "/chess/:path*", "destination": "https://chess.kiruu.xyz/:path", "type": 301 },
+        { "source": "/vibe", "destination": "https://vibe.kiruu.xyz/", "type": 301 },
+        { "source": "/vibe/:path*", "destination": "https://vibe.kiruu.xyz/:path", "type": 301 },
+        { "source": "/dataset", "destination": "https://dataset.kiruu.xyz/", "type": 301 },
+        { "source": "/dataset/:path*", "destination": "https://dataset.kiruu.xyz/:path", "type": 301 },
+        { "source": "/validation", "destination": "https://validation.kiruu.xyz/", "type": 301 },
+        { "source": "/validation/:path*", "destination": "https://validation.kiruu.xyz/:path", "type": 301 },
+        { "source": "/bill", "destination": "https://bill.kiruu.xyz/", "type": 301 },
+        { "source": "/bill/:path*", "destination": "https://bill.kiruu.xyz/:path", "type": 301 },
+        { "source": "/directory", "destination": "https://directory.kiruu.xyz/", "type": 301 },
+        { "source": "/directory/:path*", "destination": "https://directory.kiruu.xyz/:path", "type": 301 },
+        { "source": "/forum", "destination": "https://forum.kiruu.xyz/", "type": 301 },
+        { "source": "/forum/:path*", "destination": "https://forum.kiruu.xyz/:path", "type": 301 },
+        { "source": "/faerie", "destination": "https://faerie.kiruu.xyz/", "type": 301 },
+        { "source": "/faerie/:path*", "destination": "https://faerie.kiruu.xyz/:path", "type": 301 },
+        { "source": "/letter", "destination": "https://letter.kiruu.xyz/", "type": 301 },
+        { "source": "/letter/:path*", "destination": "https://letter.kiruu.xyz/:path", "type": 301 },
+        { "source": "/letterx", "destination": "https://letterx.kiruu.xyz/", "type": 301 },
+        { "source": "/letterx/:path*", "destination": "https://letterx.kiruu.xyz/:path", "type": 301 },
+        { "source": "/letterhelper", "destination": "https://letterhelper.kiruu.xyz/", "type": 301 },
+        { "source": "/letterhelper/:path*", "destination": "https://letterhelper.kiruu.xyz/:path", "type": 301 }
+      ]
+    },
+    {
+      "target": "console",
+      "public": "console",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+            { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+            {
+              "key": "Content-Security-Policy",
+              "value": "default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com https://*.modal.run; frame-src https://*.firebaseapp.com https://accounts.google.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self';"
+            }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "tawir",
+      "public": "tawir",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [
+        { "source": "/beta/**", "destination": "/beta/index.html" },
+        { "source": "**", "destination": "/index.html" }
+      ]
+    },
+    {
+      "target": "vl-assist",
+      "public": "vl-assist",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "anvil",
+      "public": "anvil",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "asksight",
+      "public": "asksight",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "anime",
+      "public": "anime",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "movie",
+      "public": "movie",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "chess",
+      "public": "chess",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "vibe",
+      "public": "vibe",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "dataset",
+      "public": "dataset",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "validation",
+      "public": "validation",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "bill",
+      "public": "bill",
+      "ignore": ["**/.*", "*.py"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "directory",
+      "public": "directory",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "forum",
+      "public": "forum",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "faerie",
+      "public": "faerie",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    },
+    {
+      "target": "letter",
+      "public": "letter",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [
+        { "source": "/entries/**", "destination": "/entries/index.html" },
+        { "source": "**", "destination": "/index.html" }
+      ]
+    },
+    {
+      "target": "letterx",
+      "public": "letterx",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [
+        { "source": "/entries/**", "destination": "/entries/index.html" },
+        { "source": "**", "destination": "/index.html" }
+      ]
+    },
+    {
+      "target": "letterhelper",
+      "public": "letterhelper",
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "X-Frame-Options", "value": "DENY" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ],
+      "rewrites": [{ "source": "**", "destination": "/index.html" }]
+    }
+  ]
+}

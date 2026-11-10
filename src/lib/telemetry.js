@@ -1,14 +1,15 @@
-import { collection, addDoc, doc, setDoc, increment, arrayUnion, serverTimestamp } from 'firebase/firestore';
-import { db, auth } from './firebase.js';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from './firebase.js';
 
-export const TELEMETRY_COLLECTION = 'validations';
-export const TELEMETRY_DOC_ID = 'telemetry_data';
+export const DEVICE_LOGS_COLLECTION = 'device_logs';
+export const AI_LOGS_COLLECTION = 'ai_usage_logs';
+export const TELEMETRY_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30-day retention window
 
 export function getDeviceInfo(customUa = null) {
   const ua = typeof customUa === 'string'
     ? customUa
     : ((typeof navigator !== 'undefined' && navigator.userAgent) ? navigator.userAgent : '');
-    
+
   let os = 'Unknown OS';
   if (ua.indexOf('Win') !== -1) os = 'Windows';
   else if (ua.indexOf('Android') !== -1) os = 'Android';
@@ -32,7 +33,7 @@ export function getDeviceInfo(customUa = null) {
 
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
   const isTablet = /(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch)))/i.test(ua);
-  
+
   let deviceType = 'Desktop';
   if (isTablet) deviceType = 'Tablet';
   else if (isMobile) deviceType = 'Mobile';
@@ -85,38 +86,23 @@ export async function trackVisitEvent(page = 'movie') {
     const visitRecord = {
       id: eventId,
       ...info,
-      page: String(page || 'unknown').slice(0, 32),
+      page: String(page || 'unknown').slice(0, 64),
+      expireAt: new Date(Date.now() + TELEMETRY_TTL_MS),
     };
 
-    // 1. Buffer in localStorage for instant local continuity and resilience
     bufferLocalEvent('kiruu_local_telemetry_visits', visitRecord);
 
-    // 2. Write to public validations/telemetry_data in Firestore (open access rule)
     if (db) {
       try {
-        const teleDocRef = doc(db, TELEMETRY_COLLECTION, TELEMETRY_DOC_ID);
-        await setDoc(teleDocRef, {
-          totalVisits: increment(1),
-          recentVisits: arrayUnion(visitRecord),
-          lastUpdated: Date.now(),
-        }, { merge: true });
-      } catch (docErr) {
-        // Fallback silently if SDK write fails
-      }
-
-      // 3. Optional write to collection device_logs if authenticated admin session exists
-      if (auth && auth.currentUser) {
-        try {
-          await addDoc(collection(db, 'device_logs'), {
-            ...visitRecord,
-            createdAt: serverTimestamp(),
-          });
-        } catch (_) {
-          // Suppress unauthenticated collection write error
-        }
+        await addDoc(collection(db, DEVICE_LOGS_COLLECTION), {
+          ...visitRecord,
+          createdAt: serverTimestamp(),
+        });
+      } catch (_) {
+        // Suppress network/offline telemetry write error
       }
     }
-  } catch (err) {
+  } catch (_) {
     // Fail-safe: telemetry tracking must never break host application execution
   }
 }
@@ -132,37 +118,22 @@ export async function trackAiEvent(promptText, engine = 'Gemini') {
       prompt: safePrompt,
       engine: String(engine || 'Unknown').slice(0, 32),
       promptLength: typeof promptText === "string" ? promptText.length : 0,
+      expireAt: new Date(Date.now() + TELEMETRY_TTL_MS),
     };
 
-    // 1. Buffer in localStorage for instant local continuity
     bufferLocalEvent('kiruu_local_telemetry_ai', aiRecord);
 
-    // 2. Write to public validations/telemetry_data in Firestore (open access rule)
     if (db) {
       try {
-        const teleDocRef = doc(db, TELEMETRY_COLLECTION, TELEMETRY_DOC_ID);
-        await setDoc(teleDocRef, {
-          totalAiQueries: increment(1),
-          recentAiQueries: arrayUnion(aiRecord),
-          lastUpdated: Date.now(),
-        }, { merge: true });
-      } catch (docErr) {
-        // Fallback silently if SDK write fails
-      }
-
-      // 3. Optional write to collection ai_usage_logs if authenticated admin session exists
-      if (auth && auth.currentUser) {
-        try {
-          await addDoc(collection(db, 'ai_usage_logs'), {
-            ...aiRecord,
-            createdAt: serverTimestamp(),
-          });
-        } catch (_) {
-          // Suppress unauthenticated collection write error
-        }
+        await addDoc(collection(db, AI_LOGS_COLLECTION), {
+          ...aiRecord,
+          createdAt: serverTimestamp(),
+        });
+      } catch (_) {
+        // Suppress network/offline telemetry write error
       }
     }
-  } catch (err) {
+  } catch (_) {
     // Fail-safe: telemetry tracking must never break host application execution
   }
 }

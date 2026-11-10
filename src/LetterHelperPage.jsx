@@ -59,11 +59,11 @@ export default function LetterHelperPage() {
   const letterxQuery = useMemo(() => buildQuery(queryFields), [queryFields]);
 
   const generatedLetterPath = useMemo(
-    () => `/letter/${cleanLetterName}?${letterQuery}`,
+    () => `https://letter.kiruu.xyz/${cleanLetterName}?${letterQuery}`,
     [cleanLetterName, letterQuery],
   );
   const generatedLetterxPath = useMemo(
-    () => `/letterx/${cleanLetterName}?${letterxQuery}`,
+    () => `https://letterx.kiruu.xyz/${cleanLetterName}?${letterxQuery}`,
     [cleanLetterName, letterxQuery],
   );
 
@@ -73,6 +73,8 @@ export default function LetterHelperPage() {
   }, [publishedDocId, safePic1, safePic2]);
 
   const absolute = (path) => {
+    if (!path) return "";
+    if (/^https?:\/\//i.test(path)) return path;
     if (typeof window === "undefined") return path;
     return `${window.location.origin}${path}`;
   };

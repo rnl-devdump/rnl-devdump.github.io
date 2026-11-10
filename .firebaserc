@@ -1,0 +1,30 @@
+{
+  "projects": {
+    "default": "pangasinan-dataset"
+  },
+  "targets": {
+    "pangasinan-dataset": {
+      "hosting": {
+        "portal": ["kiruu-portal"],
+        "console": ["console-kiruu"],
+        "tawir": ["tawir-kiruu"],
+        "vl-assist": ["vl-assist-kiruu"],
+        "anvil": ["anvil-kiruu"],
+        "asksight": ["asksight-kiruu"],
+        "anime": ["anime-kiruu"],
+        "movie": ["movie-kiruu"],
+        "chess": ["chess-kiruu"],
+        "vibe": ["vibe-kiruu"],
+        "dataset": ["dataset-kiruu"],
+        "validation": ["validation-kiruu"],
+        "bill": ["bill-kiruu"],
+        "directory": ["directory-kiruu"],
+        "forum": ["forum-kiruu"],
+        "faerie": ["faerie-kiruu"],
+        "letter": ["letter-kiruu"],
+        "letterx": ["letterx-kiruu"],
+        "letterhelper": ["letterhelper-kiruu"]
+      }
+    }
+  }
+}
