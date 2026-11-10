@@ -15,7 +15,14 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
-  <base href="/">
+  <script>
+    (function() {
+      var b = document.createElement('base');
+      var h = (location.hostname || '').toLowerCase();
+      b.href = (h === 'kiruu.xyz' || h === 'www.kiruu.xyz' || h.endsWith('.github.io')) ? '/tawir/' : '/';
+      document.head.appendChild(b);
+    })();
+  </script>
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">

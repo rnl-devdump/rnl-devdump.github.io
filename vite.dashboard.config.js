@@ -18,7 +18,7 @@ function devRewritePlugin() {
 }
 
 export default defineConfig({
-  base: "/",
+  base: "./",
   plugins: [react(), tailwindcss(), devRewritePlugin()],
   build: {
     outDir: "console",

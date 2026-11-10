@@ -1,18 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TAWIR Beta Moved &mdash; tawir.kiruu.xyz/beta/</title>
-    <link rel="canonical" href="https://tawir.kiruu.xyz/beta/" />
-    <meta http-equiv="refresh" content="0; url=https://tawir.kiruu.xyz/beta/" />
-    <script>
-      window.location.replace(
-        "https://tawir.kiruu.xyz/beta/" + (window.location.search || "") + (window.location.hash || "")
-      );
-    </script>
-  </head>
-  <body style="font-family: system-ui, sans-serif; padding: 2rem; text-align: center;">
-    <p>TAWIR Beta has moved to <a href="https://tawir.kiruu.xyz/beta/">tawir.kiruu.xyz/beta/</a>.</p>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <title>Redirecting to TAWIR Beta</title>
+  <script>
+    (function () {
+      var suffix = window.location.search + window.location.hash;
+      var ctrl = new AbortController();
+      var timer = setTimeout(function () { ctrl.abort(); }, 1000);
+      fetch("https://tawir.kiruu.xyz/sublink-guard.js", {
+        method: "HEAD",
+        mode: "no-cors",
+        cache: "no-store",
+        signal: ctrl.signal
+      }).then(function () {
+        clearTimeout(timer);
+        window.location.replace("https://tawir.kiruu.xyz/beta/" + suffix);
+      }).catch(function () {
+        clearTimeout(timer);
+        window.location.replace("/tawir/beta/" + suffix);
+      });
+    })();
+  </script>
+</head>
+<body>
+  <p>Redirecting to <a href="/tawir/beta/">TAWIR Beta</a>&hellip;</p>
+</body>
 </html>

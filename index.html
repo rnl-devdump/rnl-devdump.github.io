@@ -1095,6 +1095,60 @@
                     variant: variant || "info"
                 });
             };
+
+            // E. DNS-aware subdomain link router: routes to https://<sublink>.kiruu.xyz when DNS is active,
+            // and falls back to https://kiruu.xyz/<sublink>/ when subdomain DNS is still propagating.
+            function getFallbackPathForSubdomainUrl(urlStr) {
+                try {
+                    var u = new URL(urlStr, window.location.origin);
+                    var h = u.hostname.toLowerCase();
+                    if (!h.endsWith(".kiruu.xyz") || h === "www.kiruu.xyz") return null;
+                    var sub = h.slice(0, -".kiruu.xyz".length);
+                    if (sub === "tawir" && u.pathname.indexOf("/beta") === 0) {
+                        return "/tawir/beta/" + u.search + u.hash;
+                    }
+                    var cleanRest = u.pathname && u.pathname !== "/" ? u.pathname : "/";
+                    return "/" + sub + cleanRest + u.search + u.hash;
+                } catch (_) {
+                    return null;
+                }
+            }
+
+            document.addEventListener("click", function(e) {
+                if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                var anchor = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+                if (!anchor || anchor.getAttribute("aria-disabled") === "true") return;
+                var href = anchor.getAttribute("href") || "";
+                var fallbackPath = getFallbackPathForSubdomainUrl(href);
+                if (!fallbackPath) return;
+
+                e.preventDefault();
+                var targetAttr = anchor.getAttribute("target");
+                var ctrl = new AbortController();
+                var timer = setTimeout(function() { ctrl.abort(); }, 900);
+                var origin = new URL(href).origin;
+
+                fetch(origin + "/sublink-guard.js", {
+                    method: "HEAD",
+                    mode: "no-cors",
+                    cache: "no-store",
+                    signal: ctrl.signal
+                }).then(function() {
+                    clearTimeout(timer);
+                    if (targetAttr === "_blank") {
+                        window.open(href, "_blank", "noopener,noreferrer");
+                    } else {
+                        window.location.href = href;
+                    }
+                }).catch(function() {
+                    clearTimeout(timer);
+                    if (targetAttr === "_blank") {
+                        window.open(fallbackPath, "_blank", "noopener,noreferrer");
+                    } else {
+                        window.location.href = fallbackPath;
+                    }
+                });
+            });
         })();
     </script>
 </body>

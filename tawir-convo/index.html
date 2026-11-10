@@ -1,16 +1,28 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TAWIR Conversation Monitor Moved &mdash; console.kiruu.xyz</title>
-    <link rel="canonical" href="https://console.kiruu.xyz/#conversations" />
-    <meta http-equiv="refresh" content="0; url=https://console.kiruu.xyz/#conversations" />
-    <script>
-      window.location.replace("https://console.kiruu.xyz/#conversations");
-    </script>
-  </head>
-  <body style="font-family: system-ui, sans-serif; padding: 2rem; text-align: center;">
-    <p>TAWIR Conversation Monitor is now integrated into <a href="https://console.kiruu.xyz/#conversations">console.kiruu.xyz/#conversations</a>.</p>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <title>Redirecting to Kiruu Console Conversations</title>
+  <script>
+    (function () {
+      var ctrl = new AbortController();
+      var timer = setTimeout(function () { ctrl.abort(); }, 1000);
+      fetch("https://console.kiruu.xyz/index.html", {
+        method: "HEAD",
+        mode: "no-cors",
+        cache: "no-store",
+        signal: ctrl.signal
+      }).then(function () {
+        clearTimeout(timer);
+        window.location.replace("https://console.kiruu.xyz/#conversations");
+      }).catch(function () {
+        clearTimeout(timer);
+        window.location.replace("/console/#conversations");
+      });
+    })();
+  </script>
+</head>
+<body>
+  <p>Redirecting to <a href="/console/#conversations">Kiruu Console &mdash; Conversations</a>&hellip;</p>
+</body>
 </html>

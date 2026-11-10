@@ -51,30 +51,54 @@
   };
 
   const currentPath = window.location.pathname.replace(/^\/|\/$/g, '');
-  const rawSlug = currentPath.split('/')[0];
+  const pathParts = currentPath.split('/');
+  const rawSlug = pathParts[0];
 
   // Redirect legacy kiruu.xyz/<sublink> paths to canonical <sublink>.kiruu.xyz subdomains
+  // once DNS for the target subdomain is active; otherwise serve from kiruu.xyz/<sublink> without NXDOMAIN.
   if (
     (host === 'kiruu.xyz' || host === 'www.kiruu.xyz' || host === 'rnl-devdump.github.io') &&
     rawSlug &&
     LEGACY_PATH_REDIRECTS[rawSlug]
   ) {
     const targetBase = LEGACY_PATH_REDIRECTS[rawSlug];
-    if (rawSlug === 'tawir-convo') {
-      window.location.replace(targetBase);
-      return;
+    let destination = targetBase;
+    if (rawSlug !== 'tawir-convo') {
+      const restPath = window.location.pathname.replace(/^\/[^/]+/, '') || '/';
+      const normalizedRest = restPath.startsWith('/') ? restPath : '/' + restPath;
+      destination = targetBase.endsWith('/beta')
+        ? targetBase + (normalizedRest === '/' ? '/' : normalizedRest) + window.location.search + window.location.hash
+        : targetBase + normalizedRest + window.location.search + window.location.hash;
     }
-    const restPath = window.location.pathname.replace(/^\/[^/]+/, '') || '/';
-    const normalizedRest = restPath.startsWith('/') ? restPath : '/' + restPath;
-    const destination = targetBase.endsWith('/beta')
-      ? targetBase + (normalizedRest === '/' ? '/' : normalizedRest) + window.location.search + window.location.hash
-      : targetBase + normalizedRest + window.location.search + window.location.hash;
-    window.location.replace(destination);
-    return;
+
+    try {
+      const probeOrigin = new URL(targetBase).origin;
+      const ctrl = new AbortController();
+      const timer = setTimeout(function() { ctrl.abort(); }, 1200);
+      fetch(probeOrigin + '/sublink-guard.js', {
+        method: 'HEAD',
+        mode: 'no-cors',
+        cache: 'no-store',
+        signal: ctrl.signal
+      }).then(function() {
+        clearTimeout(timer);
+        window.location.replace(destination);
+      }).catch(function() {
+        clearTimeout(timer);
+        if (rawSlug === 'tawir-convo') {
+          window.location.replace('/console/#conversations');
+        } else if (rawSlug === 'tawir-beta' || rawSlug === 'tawir-dev') {
+          window.location.replace('/tawir/beta/' + window.location.search + window.location.hash);
+        }
+      });
+    } catch (_) {}
   }
 
   let slug = SUBDOMAIN_SERVICE_MAP[host] || null;
   if (host === 'tawir.kiruu.xyz' && (rawSlug === 'beta' || window.location.pathname.indexOf('/beta/') === 0)) {
+    slug = 'tawir-beta';
+  }
+  if ((host === 'kiruu.xyz' || host === 'www.kiruu.xyz' || host === 'rnl-devdump.github.io') && rawSlug === 'tawir' && pathParts[1] === 'beta') {
     slug = 'tawir-beta';
   }
   if (!slug && host.endsWith('.kiruu.xyz') && host !== 'www.kiruu.xyz') {

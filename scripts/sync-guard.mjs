@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, renameSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, renameSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -23,6 +23,13 @@ for (const [fromRel, toRel] of finalizeHtmlMap) {
       copyFileSync(fromPath, toPath);
     }
   }
+}
+
+// Mirror console/ build output into dashboard/ so both console.kiruu.xyz and kiruu.xyz/dashboard work
+const consoleDir = resolve(root, "console");
+const dashboardDir = resolve(root, "dashboard");
+if (existsSync(resolve(consoleDir, "index.html"))) {
+  cpSync(consoleDir, dashboardDir, { recursive: true, force: true });
 }
 
 const standaloneDirs = [

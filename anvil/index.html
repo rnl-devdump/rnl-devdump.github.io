@@ -1,7 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base href="/">
+  <script>
+    (function() {
+      var b = document.createElement('base');
+      var h = (location.hostname || '').toLowerCase();
+      b.href = (h === 'kiruu.xyz' || h === 'www.kiruu.xyz' || h.endsWith('.github.io')) ? '/anvil/' : '/';
+      document.head.appendChild(b);
+    })();
+  </script>
 
   <!-- Frame-busting clickjacking defense for static hosts (GitHub Pages) -->
   <script>
