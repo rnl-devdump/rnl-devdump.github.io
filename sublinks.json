@@ -9,6 +9,15 @@
     "updatedAt": "2026-11-10T15:45:00.000Z"
   },
   "sublinks": {
+    "dermatriage": {
+      "name": "Dermatriage (Clinical Triage)",
+      "path": "kiruu.xyz/dermatriage",
+      "url": "https://kiruu.xyz/dermatriage/",
+      "category": "Healthcare AI",
+      "enabled": true,
+      "offlineType": "offline",
+      "message": "Dermatriage is temporarily offline."
+    },
     "main": {
       "name": "Main Homepage (Portal)",
       "path": "/",

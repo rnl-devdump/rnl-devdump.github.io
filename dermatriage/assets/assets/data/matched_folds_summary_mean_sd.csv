@@ -1,0 +1,7 @@
+,Val_Macro_F1,Val_Macro_F1,Test_Accuracy,Test_Accuracy,Test_Macro_Precision,Test_Macro_Precision,Test_Macro_Recall,Test_Macro_Recall,Test_Macro_F1,Test_Macro_F1
+,mean,std,mean,std,mean,std,mean,std,mean,std
+Model,,,,,,,,,,
+Proposed (CNN-ViT Cross-Attention),86.81,2.12,82.24,4.26,83.64,5.39,81.18,4.91,81.28,5.02
+CNN + ViT (Simple Concatenation),86.23,4.14,83.68,2.52,86.23,2.52,82.67,2.6,83.19,1.52
+Standalone ViT (Global-Only),85.74,3.9,83.94,5.19,85.44,7.13,81.49,7.24,82.5,6.77
+Standalone CNN (ResNet-50),77.29,5.26,78.21,6.71,80.81,9.01,75.22,8.25,76.12,8.6

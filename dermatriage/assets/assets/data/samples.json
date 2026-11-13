@@ -1,0 +1,86 @@
+[
+  {
+    "class_name": "Chickenpox",
+    "filename": "chickenpox_sample_1.jpg",
+    "source_file": "CHP_08_01.jpg",
+    "path": "assets/images/samples/chickenpox_sample_1.jpg",
+    "sample_index": 1
+  },
+  {
+    "class_name": "Chickenpox",
+    "filename": "chickenpox_sample_2.jpg",
+    "source_file": "CHP_08_02.jpg",
+    "path": "assets/images/samples/chickenpox_sample_2.jpg",
+    "sample_index": 2
+  },
+  {
+    "class_name": "Cowpox",
+    "filename": "cowpox_sample_1.jpg",
+    "source_file": "CWP_02_01.jpg",
+    "path": "assets/images/samples/cowpox_sample_1.jpg",
+    "sample_index": 1
+  },
+  {
+    "class_name": "Cowpox",
+    "filename": "cowpox_sample_2.jpg",
+    "source_file": "CWP_09_01.jpg",
+    "path": "assets/images/samples/cowpox_sample_2.jpg",
+    "sample_index": 2
+  },
+  {
+    "class_name": "Healthy",
+    "filename": "healthy_sample_1.jpg",
+    "source_file": "HEALTHY_11_01.jpg",
+    "path": "assets/images/samples/healthy_sample_1.jpg",
+    "sample_index": 1
+  },
+  {
+    "class_name": "Healthy",
+    "filename": "healthy_sample_2.jpg",
+    "source_file": "HEALTHY_37_01.jpg",
+    "path": "assets/images/samples/healthy_sample_2.jpg",
+    "sample_index": 2
+  },
+  {
+    "class_name": "HFMD",
+    "filename": "hfmd_sample_1.jpg",
+    "source_file": "HFMD_09_01.jpg",
+    "path": "assets/images/samples/hfmd_sample_1.jpg",
+    "sample_index": 1
+  },
+  {
+    "class_name": "HFMD",
+    "filename": "hfmd_sample_2.jpg",
+    "source_file": "HFMD_100_01.jpg",
+    "path": "assets/images/samples/hfmd_sample_2.jpg",
+    "sample_index": 2
+  },
+  {
+    "class_name": "Measles",
+    "filename": "measles_sample_1.jpg",
+    "source_file": "MSL_16_01.jpg",
+    "path": "assets/images/samples/measles_sample_1.jpg",
+    "sample_index": 1
+  },
+  {
+    "class_name": "Measles",
+    "filename": "measles_sample_2.jpg",
+    "source_file": "MSL_21_01.jpg",
+    "path": "assets/images/samples/measles_sample_2.jpg",
+    "sample_index": 2
+  },
+  {
+    "class_name": "Mpox",
+    "filename": "mpox_sample_1.jpg",
+    "source_file": "MKP_10_01.jpg",
+    "path": "assets/images/samples/mpox_sample_1.jpg",
+    "sample_index": 1
+  },
+  {
+    "class_name": "Mpox",
+    "filename": "mpox_sample_2.jpg",
+    "source_file": "MKP_10_02.jpg",
+    "path": "assets/images/samples/mpox_sample_2.jpg",
+    "sample_index": 2
+  }
+]

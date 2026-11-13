@@ -1,0 +1,391 @@
+{
+  "classification_report": {
+    "Mpox": {
+      "precision": 0.84,
+      "recall": 0.7778,
+      "f1": 0.8077,
+      "support": 27
+    },
+    "Chickenpox": {
+      "precision": 0.6667,
+      "recall": 0.6667,
+      "f1": 0.6667,
+      "support": 9
+    },
+    "Measles": {
+      "precision": 0.8571,
+      "recall": 1.0,
+      "f1": 0.9231,
+      "support": 6
+    },
+    "Cowpox": {
+      "precision": 0.75,
+      "recall": 0.8571,
+      "f1": 0.8,
+      "support": 7
+    },
+    "HFMD": {
+      "precision": 0.9333,
+      "recall": 0.875,
+      "f1": 0.9032,
+      "support": 16
+    },
+    "Healthy": {
+      "precision": 0.8,
+      "recall": 0.8889,
+      "f1": 0.8421,
+      "support": 9
+    },
+    "accuracy": 0.8243,
+    "macro_avg": {
+      "precision": 0.8079,
+      "recall": 0.8442,
+      "f1": 0.8238,
+      "support": 74
+    },
+    "weighted_avg": {
+      "precision": 0.8271,
+      "recall": 0.8243,
+      "f1": 0.824,
+      "support": 74
+    }
+  },
+  "five_fold_summary": [
+    {
+      "model": "Proposed (CNN-ViT Cross-Attention)",
+      "val_macro_f1_mean": 86.81,
+      "val_macro_f1_std": 2.12,
+      "test_acc_mean": 82.24,
+      "test_acc_std": 4.26,
+      "test_precision_mean": 83.64,
+      "test_precision_std": 5.39,
+      "test_recall_mean": 81.18,
+      "test_recall_std": 4.91,
+      "test_f1_mean": 81.28,
+      "test_f1_std": 5.02,
+      "description": "Dual-Branch ViT-B/16 (Global) + ResNet-50 (Local) with Multi-Head Cross-Attention (Proposed)"
+    },
+    {
+      "model": "CNN + ViT (Simple Concatenation)",
+      "val_macro_f1_mean": 86.23,
+      "val_macro_f1_std": 4.14,
+      "test_acc_mean": 83.68,
+      "test_acc_std": 2.52,
+      "test_precision_mean": 86.23,
+      "test_precision_std": 2.52,
+      "test_recall_mean": 82.67,
+      "test_recall_std": 2.6,
+      "test_f1_mean": 83.19,
+      "test_f1_std": 1.52,
+      "description": "Ablation Baseline 1: ResNet-50 + ViT-B/16 concatenated features without cross-attention"
+    },
+    {
+      "model": "Standalone ViT (Global-Only)",
+      "val_macro_f1_mean": 85.74,
+      "val_macro_f1_std": 3.9,
+      "test_acc_mean": 83.94,
+      "test_acc_std": 5.19,
+      "test_precision_mean": 85.44,
+      "test_precision_std": 7.13,
+      "test_recall_mean": 81.49,
+      "test_recall_std": 7.24,
+      "test_f1_mean": 82.5,
+      "test_f1_std": 6.77,
+      "description": "Ablation Baseline 2: vit_base_patch16_224 global-only classifier"
+    },
+    {
+      "model": "Standalone CNN (ResNet-50)",
+      "val_macro_f1_mean": 77.29,
+      "val_macro_f1_std": 5.26,
+      "test_acc_mean": 78.21,
+      "test_acc_std": 6.71,
+      "test_precision_mean": 80.81,
+      "test_precision_std": 9.01,
+      "test_recall_mean": 75.22,
+      "test_recall_std": 8.25,
+      "test_f1_mean": 76.12,
+      "test_f1_std": 8.6,
+      "description": "Ablation Baseline 3: Standard ResNet-50 CNN local-only backbone"
+    }
+  ],
+  "fold_results": [
+    {
+      "Model": "Proposed (CNN-ViT Cross-Attention)",
+      "Fold": "1",
+      "Best_Val_Epoch": "8",
+      "Val_Macro_F1": "85.56948820795199",
+      "Test_Accuracy": "82.43243243243244",
+      "Test_Macro_Precision": "80.78571428571428",
+      "Test_Macro_Recall": "84.42460317460319",
+      "Test_Macro_F1": "82.37944945075675",
+      "Test_Loss": "0.37074860225658157"
+    },
+    {
+      "Model": "Proposed (CNN-ViT Cross-Attention)",
+      "Fold": "2",
+      "Best_Val_Epoch": "14",
+      "Val_Macro_F1": "87.65223717414825",
+      "Test_Accuracy": "78.04878048780488",
+      "Test_Macro_Precision": "78.8973063973064",
+      "Test_Macro_Recall": "73.97116324535679",
+      "Test_Macro_F1": "75.10916736663003",
+      "Test_Loss": "0.9745487080114644"
+    },
+    {
+      "Model": "Proposed (CNN-ViT Cross-Attention)",
+      "Fold": "3",
+      "Best_Val_Epoch": "18",
+      "Val_Macro_F1": "83.72053736024324",
+      "Test_Accuracy": "82.8125",
+      "Test_Macro_Precision": "83.06878306878306",
+      "Test_Macro_Recall": "81.43939393939394",
+      "Test_Macro_F1": "81.39132639132639",
+      "Test_Loss": "0.4657166004180908"
+    },
+    {
+      "Model": "Proposed (CNN-ViT Cross-Attention)",
+      "Fold": "4",
+      "Best_Val_Epoch": "9",
+      "Val_Macro_F1": "88.33740333740333",
+      "Test_Accuracy": "79.01234567901234",
+      "Test_Macro_Precision": "82.60489934513706",
+      "Test_Macro_Recall": "79.35660018993353",
+      "Test_Macro_F1": "78.79205564056639",
+      "Test_Loss": "0.6985524689525734"
+    },
+    {
+      "Model": "Proposed (CNN-ViT Cross-Attention)",
+      "Fold": "5",
+      "Best_Val_Epoch": "22",
+      "Val_Macro_F1": "88.75524256364078",
+      "Test_Accuracy": "88.88888888888889",
+      "Test_Macro_Precision": "92.82051282051282",
+      "Test_Macro_Recall": "86.71957671957672",
+      "Test_Macro_F1": "88.72235946803927",
+      "Test_Loss": "0.5482540726661682"
+    },
+    {
+      "Model": "CNN + ViT (Simple Concatenation)",
+      "Fold": "1",
+      "Best_Val_Epoch": "6",
+      "Val_Macro_F1": "86.93688006860906",
+      "Test_Accuracy": "81.08108108108108",
+      "Test_Macro_Precision": "83.63425925925925",
+      "Test_Macro_Recall": "79.07297178130511",
+      "Test_Macro_F1": "81.08126143149363",
+      "Test_Loss": "0.2674378431528001"
+    },
+    {
+      "Model": "CNN + ViT (Simple Concatenation)",
+      "Fold": "2",
+      "Best_Val_Epoch": "15",
+      "Val_Macro_F1": "87.96991271126467",
+      "Test_Accuracy": "84.14634146341463",
+      "Test_Macro_Precision": "85.40184453227933",
+      "Test_Macro_Recall": "85.19061583577712",
+      "Test_Macro_F1": "84.24317724505825",
+      "Test_Loss": "0.8267594644936119"
+    },
+    {
+      "Model": "CNN + ViT (Simple Concatenation)",
+      "Fold": "3",
+      "Best_Val_Epoch": "27",
+      "Val_Macro_F1": "79.09995648090886",
+      "Test_Accuracy": "84.375",
+      "Test_Macro_Precision": "86.8922305764411",
+      "Test_Macro_Recall": "84.21717171717172",
+      "Test_Macro_F1": "84.90475197792271",
+      "Test_Loss": "0.41840988397598267"
+    },
+    {
+      "Model": "CNN + ViT (Simple Concatenation)",
+      "Fold": "4",
+      "Best_Val_Epoch": "7",
+      "Val_Macro_F1": "89.83508717476339",
+      "Test_Accuracy": "81.48148148148148",
+      "Test_Macro_Precision": "84.9812610229277",
+      "Test_Macro_Recall": "84.05151946818613",
+      "Test_Macro_F1": "83.36608020269983",
+      "Test_Loss": "0.3773705526082604"
+    },
+    {
+      "Model": "CNN + ViT (Simple Concatenation)",
+      "Fold": "5",
+      "Best_Val_Epoch": "16",
+      "Val_Macro_F1": "87.29294789674218",
+      "Test_Accuracy": "87.3015873015873",
+      "Test_Macro_Precision": "90.2281746031746",
+      "Test_Macro_Recall": "80.82010582010581",
+      "Test_Macro_F1": "82.34892347795574",
+      "Test_Loss": "0.4264153838157654"
+    },
+    {
+      "Model": "Standalone ViT (Global-Only)",
+      "Fold": "1",
+      "Best_Val_Epoch": "6",
+      "Val_Macro_F1": "86.89581420639604",
+      "Test_Accuracy": "79.72972972972973",
+      "Test_Macro_Precision": "80.12896825396825",
+      "Test_Macro_Recall": "77.22111992945328",
+      "Test_Macro_F1": "78.42630473241928",
+      "Test_Loss": "0.3570805703466003"
+    },
+    {
+      "Model": "Standalone ViT (Global-Only)",
+      "Fold": "2",
+      "Best_Val_Epoch": "14",
+      "Val_Macro_F1": "86.81140531070405",
+      "Test_Accuracy": "78.04878048780488",
+      "Test_Macro_Precision": "76.02989352989353",
+      "Test_Macro_Recall": "71.17546432062561",
+      "Test_Macro_F1": "72.76044761338879",
+      "Test_Loss": "0.9166326362912248"
+    },
+    {
+      "Model": "Standalone ViT (Global-Only)",
+      "Fold": "3",
+      "Best_Val_Epoch": "6",
+      "Val_Macro_F1": "78.86018336852891",
+      "Test_Accuracy": "87.5",
+      "Test_Macro_Precision": "88.5978835978836",
+      "Test_Macro_Recall": "89.14141414141415",
+      "Test_Macro_F1": "88.44424094424093",
+      "Test_Loss": "0.271714448928833"
+    },
+    {
+      "Model": "Standalone ViT (Global-Only)",
+      "Fold": "4",
+      "Best_Val_Epoch": "18",
+      "Val_Macro_F1": "88.37511562172796",
+      "Test_Accuracy": "83.9506172839506",
+      "Test_Macro_Precision": "89.04931669637554",
+      "Test_Macro_Recall": "83.9565527065527",
+      "Test_Macro_F1": "84.76156690746475",
+      "Test_Loss": "0.9536369988395844"
+    },
+    {
+      "Model": "Standalone ViT (Global-Only)",
+      "Fold": "5",
+      "Best_Val_Epoch": "14",
+      "Val_Macro_F1": "87.73368662368154",
+      "Test_Accuracy": "90.47619047619048",
+      "Test_Macro_Precision": "93.40277777777777",
+      "Test_Macro_Recall": "85.97883597883596",
+      "Test_Macro_F1": "88.1070542360865",
+      "Test_Loss": "0.3897571861743927"
+    },
+    {
+      "Model": "Standalone CNN (ResNet-50)",
+      "Fold": "1",
+      "Best_Val_Epoch": "24",
+      "Val_Macro_F1": "74.9112754758903",
+      "Test_Accuracy": "74.32432432432432",
+      "Test_Macro_Precision": "79.49174010294553",
+      "Test_Macro_Recall": "65.13999118165785",
+      "Test_Macro_F1": "67.13249602305075",
+      "Test_Loss": "0.38536043666504527"
+    },
+    {
+      "Model": "Standalone CNN (ResNet-50)",
+      "Fold": "2",
+      "Best_Val_Epoch": "29",
+      "Val_Macro_F1": "84.01997070570405",
+      "Test_Accuracy": "68.29268292682927",
+      "Test_Macro_Precision": "66.01277139208173",
+      "Test_Macro_Recall": "67.57086999022484",
+      "Test_Macro_F1": "66.2962962962963",
+      "Test_Loss": "0.3447923769311207"
+    },
+    {
+      "Model": "Standalone CNN (ResNet-50)",
+      "Fold": "3",
+      "Best_Val_Epoch": "28",
+      "Val_Macro_F1": "69.92250960213143",
+      "Test_Accuracy": "82.8125",
+      "Test_Macro_Precision": "84.8883572567783",
+      "Test_Macro_Recall": "80.59974747474747",
+      "Test_Macro_F1": "81.88270627295017",
+      "Test_Loss": "0.26452508568763733"
+    },
+    {
+      "Model": "Standalone CNN (ResNet-50)",
+      "Fold": "4",
+      "Best_Val_Epoch": "21",
+      "Val_Macro_F1": "78.11905037448516",
+      "Test_Accuracy": "81.48148148148148",
+      "Test_Macro_Precision": "84.09900284900283",
+      "Test_Macro_Recall": "83.21937321937321",
+      "Test_Macro_F1": "82.52875848938469",
+      "Test_Loss": "0.18059714258085063"
+    },
+    {
+      "Model": "Standalone CNN (ResNet-50)",
+      "Fold": "5",
+      "Best_Val_Epoch": "30",
+      "Val_Macro_F1": "79.47027561488072",
+      "Test_Accuracy": "84.12698412698413",
+      "Test_Macro_Precision": "89.55026455026456",
+      "Test_Macro_Recall": "79.57671957671958",
+      "Test_Macro_F1": "82.75835275835277",
+      "Test_Loss": "0.241902157664299"
+    }
+  ],
+  "confusion_matrix": [
+    [
+      21,
+      1,
+      0,
+      1,
+      1,
+      3
+    ],
+    [
+      2,
+      6,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      6,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      6,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      0,
+      14,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      8
+    ]
+  ],
+  "classes": [
+    "Mpox",
+    "Chickenpox",
+    "Measles",
+    "Cowpox",
+    "HFMD",
+    "Healthy"
+  ]
+}
