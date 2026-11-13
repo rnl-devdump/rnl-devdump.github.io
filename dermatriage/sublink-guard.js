@@ -1004,11 +1004,11 @@
   function checkConfig(config) {
     if (!config) return;
 
-    // Anvil operates independently of the global portal maintenance switch
-    if (slug === 'anvil' || slug === 'studybuddy') {
+    // Dermatriage and Anvil operate independently of the legacy global portal maintenance switch
+    if (slug === 'dermatriage' || slug === 'anvil' || slug === 'studybuddy') {
       const sublinkConfig = (config.services && config.services[slug]) || (config.sublinks && config.sublinks[slug]);
       if (sublinkConfig && sublinkConfig.enabled === false) {
-        const notice = sublinkConfig.maintenanceMessage || sublinkConfig.message || "Anvil is currently offline.";
+        const notice = sublinkConfig.maintenanceMessage || sublinkConfig.message || "Dermatriage is currently offline.";
         renderOfflineUI(notice, sublinkConfig.offlineType || 'offline');
       }
       return;

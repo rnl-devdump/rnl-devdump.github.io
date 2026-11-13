@@ -12,6 +12,16 @@ export const TAWIR_BACKEND_PRESETS = [
 ];
 
 export const INITIAL_SUBLINKS = {
+  dermatriage: {
+    name: "Dermatriage (Clinical Triage)",
+    path: "kiruu.xyz/dermatriage",
+    url: "https://kiruu.xyz/dermatriage/",
+    category: "Healthcare AI",
+    description: "Dual-Branch CNN-ViT Cross-Attention skin lesion and exanthem clinical decision support system",
+    enabled: true,
+    offlineType: "offline",
+    message: "Dermatriage is temporarily offline.",
+  },
   main: {
     name: "Main Homepage (Portal)",
     path: "kiruu.xyz",
