@@ -31,10 +31,11 @@ html {
 body {
   min-height: 100dvh;
   width: 100%;
+  padding: 110px 32px 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2.5rem;
+  gap: clamp(2rem, 5vw, 4rem);
   font-family: 'Vandelvira', Georgia, serif;
   background-color: var(--bg);
   color: var(--text-primary);
@@ -75,14 +76,13 @@ body {
 
 header {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 24px;
+  left: 28px;
   z-index: 10;
 }
 
 .logo {
-  height: 20dvh;
-  max-height: 120px;
+  height: clamp(48px, 14dvh, 110px);
   width: auto;
   display: block;
   filter: invert(1) drop-shadow(0 0 6px var(--glow-a)) drop-shadow(0 0 18px var(--glow-b));
@@ -93,7 +93,7 @@ main {
   z-index: 10;
   text-align: left;
   max-width: 600px;
-  padding: 20px;
+  padding: 12px 0;
 }
 
 .subtitle {
@@ -111,10 +111,10 @@ main {
 }
 
 .title {
-  font-size: 4rem;
+  font-size: clamp(3rem, 6vw, 4.25rem);
   font-weight: 700;
   line-height: 1;
-  margin: 10px 0 24px 0;
+  margin: 10px 0 28px 0;
   color: var(--text-primary);
   text-shadow: 0 0 18px rgba(56, 189, 248, 0.4), 0 2px 12px rgba(0, 0, 0, 0.6);
 }
@@ -123,7 +123,7 @@ main {
   position: relative;
   z-index: 1;
   display: inline-block;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .button-rn {
@@ -175,10 +175,11 @@ main {
 }
 
 .lottie-anim {
+  display: block;
   position: relative;
   z-index: 10;
-  width: 300px;
-  height: 300px;
+  width: clamp(220px, 26vw, 320px);
+  height: clamp(220px, 26vw, 320px);
   flex-shrink: 0;
   filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.25));
 }
@@ -186,8 +187,13 @@ main {
 @media (max-width: 768px) {
   body {
     flex-direction: column;
-    padding: 100px 20px 32px;
-    gap: 1.5rem;
+    padding: 100px 20px 36px;
+    gap: 1.75rem;
+  }
+
+  header {
+    top: 20px;
+    left: 20px;
   }
 
   .logo {
